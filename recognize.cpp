@@ -207,7 +207,7 @@ string shash16(Mat src_bin)
     if (src_bin.channels() != 1)
         throw invalid_argument("shash16(): Require image in graystyle");
 
-    resize(src_bin, src_bin, Size(16, 16));
+    resize(src_bin, src_bin, Size(16, 16), 0, 0);
     stringstream hash_value;
     uchar* pix = src_bin.data;
     int tmp_dec = 0;
@@ -246,11 +246,6 @@ int hamming(string hash1_str, string hash2_str)
 class Result {
 public:
     static auto analayse(Mat img, Result& result, bool ex);
-    static Rect get_baseline_v(Mat img_bin);
-    static Rect get_baseline_h(Mat img_bin, Rect baseline_v);
-    static Rect get_baseline_h_ex(Mat img_bin, Rect baseline_v);
-    static bool is_result(Mat img_bin, Rect baseline_v);
-    static bool is_3stars(Mat img_bin, Rect baseline_v);
 
     // private:
     bool ex;
@@ -267,6 +262,12 @@ public:
     dict droptypes;
     vector<dict> drops;
     dict drops_display;
+
+    static Rect get_baseline_v(Mat img_bin);
+    static Rect get_baseline_h(Mat img_bin, Rect baseline_v);
+    static Rect get_baseline_h_ex(Mat img_bin, Rect baseline_v);
+    static bool is_result(Mat img_bin, Rect baseline_v);
+    static bool is_3stars(Mat img_bin, Rect baseline_v);
     void get_stage();
     void get_droptypes();
     void get_drops();
@@ -762,11 +763,12 @@ void Result::get_drops()
                     Range(baseline_v.y + baseline_v.height / 4, baseline_h.y),
                     Range(range[BEGIN], range[END] - offset));
                 auto [itemId, similarity] = detect_item(dropimg);
-                Mat dropimg_bin;
-                cvtColor(dropimg, dropimg_bin, COLOR_BGR2GRAY);
-                threshold(dropimg_bin, dropimg_bin, 127, 255, THRESH_BINARY);
-                string quantity = detect_quantity(dropimg_bin);
+
                 if (similarity > 0.9) {
+                    Mat dropimg_bin;
+                    cvtColor(dropimg, dropimg_bin, COLOR_BGR2GRAY);
+                    threshold(dropimg_bin, dropimg_bin, 127, 255, THRESH_BINARY);
+                    string quantity = detect_quantity(dropimg_bin);
                     drops.push_back({ { "dropType", ktype },
                         { "itemId", itemId },
                         { "quantity", quantity } });
@@ -791,16 +793,18 @@ int main(int argc, char** argv)
     preload();
 
     double T = 0;
-    for (const auto& png : directory_iterator("D:\\Code\\arknights\\adb\\test2")) {
+    for (const auto& png : directory_iterator("D:\\Code\\arknights\\adb\\test")) {
         Mat img = imread(png.path().u8string());
         // Mat img = imread("D:\\Code\\arknights\\adb\\test\\hyda.jpg");
 
         Result result;
 
         auto s = getTickCount();
-        if (img.rows > 1000)
-            resize(img, img, Size(), 2.0 / 3, 2.0 / 3, INTER_AREA);
-        auto [data, display] = Result::analayse(img, result, true);
+        if (img.rows > 600) {
+            double fx = 600.0 / img.rows;
+            resize(img, img, Size(), fx, fx, INTER_AREA);
+        }
+        auto [data, display] = Result::analayse(img, result);
         auto e = getTickCount();
 
         auto [stage, drops] = display;
