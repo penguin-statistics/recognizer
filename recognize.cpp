@@ -66,27 +66,6 @@ void preload()
 
 //**********DEBUG TOOLS**********
 
-// int find_edge(Mat src)
-// {
-//     if (src.channels() != 1)
-//         throw "Require image in graystyle";
-
-//     int edge = -1;
-//     for (int co = 0; co < src.cols; co++) {
-//         uchar* pix = src.data + co;
-//         for (int ro = 0; ro < src.rows; ro++) {
-//             if ((bool)*pix) {
-//                 edge = co;
-//                 break;
-//             }
-//             pix = pix + src.step;
-//         }
-//         if (edge >= 0)
-//             break;
-//     }
-//     return edge;
-// }
-
 vector<int> separate(Mat src_bin, int direc, int n = 0, bool roi = false)
 {
     if (src_bin.empty())
@@ -529,14 +508,14 @@ void Result::get_stage()
 
 void Result::get_droptypes()
 {
-    auto get_h = [](Scalar bgra) {
+    auto get_hsv = [](Scalar bgra) {
         double b = (bgra[0]) / 255;
         double g = (bgra[1]) / 255;
         double r = (bgra[2]) / 255;
         double cmax = std::max({ b, g, r });
         double cmin = std::min({ b, g, r });
         double delta = cmax - cmin;
-        double h;
+        double h, s, v;
         if (delta < 1e-15)
             h = 0;
         else if (cmax == r)
@@ -547,14 +526,21 @@ void Result::get_droptypes()
             h = 60 * ((r - g) / delta) + 240;
         if (h < 0)
             h = h + 360;
-        return round(h);
+        if (cmax == 0)
+            s = 0;
+        else
+            s = delta / cmax;
+        v = cmax;
+        return tuple(h, s, v);
     };
 
-    auto get_type = [this, get_h](Mat droplineimg) {
+    auto get_type = [this, get_hsv](Mat droplineimg) {
         string droptype;
         Scalar_<int> bgra = mean(droplineimg);
-        int h = get_h(bgra);
-        {
+        auto [h, s, v] = get_hsv(bgra);
+        if (s < 0.05)
+            droptype = "NORMAL_DROP";
+        else {
             int dist = 360;
             for (auto& [kh, vtype] : hsv_index.items()) {
                 int d = abs(stoi(kh) - h);
@@ -568,14 +554,31 @@ void Result::get_droptypes()
             Size wholesize;
             Point upperleft;
             droplineimg.locateROI(wholesize, upperleft);
-            Mat droptypeimg = img_gray(Rect(
-                upperleft.x, upperleft.y + 1, droplineimg.cols / 2,
-                baseline_v.y + baseline_v.height - upperleft.y));
+            Mat droptypeimg = img_gray(
+                Rect(upperleft.x, upperleft.y + 1, droplineimg.cols / 2,
+                    baseline_v.y + baseline_v.height - upperleft.y))
+                                  .clone();
             cvtColor(droplineimg, droplineimg, COLOR_BGR2GRAY);
             double minval, maxval;
             Point minloc, maxloc;
             minMaxLoc(droplineimg, &minval, &maxval, &minloc, &maxloc);
             threshold(droptypeimg, droptypeimg, maxval / 2, 255, THRESH_BINARY);
+            bool overline = true;
+            while (overline) {
+                uchar* pix = droptypeimg.data;
+                int count = 0;
+                for (int co = 0; co < droptypeimg.cols; co++) {
+                    if ((bool)*pix) {
+                        count++;
+                    }
+                    pix++;
+                }
+                if (count > droptypeimg.cols / 2) {
+                    droptypeimg = droptypeimg(Rect(
+                        0, 1, droptypeimg.cols, droptypeimg.rows - 1));
+                } else
+                    overline = false;
+            }
             droptypeimg = droptypeimg(boundingRect(droptypeimg));
 
             string hash_value = shash16(droptypeimg);
@@ -605,19 +608,32 @@ void Result::get_droptypes()
     { //fill the gap if it is smaller than threshold
         int i = 1;
         while (i + 1 < sp.size()) {
-            if (sp[i + 1] - sp[i] < 5) {
+            if (sp[i + 1] - sp[i] < 5)
                 sp.erase(sp.begin() + i, sp.begin() + i + 2);
-            } else
+            else
                 i = i + 2;
         }
     }
     { //delete the line if it is smaller than threshold
         int i = 0;
         while (i < sp.size()) {
-            if (sp[i + 1] - sp[i] < item_diameter) {
+            if (sp[i + 1] - sp[i] < item_diameter)
                 sp.erase(sp.begin() + i, sp.begin() + i + 2);
-            } else
+            else
                 i = i + 2;
+        }
+    }
+    { // predict the line if there is a gap > item diameter
+        int i = 1;
+        while (i + 1 < sp.size()) {
+            if (sp[i + 1] - sp[i] > item_diameter) {
+                int midpoint = (sp[i] + sp[i + 1]) / 2;
+                int count = (sp[i + 2] - sp[i + 1]) / item_diameter;
+                int length = (sp[i + 2] - sp[i + 1]) / count;
+                sp.insert(sp.begin() + i + 1, midpoint - length / 2);
+                sp.insert(sp.begin() + i + 2, midpoint + length / 2);
+            }
+            i = i + 2;
         }
     }
 
@@ -680,7 +696,7 @@ void Result::get_drops()
 
             string charhash = shash16(charimg);
             string chr;
-            int diff = 64;
+            int diff = 256;
             for (auto& [kchar, vhash] : hash_index["dropimg"]["zh"].items()) {
                 int d = hamming(charhash, vhash);
                 if (d < diff) {
@@ -713,6 +729,7 @@ void Result::get_drops()
         for (int i = (digits - 1) * 2; i >= 0; i = i - 2) {
             Mat charimg = qimg(Rect(
                 sp[i], 0, sp[i + 1] - sp[i], qimg.rows));
+            charimg = charimg(boundingRect(charimg));
             squarize(charimg);
             quantity = quantity + get_char(charimg);
         }
@@ -774,13 +791,18 @@ int main(int argc, char** argv)
     preload();
 
     double T = 0;
-    for (const auto& png : directory_iterator("D:\\Code\\arknights\\adb\\test")) {
+    for (const auto& png : directory_iterator("D:\\Code\\arknights\\adb\\test2")) {
         Mat img = imread(png.path().u8string());
         // Mat img = imread("D:\\Code\\arknights\\adb\\test\\hyda.jpg");
+
         Result result;
+
         auto s = getTickCount();
-        auto [data, display] = Result::analayse(img, result);
+        if (img.rows > 1000)
+            resize(img, img, Size(), 2.0 / 3, 2.0 / 3, INTER_AREA);
+        auto [data, display] = Result::analayse(img, result, true);
         auto e = getTickCount();
+
         auto [stage, drops] = display;
         cout << stage << endl;
         for (auto& [ktype, vdrops] : drops.items()) {
