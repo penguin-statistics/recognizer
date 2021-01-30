@@ -793,7 +793,7 @@ int main(int argc, char** argv)
     preload();
 
     double T = 0;
-    for (const auto& png : directory_iterator("D:\\Code\\arknights\\adb\\test")) {
+    for (const auto& png : directory_iterator("test")) {
         Mat img = imread(png.path().u8string());
         // Mat img = imread("D:\\Code\\arknights\\adb\\test\\hyda.jpg");
 
