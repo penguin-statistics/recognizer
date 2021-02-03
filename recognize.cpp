@@ -245,9 +245,9 @@ int hamming(string hash1_str, string hash2_str)
 
 class Result {
 public:
-    static auto analayse(Mat img, Result& result, bool ex);
+    static auto analayse(Mat img, bool ex);
 
-    // private:
+private:
     bool ex;
     bool valid;
     Mat img;
@@ -273,13 +273,14 @@ public:
     void get_drops();
 };
 
-auto Result::analayse(Mat img, Result& result, bool ex = false)
+auto Result::analayse(Mat img, bool ex = false)
 {
     if (img.empty())
         throw invalid_argument("analyse(): Image is empty");
     if (img.channels() != 3)
         throw invalid_argument("analyse(): Require image in BGR");
 
+    Result result;
     Mat img_gray, img_bin127, img_autobin;
     cvtColor(img, img_gray, COLOR_BGR2GRAY);
     threshold(img_gray, img_bin127, 127, 255, THRESH_BINARY);
@@ -306,6 +307,9 @@ auto Result::analayse(Mat img, Result& result, bool ex = false)
                 result.item_diameter = round(baseline_v.height * 0.5238);
 
                 result.get_stage();
+                if (result.stage_code.substr(0, 2) == "O-") {
+                    result.stage_code.replace(0, 1, "0");
+                }
                 result.get_droptypes();
                 result.get_drops();
                 dict data = {
@@ -335,11 +339,9 @@ Rect Result::get_baseline_v(Mat img_bin)
     if (img_bin.channels() != 1)
         throw invalid_argument("get_baseline_v(): Require image in graystyle");
 
-    // rotate(img_bin, img_bin, ROTATE_90_CLOCKWISE);
-
     int column = 0;
     int top = 0, bottom = 0;
-    for (int co = img_bin.cols / 4; co < img_bin.cols / 2; co++) {
+    for (int co = 0; co < img_bin.cols / 2; co++) {
         uchar* pix = img_bin.data + (img_bin.rows - 1) * img_bin.step + co;
         int begin = 0, end = 0;
         bool prober[2] = { false, false };
@@ -523,7 +525,7 @@ void Result::get_droptypes()
             h = 60 * ((g - b) / delta);
         else if (cmax == g)
             h = 60 * ((b - r) / delta) + 120;
-        else if (cmax = b)
+        else if (cmax == b)
             h = 60 * ((r - g) / delta) + 240;
         if (h < 0)
             h = h + 360;
@@ -718,7 +720,7 @@ void Result::get_drops()
 
         int digits;
         vector sp = separate(qimg, RIGHT);
-        int edge = qimg.cols - sp[1];
+        int edge = qimg.cols - sp[1] - 1;
         for (int i = 3; i < sp.size(); i = i + 2) {
             if (abs(sp[i] - sp[i - 3]) >= edge) {
                 digits = i / 2;
@@ -780,43 +782,38 @@ void Result::get_drops()
     }
 }
 
-void get_img(uint8_t* buffer, size_t size)
-{
-    Mat raw_data = Mat(1, size, CV_8UC1, buffer);
-    cout << raw_data.empty() << endl;
-    // imdecode(src, IMREAD_COLOR)
-}
-
 int main(int argc, char** argv)
 {
     system("chcp 65001");
+
+    auto a = getTickCount();
     preload();
+    auto b = getTickCount();
+    cout << (b - a) / getTickFrequency() * 1000 << endl;
 
     double T = 0;
-    for (const auto& png : directory_iterator("test")) {
-        Mat img = imread(png.path().u8string());
-        // Mat img = imread("D:\\Code\\arknights\\adb\\test\\hyda.jpg");
+    // for (const auto& png : directory_iterator("D:\\Code\\arknights\\adb\\external")) {
+    //     Mat img = imread(png.path().u8string());
+    Mat img = imread("err.png");
 
-        Result result;
-
-        auto s = getTickCount();
-        if (img.rows > 600) {
-            double fx = 600.0 / img.rows;
-            resize(img, img, Size(), fx, fx, INTER_AREA);
-        }
-        auto [data, display] = Result::analayse(img, result);
-        auto e = getTickCount();
-
-        auto [stage, drops] = display;
-        cout << stage << endl;
-        for (auto& [ktype, vdrops] : drops.items()) {
-            cout << ktype << "\t" << vdrops << endl;
-        }
-        double t = (e - s) / getTickFrequency() * 1000;
-        T = T + t;
-        cout << t << endl;
-        cout << endl;
+    auto s = getTickCount();
+    if (img.rows > 600) {
+        double fx = 600.0 / img.rows;
+        resize(img, img, Size(), fx, fx, INTER_AREA);
     }
+    auto [data, display] = Result::analayse(img);
+    auto e = getTickCount();
+
+    auto [stage, drops] = display;
+    cout << stage << endl;
+    for (auto& [ktype, vdrops] : drops.items()) {
+        cout << ktype << "\t" << vdrops << endl;
+    }
+    double t = (e - s) / getTickFrequency() * 1000;
+    T = T + t;
+    cout << t << endl;
+    cout << endl;
+    // }
     cout << T << endl;
 
     return 0;

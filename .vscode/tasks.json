@@ -14,6 +14,8 @@
                 "${file}",
                 "-I",
                 "C:\\opencv\\build\\include",
+                "-I",
+                "C:\\emsdk\\upstream\\emscripten\\system\\include",
                 "/link",
                 "/libpath:C:\\opencv\\build\\x64\\vc15\\lib",
                 "opencv_world451.lib"
