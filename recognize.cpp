@@ -16,11 +16,17 @@ using dict = nlohmann::json;
 #define LEFT 2
 #define RIGHT 3
 
+#define X 0
+#define Y 1
+#define WIDTH 2
+#define HEIGHT 3
+
 #define BEGIN 0
 #define END 1
 
 vector<Mat> templs;
 dict stage_index, item_index, hash_index;
+
 dict hsv_index = {
     { "51", "LMB" },
     { "201", "FIRST" },
@@ -29,6 +35,15 @@ dict hsv_index = {
     { "25", "SPECIAL_DROP" },
     { "63", "EXTRA_DROP" },
     { "24", "FURNITURE" }
+};
+
+dict droptype_order = {
+    { "FIRST", 0 },
+    { "LMB", 1 },
+    { "FURNITURE", 2 },
+    { "NORMAL_DROP", 3 },
+    { "SPECIAL_DROP", 4 },
+    { "EXTRA_DROP", 5 }
 };
 
 //**********DEBUG TOOLS**********
@@ -245,11 +260,11 @@ int hamming(string hash1_str, string hash2_str)
 
 class Result {
 public:
-    static auto analayse(Mat img, bool ex);
+    static auto analyse(Mat img, bool ex);
 
 private:
     bool ex;
-    bool valid;
+    bool valid = false;
     Mat img;
     Mat img_gray;
     Mat img_bin127;
@@ -262,18 +277,19 @@ private:
     dict droptypes;
     vector<dict> drops;
     dict drops_display;
+    dict rectangles;
 
-    static Rect get_baseline_v(Mat img_bin);
-    static Rect get_baseline_h(Mat img_bin, Rect baseline_v);
-    static Rect get_baseline_h_ex(Mat img_bin, Rect baseline_v);
-    static bool is_result(Mat img_bin, Rect baseline_v);
-    static bool is_3stars(Mat img_bin, Rect baseline_v);
+    Rect get_baseline_v();
+    Rect get_baseline_h();
+    Rect get_baseline_h_ex();
+    bool is_result();
+    bool is_3stars();
     void get_stage();
     void get_droptypes();
     void get_drops();
 };
 
-auto Result::analayse(Mat img, bool ex = false)
+auto Result::analyse(Mat img, bool ex = false)
 {
     if (img.empty())
         throw invalid_argument("analyse(): Image is empty");
@@ -281,35 +297,42 @@ auto Result::analayse(Mat img, bool ex = false)
         throw invalid_argument("analyse(): Require image in BGR");
 
     Result result;
-    Mat img_gray, img_bin127, img_autobin;
-    cvtColor(img, img_gray, COLOR_BGR2GRAY);
-    threshold(img_gray, img_bin127, 127, 255, THRESH_BINARY);
-    Rect baseline_v = Result::get_baseline_v(img_bin127);
-    adaptiveThreshold(img_gray, img_autobin, 255, ADAPTIVE_THRESH_MEAN_C,
-        THRESH_BINARY, baseline_v.height / 2 * 2 + 1, 0);
-    if (Result::is_result(img_bin127, baseline_v)) {
-        if (Result::is_3stars(img_bin127, baseline_v)) {
-            Rect baseline_h;
-            if (ex)
-                baseline_h = Result::get_baseline_h_ex(img_autobin, baseline_v);
-            else
-                baseline_h = Result::get_baseline_h(img_bin127, baseline_v);
-            if (!baseline_h.empty()) {
+    result.img = img;
+    // img_gray
+    cvtColor(img, result.img_gray, COLOR_BGR2GRAY);
+    // img_bin127
+    threshold(result.img_gray, result.img_bin127, 127, 255, THRESH_BINARY);
+    // baseline_v
+    result.baseline_v = result.get_baseline_v();
+
+    if (result.is_result()) {
+        // img_bin230
+        threshold(result.img_gray, result.img_bin230, 230, 255, THRESH_BINARY);
+        // get_stage
+        result.get_stage();
+        {
+            // ********** EXPERIMENTAL **********
+            // Fix some wrong results like "O-7"
+            // May add regex
+            if (result.stage_code.substr(0, 2) == "O-") {
+                result.stage_code.replace(0, 1, "0");
+            }
+            // **********************************
+        }
+        if (result.is_3stars()) {
+            // img_autobin
+            adaptiveThreshold(result.img_gray, result.img_autobin, 255, ADAPTIVE_THRESH_MEAN_C,
+                THRESH_BINARY, result.baseline_v.height / 2 * 2 + 1, -20);
+            // if (ex)
+            result.baseline_h = result.get_baseline_h_ex();
+            // else
+            //     baseline_h = Result::get_baseline_h(img_bin127, baseline_v);
+            if (!result.baseline_h.empty()) {
                 result.valid = true;
                 result.ex = ex;
-                result.img = img;
-                result.img_gray = img_gray;
-                result.img_bin127 = img_bin127;
-                threshold(img_gray, result.img_bin230, 230, 255, THRESH_BINARY);
-                result.img_autobin = img_autobin;
-                result.baseline_v = baseline_v;
-                result.baseline_h = baseline_h;
-                result.item_diameter = round(baseline_v.height * 0.5238);
 
-                result.get_stage();
-                if (result.stage_code.substr(0, 2) == "O-") {
-                    result.stage_code.replace(0, 1, "0");
-                }
+                result.item_diameter = round(result.baseline_v.height * 0.5238);
+
                 result.get_droptypes();
                 result.get_drops();
                 dict data = {
@@ -317,31 +340,31 @@ auto Result::analayse(Mat img, bool ex = false)
                     { "stageId", stage_index[result.stage_code]["stageId"] }
                 };
                 auto display = tuple(result.stage_code, result.drops_display);
-                return tuple(data, display);
+                return tuple(data, display, result.rectangles);
             } else {
                 result.valid = false;
-                return tuple(dict(), tuple(string(), dict()));
+                return tuple(dict(), tuple(string(), dict()), dict());
             }
         } else {
             result.valid = false;
-            return tuple(dict(), tuple(string(), dict()));
+            return tuple(dict(), tuple(string(), dict()), dict());
         }
     } else {
         result.valid = false;
-        return tuple(dict(), tuple(string(), dict()));
+        return tuple(dict(), tuple(string(), dict()), dict());
     }
 }
 
-Rect Result::get_baseline_v(Mat img_bin)
+Rect Result::get_baseline_v()
 {
-    if (img_bin.empty())
-        throw invalid_argument("get_baseline_v(): Image is empty");
-    if (img_bin.channels() != 1)
-        throw invalid_argument("get_baseline_v(): Require image in graystyle");
-
+    Mat img_bin = img_bin127;
     int column = 0;
     int top = 0, bottom = 0;
-    for (int co = 0; co < img_bin.cols / 2; co++) {
+
+    int _start = img_bin.cols / 4;
+    if (ex)
+        _start = 0;
+    for (int co = _start; co < img_bin.cols / 2; co++) {
         uchar* pix = img_bin.data + (img_bin.rows - 1) * img_bin.step + co;
         int begin = 0, end = 0;
         bool prober[2] = { false, false };
@@ -362,16 +385,13 @@ Rect Result::get_baseline_v(Mat img_bin)
             bottom = end;
         }
     }
+    // rectangles["baseline_v"] = { column, top, 1, bottom - top };
     return Rect(column, top, 1, bottom - top);
 }
 
-Rect Result::get_baseline_h(Mat img_bin, Rect baseline_v)
+Rect Result::get_baseline_h()
 {
-    if (img_bin.empty())
-        throw invalid_argument("get_baseline_h(): Image is empty");
-    if (img_bin.channels() != 1)
-        throw invalid_argument("get_baseline_h(): Require image in graystyle");
-
+    Mat img_bin = img_bin127;
     int min_d = baseline_v.height / 2;
     int row = 0;
     int left = 0, right = 0;
@@ -400,16 +420,13 @@ Rect Result::get_baseline_h(Mat img_bin, Rect baseline_v)
         if (prober[0] == false && prober[1] == false && right - left > min_d)
             break;
     }
+    // rectangles["baseline_h"] = { left, row, right - left, 1 };
     return Rect(left, row, right - left, 1);
 }
 
-Rect Result::get_baseline_h_ex(Mat img_bin, Rect baseline_v)
+Rect Result::get_baseline_h_ex()
 {
-    if (img_bin.empty())
-        throw invalid_argument("get_baseline_h(): Image is empty");
-    if (img_bin.channels() != 1)
-        throw invalid_argument("get_baseline_h(): Require image in graystyle");
-
+    Mat img_bin = img_bin127;
     int min_d = baseline_v.height / 2;
     int row = 0;
     int count, maxcount = 0;
@@ -428,46 +445,44 @@ Rect Result::get_baseline_h_ex(Mat img_bin, Rect baseline_v)
             maxcount = count;
         }
     }
+    // rectangles["baseline_h"] = { baseline_v.x + 5, row, min_d, 1 };
     return Rect(baseline_v.x + 5, row, min_d, 1);
 }
 
-bool Result::is_result(Mat img_bin, Rect baseline_v)
+bool Result::is_result()
 {
-    if (img_bin.empty())
-        throw invalid_argument("is_result(): Image is empty");
-    if (img_bin.channels() != 1)
-        throw invalid_argument("is_result(): Require image in graystyle");
+    Mat img_bin = img_bin127;
     Mat resultimg = img_bin(Rect(
         0, baseline_v.y + baseline_v.height / 2,
         baseline_v.x - 5, baseline_v.height / 2));
-    resultimg = resultimg(boundingRect(resultimg));
+    Rect rect_result = boundingRect(resultimg);
+    resultimg = resultimg(rect_result);
     string hash = shash16(resultimg);
     int dist = hamming(hash, hash_index["result"]["zh"]);
-    if (dist <= 25)
+    if (dist <= 50)
         return true;
     else
         return false;
 }
 
-bool Result::is_3stars(Mat img_bin, Rect baseline_v)
+bool Result::is_3stars()
 {
-    if (img_bin.empty())
-        throw invalid_argument("is_3stars(): Image is empty");
-    if (img_bin.channels() != 1)
-        throw invalid_argument("is_3stats(): Require image in graystyle");
-
-    img_bin = img_bin(Rect(0, baseline_v.y, baseline_v.x - 5, baseline_v.height));
-    vector<int> sp = separate(img_bin, RIGHT, 1, true);
-    Mat star3 = img_bin(Rect(sp[0], 0, sp[1] - sp[0], baseline_v.height / 2));
-    for (int ro = 0; ro < star3.rows; ro++) {
-        uchar* pix = star3.data + ro * star3.step;
-        for (int co = 0; co < star3.cols; co++) {
-            if ((bool)*pix)
-                return true;
-            pix++;
-        }
-    }
-    return false;
+    Mat img_bin = img_bin127;
+    Rect rect_stars;
+    rect_stars.x
+        = (int)rectangles["stage"][X] + (int)rectangles["stage"][WIDTH] + 1;
+    rect_stars.y = baseline_v.y;
+    rect_stars.width = baseline_v.x - 5 - rect_stars.x;
+    rect_stars.height = baseline_v.height / 4;
+    // rectangles["stars"] = {
+    //     rect_stars.x, rect_stars.y, rect_stars.width, rect_stars.height * 2
+    // };
+    Mat starsimg = img_bin(rect_stars);
+    vector sp = separate(starsimg, LEFT);
+    if (sp.size() == 6)
+        return true;
+    else
+        return false;
 }
 
 void Result::get_stage()
@@ -495,7 +510,11 @@ void Result::get_stage()
     Mat stageimg = img_bin230(Rect(
         0, baseline_v.y,
         baseline_v.x - 5, baseline_v.height / 4));
-    stageimg = stageimg(boundingRect(stageimg));
+    Rect rect_stage = boundingRect(stageimg);
+    rectangles["stage"] = {
+        rect_stage.x, rect_stage.y, rect_stage.width, rect_stage.height
+    };
+    stageimg = stageimg(rect_stage);
     vector sp = separate(stageimg, LEFT);
     if (!sp.empty()) {
         for (int i = 0; i < sp.size(); i = i + 2) {
@@ -600,10 +619,10 @@ void Result::get_droptypes()
     };
 
     Mat img_bin;
-    if (ex)
-        img_bin = img_autobin;
-    else
-        img_bin = img_bin127;
+    // if (ex)
+    img_bin = img_autobin;
+    // else
+    //     img_bin = img_bin127;
     vector sp = separate(
         img_bin(Rect(baseline_v.x + 5, baseline_h.y,
             img.cols - (baseline_v.x + 5), 1)),
@@ -650,8 +669,30 @@ void Result::get_droptypes()
                 valid = false;
                 return;
             }
-            droptypes[droptype] = { sp[i], sp[i + 1] };
+            droptypes.push_back({ droptype, { sp[i], sp[i + 1] } });
         }
+        int lasttype = -1;
+        for (auto& [idx, droptype] : droptypes.items()) {
+            int currenttype = droptype_order[(string)droptype[0]];
+            if (currenttype <= lasttype) {
+                // ********** EXPERIMENTAL **********
+                {
+                    if (lasttype == 5) {
+                        droptypes[stoi(idx) - 1][0] = "LMB";
+                        // throw a warning
+                        continue;
+                    }
+                }
+                // **********************************
+
+                valid = false;
+                return;
+            } else
+                lasttype = currenttype;
+        }
+    } else {
+        valid = false;
+        return;
     }
 }
 
@@ -740,7 +781,9 @@ void Result::get_drops()
     };
 
     if (!droptypes.empty()) {
-        for (auto& [ktype, vrange] : droptypes.items()) {
+        for (auto& droptype : droptypes) {
+            string ktype = droptype[0];
+            auto vrange = droptype[1];
             if (ktype == "LMB")
                 continue;
             else if (ktype == "FURNITURE") {
@@ -763,7 +806,7 @@ void Result::get_drops()
                 int offset = (range[END] - range[BEGIN] - item_diameter) / 3;
                 Mat dropimg = img(
                     Range(baseline_v.y + baseline_v.height / 4, baseline_h.y),
-                    Range(range[BEGIN], range[END] - offset));
+                    Range(range[BEGIN], range[END]));
                 auto [itemId, similarity] = detect_item(dropimg);
 
                 if (similarity > 0.9) {
@@ -776,6 +819,13 @@ void Result::get_drops()
                         { "quantity", quantity } });
                     string name = item_index[itemId]["name_i18n"]["zh"];
                     drops_display[ktype][name] = quantity;
+
+                    Size wholesize;
+                    Point upperleft;
+                    dropimg.locateROI(wholesize, upperleft);
+                    rectangles["drops"][itemId] = {
+                        upperleft.x, upperleft.y, dropimg.cols, dropimg.rows
+                    };
                 }
             }
         }
@@ -785,35 +835,33 @@ void Result::get_drops()
 int main(int argc, char** argv)
 {
     system("chcp 65001");
-
-    auto a = getTickCount();
     preload();
-    auto b = getTickCount();
-    cout << (b - a) / getTickFrequency() * 1000 << endl;
 
     double T = 0;
-    // for (const auto& png : directory_iterator("D:\\Code\\arknights\\adb\\external")) {
+    // for (const auto& png : directory_iterator("test")) {
     //     Mat img = imread(png.path().u8string());
-    Mat img = imread("err.png");
+    for (int i = 0; i < 1; i++) {
+        Mat img = imread("err1.jpg");
 
-    auto s = getTickCount();
-    if (img.rows > 600) {
-        double fx = 600.0 / img.rows;
-        resize(img, img, Size(), fx, fx, INTER_AREA);
-    }
-    auto [data, display] = Result::analayse(img);
-    auto e = getTickCount();
+        auto s = getTickCount();
+        if (img.rows > 600) {
+            double fx = 600.0 / img.rows;
+            resize(img, img, Size(), fx, fx, INTER_AREA);
+        }
+        auto [data, display, rectangles] = Result::analyse(img);
+        auto e = getTickCount();
 
-    auto [stage, drops] = display;
-    cout << stage << endl;
-    for (auto& [ktype, vdrops] : drops.items()) {
-        cout << ktype << "\t" << vdrops << endl;
+        auto [stage, drops] = display;
+        cout << stage << endl;
+        for (auto& [ktype, vdrops] : drops.items()) {
+            cout << ktype << "\t" << vdrops << endl;
+        }
+        cout << rectangles << endl;
+        double t = (e - s) / getTickFrequency() * 1000;
+        T = T + t;
+        cout << t << endl;
+        cout << endl;
     }
-    double t = (e - s) / getTickFrequency() * 1000;
-    T = T + t;
-    cout << t << endl;
-    cout << endl;
-    // }
     cout << T << endl;
 
     return 0;
