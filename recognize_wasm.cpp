@@ -640,6 +640,7 @@ void Result::get_droptypes()
                 {
                     if (lasttype == 5) {
                         droptypes[stoi(idx) - 1][0] = "LMB";
+                        lasttype = currenttype;
                         // throw a warning
                         continue;
                     }

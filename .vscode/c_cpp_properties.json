@@ -4,8 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:\\opencv\\build\\include",
-                "C:\\emsdk\\upstream\\emscripten\\system\\include"
+                "C:\\opencv\\build\\include"
             ],
             "defines": [
                 "_DEBUG",

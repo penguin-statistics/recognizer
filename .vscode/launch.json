@@ -14,7 +14,6 @@
             "cwd": "${workspaceFolder}",
             "environment": [],
             "console": "externalTerminal",
-            "preLaunchTask": "C/C++: cl.exe 生成活动文件",
         }
     ]
 }
