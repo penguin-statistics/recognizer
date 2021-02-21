@@ -21,6 +21,7 @@ using dict = nlohmann::json;
 #define BEGIN 0
 #define END 1
 
+string server;
 vector<Mat> templs;
 dict stage_index, item_index, hash_index;
 
@@ -316,8 +317,10 @@ AnalyzeResult Analyzer::analyze(Mat img, bool fallback = false)
         context.img_small = img;
     } else {
         k = round(context.baseline_v.height / 80.0);
-        context.coeff = 1.0 / k;
-        resize(img, context.img_small, Size(), context.coeff, context.coeff, INTER_AREA);
+        if (k != 0) {
+            context.coeff = 1.0 / k;
+            resize(img, context.img_small, Size(), context.coeff, context.coeff, INTER_AREA);
+        }
     }
     output << "Shrink coefficient: " << k << endl;
 
@@ -499,8 +502,12 @@ bool Analyzer::is_result()
         Scalar(0, 0, 255), 2);
 
     resultimg = resultimg(rect_result);
-    string hash_value = shash16(resultimg);
-    int dist = hamming(hash_value, hash_index["result"]["zh"]);
+    string hash_value;
+    if (!resultimg.empty())
+        hash_value = shash16(resultimg);
+    else
+        return false;
+    int dist = hamming(hash_value, hash_index["result"][server]);
     if (dist <= result_thresh)
         output << "\t\tYES" << endl;
     else
@@ -520,7 +527,7 @@ bool Analyzer::is_3stars()
     dict rectangles = context.rectangles;
 
     int stage_right_edge
-        = (int)rectangles["stage"][X] + (int)rectangles["stage"][WIDTH] + 1;
+        = (int)rectangles["stage"][X] + (int)rectangles["stage"][WIDTH] + 5;
     Mat starsimg = img_bin(Rect(
         stage_right_edge, baseline_v.y,
         baseline_v.x - 5 - stage_right_edge, baseline_v.height / 4));
@@ -553,9 +560,7 @@ string Analyzer::get_stage()
 {
     Mat img_bin230 = context.img_bin230;
     Rect baseline_v = context.baseline_v;
-    int right_edge
-        = (int)context.rectangles["result"][X]
-        + (int)context.rectangles["result"][WIDTH] / 2;
+    int right_edge = baseline_v.x / 2;
     auto get_char = [](Mat charimg) {
         string charhash = shash16(charimg);
         string chr;
@@ -652,11 +657,20 @@ void Analyzer::get_droptypes()
             Size wholesize;
             Point upperleft;
             droplineimg.locateROI(wholesize, upperleft);
-            Mat droptypeimg
-                = context.img_gray(
-                             Rect(upperleft.x, upperleft.y + 1, droplineimg.cols / 2,
-                                 baseline_v.y + baseline_v.height - upperleft.y))
-                      .clone();
+            Mat droptypeimg;
+            if (server == "zh" || server == "ko") {
+                droptypeimg
+                    = context.img_gray(
+                                 Rect(upperleft.x, upperleft.y + 1, droplineimg.cols / 2,
+                                     baseline_v.y + baseline_v.height - upperleft.y))
+                          .clone();
+            } else {
+                droptypeimg
+                    = context.img_gray(
+                                 Rect(upperleft.x, upperleft.y + 1, droplineimg.cols,
+                                     baseline_v.y + baseline_v.height - upperleft.y))
+                          .clone();
+            }
             cvtColor(droplineimg, droplineimg, COLOR_BGR2GRAY);
             double minval, maxval;
             Point minloc, maxloc;
@@ -682,9 +696,9 @@ void Analyzer::get_droptypes()
 
             string hash_value = shash16(droptypeimg);
             int dist_special = hamming(hash_value,
-                hash_index["droptype"]["zh"]["SPECIAL_DROP"]);
+                hash_index["droptype"][server]["SPECIAL_DROP"]);
             int dist_furni = hamming(hash_value,
-                hash_index["droptype"]["zh"]["FURNITURE"]);
+                hash_index["droptype"][server]["FURNITURE"]);
             if (dist_special < dist_furni)
                 droptype = "SPECIAL_DROP";
             else if (dist_furni < dist_special)
@@ -722,7 +736,7 @@ void Analyzer::get_droptypes()
         img_bin(Rect(baseline_v.x + 5, baseline_h.y,
             img_bin.cols - (baseline_v.x + 5), 1)),
         LEFT, 0, true);
-    { //fill the gap if it is smaller than threshold
+    { // fill the gap if it is smaller than threshold
         int i = 1;
         while (i + 1 < sp.size()) {
             if (sp[i + 1] - sp[i] < 5)
@@ -731,7 +745,7 @@ void Analyzer::get_droptypes()
                 i = i + 2;
         }
     }
-    { //delete the line if it is smaller than threshold
+    { // delete the line if it is smaller than threshold
         int i = 0;
         while (i < sp.size()) {
             if (sp[i + 1] - sp[i] < item_diameter)
@@ -761,6 +775,8 @@ void Analyzer::get_droptypes()
                 sp[i], baseline_h.y, sp[i + 1] - sp[i], 1));
             string droptype = get_type(droplineimg);
 
+            if (i == 0)
+                sp[i] = baseline_v.x + round(baseline_v.height * 0.21);
             Rect rect_droptype = Rect(
                 sp[i], baseline_h.y, (sp[i + 1] - sp[i]), 1);
             rectangle(context.img_debug, rect_droptype, Scalar(0, 0, 255));
@@ -779,8 +795,7 @@ void Analyzer::get_droptypes()
                     { { "type", "Droptype::Undefined" } });
                 return;
             }
-
-            context.droptypes.push_back({ droptype, { round(sp[i]), round(sp[i + 1]) } });
+            context.droptypes.push_back({ droptype, { sp[i], sp[i + 1] } });
         }
         int lasttype = -1;
         for (auto& [idx, droptype] : context.droptypes.items()) {
@@ -826,17 +841,26 @@ void Analyzer::get_droptypes()
 
 void Analyzer::get_drops()
 {
-    auto detect_item = [this](Mat& dropimg) {
+    auto detect_item = [this](Mat dropimg) {
         auto get_mask = [](Mat src) {
             Mat src_gray, mask;
             cvtColor(src, src_gray, COLOR_BGR2GRAY);
-            threshold(src_gray, mask, 0, 255, THRESH_BINARY);
-            cvtColor(mask, mask, COLOR_GRAY2BGR);
+            threshold(src_gray, mask, 25, 255, THRESH_BINARY);
             return mask;
         };
 
-        double item_diameter = context.item_diameter;
+        Rect rect_drop;
+        {
+            Size wholesize;
+            Point upperleft;
+            dropimg.locateROI(wholesize, upperleft);
+            rect_drop = Rect(upperleft, dropimg.size());
+        }
+
         double coeff = context.coeff;
+        resize(dropimg, dropimg, Size(), coeff, coeff);
+
+        double item_diameter = context.item_diameter;
         string itemId = "";
         double similarity = 0;
         double similarity2 = 0;
@@ -871,28 +895,24 @@ void Analyzer::get_drops()
             if (maxval > similarity2 && maxval < similarity)
                 similarity2 = maxval;
         }
-        int w = round(183 * (item_diameter * coeff / 163));
-        dropimg = dropimg(Rect(offset.x, offset.y, w, w));
 
-        Size wholesize;
-        Point upperleft;
-        dropimg.locateROI(wholesize, upperleft);
-        Rect rect_drop = Rect(upperleft.x, upperleft.y, dropimg.cols, dropimg.rows);
-        Rect rect_drop_src = Rect(
-            rect_drop.tl() / coeff, rect_drop.br() / coeff);
-        dropimg = context.img(rect_drop_src);
+        rect_drop.x += offset.x / coeff;
+        rect_drop.y += offset.y / coeff;
+        rect_drop.width = rect_drop.height = round(183 * (item_diameter / 163));
+
         context.rectangles["drops"].push_back(
-            { rect_drop_src.x, rect_drop_src.y, dropimg.cols, dropimg.rows });
-        rectangle(context.img_debug, rect_drop_src, Scalar(0, 0, 255), 2);
+            { rect_drop.x, rect_drop.y, rect_drop.width, rect_drop.height });
+        rectangle(context.img_debug, rect_drop, Scalar(0, 0, 255), 2);
 
         if (similarity > 0.9) {
-            string name = item_index[itemId]["name_i18n"]["zh"];
+            string name = item_index[itemId]["name_i18n"][server];
             output << "\t" << setw(5) << itemId << "\t" << name;
             if (name.size() < 12)
                 output << "\t";
             output << "\tSimilarity: " << similarity * 100 << "%";
             output << "\tSecond Similarity: " << similarity2 * 100 << "%" << endl;
         } else {
+            itemId = "00000";
             output << "\t00000\tUnknown\t\t"
                    << "Similarity: " << similarity * 100 << "%" << endl;
             output << "\t\t[**ERROR**: Drop::LowConfidence]" << endl;
@@ -911,7 +931,7 @@ void Analyzer::get_drops()
             string chr, chr2;
             int dist = 256;
             int dist2 = 256;
-            for (auto& [kchar, vhash] : hash_index["dropimg"]["zh"].items()) {
+            for (auto& [kchar, vhash] : hash_index["dropimg"][server].items()) {
                 int d = hamming(charhash, vhash);
                 if (d < dist) {
                     if (d == 0)
@@ -934,34 +954,95 @@ void Analyzer::get_drops()
             return chr;
         };
 
-        int height = dropimg.rows;
-        int width = dropimg.cols;
+        Point offset = get_rect(context.rectangles["drops"].back()).tl();
+        Rect baseline_v = context.baseline_v;
         Mat qimg = dropimg(Rect(
-            0, round(height * 0.7),
-            round(width * 0.82), round(height * 0.16)));
+            0, round(baseline_v.y + baseline_v.height * 0.66) - offset.y,
+            round(dropimg.cols * 0.82), round(baseline_v.height * 0.10)));
+        offset.y = round(baseline_v.y + baseline_v.height * 0.66);
 
-        int digits;
         vector sp = separate(qimg, RIGHT);
-        int edge = qimg.cols - sp[1] - 5;
-        for (int i = 3; i < sp.size(); i = i + 2) {
-            if (abs(sp[i] - sp[i - 3]) >= edge) {
-                digits = i / 2;
-                break;
-            }
-        }
 
         string quantity = "";
-        for (int i = (digits - 1) * 2; i >= 0; i = i - 2) {
+        int nodes = sp.size();
+        for (int i = 0; i < nodes; i = i + 2) {
+            if (quantity.size() > 0) {
+                if (sp[i - 2] - sp[i + 1] > baseline_v.height * 0.04)
+                    break;
+            }
             Mat charimg = qimg(Rect(
                 sp[i], 0, sp[i + 1] - sp[i], qimg.rows));
+            if (charimg.cols > charimg.rows) {
+                if (quantity.size() > 0)
+                    break;
+                else
+                    continue;
+            }
+            {
+                Mat _;
+                Mat1i stats;
+                Mat1d centroids;
+                int ccomps = connectedComponentsWithStats(
+                    charimg, _, stats, centroids);
+                if (ccomps - 1 != 1) {
+                    if (quantity.size() > 0)
+                        break;
+                    else
+                        continue;
+                }
+                if (stats(1, CC_STAT_WIDTH) > stats(1, CC_STAT_HEIGHT)) {
+                    if (quantity.size() > 0)
+                        break;
+                    else
+                        continue;
+                }
+                double charimg_area = charimg.cols * charimg.rows;
+                if (stats(1, CC_STAT_AREA) / charimg_area < 0.15) {
+                    if (quantity.size() > 0)
+                        break;
+                    else
+                        continue;
+                }
+            }
+            {
+                bool valid = true;
+                int rows = charimg.rows;
+                int step = charimg.step;
+                for (int co = 0; co < charimg.cols; co++) {
+                    uchar* pix = charimg.data;
+                    if ((bool)*(pix + co)
+                        || (bool)*(pix + co + (rows - 1) * step)) {
+                        valid = false;
+                        break;
+                    }
+                }
+                if (!valid) {
+                    if (quantity.size() > 0)
+                        break;
+                    else
+                        continue;
+                }
+            }
+
             charimg = charimg(boundingRect(charimg));
             squarize(charimg);
             quantity = quantity + get_char(charimg);
+
+            rectangle(context.img_debug,
+                Rect(sp[i] + offset.x, offset.y, sp[i + 1] - sp[i], qimg.rows),
+                Scalar(0, 0, 255));
         }
+        reverse(quantity.begin(), quantity.end());
 
         if (!confidence) {
             context.validation["warnings"].push_back(
                 { { "type", "DropQuantity::LowConfidence" },
+                    { "rect", context.rectangles["drops"].back() } });
+        }
+        if (quantity.size() == 0) {
+            context.valid = false;
+            context.validation["errors"].push_back(
+                { { "type", "DropQuantity::NotFound" },
                     { "rect", context.rectangles["drops"].back() } });
         }
         return quantity;
@@ -1000,16 +1081,18 @@ void Analyzer::get_drops()
                     typerange[BEGIN] + i * typerange_len / count,
                     typerange[BEGIN] + (i + 1) * typerange_len / count
                 };
-                Mat dropimg = img_small(
-                    Range(baseline_v.y * coeff + baseline_v.height * coeff / 4,
-                        baseline_h.y * coeff),
-                    Range(range[BEGIN] * coeff, range[END] * coeff));
-
+                Mat dropimg = img(
+                    Range(baseline_v.y + baseline_v.height / 4, baseline_h.y),
+                    Range(range[BEGIN], range[END]));
                 auto [itemId, similarity] = detect_item(dropimg);
 
-                Mat dropimg_bin;
-                cvtColor(dropimg, dropimg_bin, COLOR_BGR2GRAY);
-                threshold(dropimg_bin, dropimg_bin, 127, 255, THRESH_BINARY);
+                if (itemId.empty())
+                    continue;
+                else if (itemId == "00000")
+                    itemId = "";
+
+                Mat dropimg_bin = context.img_bin127(
+                    get_rect(context.rectangles["drops"].back()));
                 string quantity = detect_quantity(dropimg_bin);
 
                 context.drops.push_back({ { "dropType", ktype },
@@ -1028,11 +1111,12 @@ Mat decode(uint8_t* buffer, size_t size)
 }
 
 extern "C" {
-void preload_json(char* stagex, char* itemx, char* hashx)
+void preload_json(char* stagex, char* itemx, char* hashx, char* i18n)
 {
     stage_index = dict::parse(stagex);
     item_index = dict::parse(itemx);
     hash_index = dict::parse(hashx);
+    server = i18n;
 }
 }
 
