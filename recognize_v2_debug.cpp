@@ -234,17 +234,14 @@ string shash16(Mat src_bin)
     return hash_value.str();
 }
 
-int hamming(string hash1_str, string hash2_str)
+int hamming(std::string hash1, std::string hash2)
 {
-    stringstream hash1, hash2;
-    hash1 << setw(64) << setfill('0') << hash1_str;
-    hash2 << setw(64) << setfill('0') << hash2_str;
-    hash1_str = hash1.str();
-    hash2_str = hash2.str();
+    hash1.insert(hash1.begin(), 64 - hash1.size(), '0');
+    hash2.insert(hash2.begin(), 64 - hash2.size(), '0');
     int dist = 0;
-    for (int i = 0; i < 64; i = i + 7) {
-        int x = stoi(hash1_str.substr(i, 7), NULL, 16)
-            ^ stoi(hash2_str.substr(i, 7), NULL, 16);
+    for (int i = 0; i < 64; i = i + 16) {
+        size_t x = strtoull(hash1.substr(i, 16).c_str(), NULL, 16)
+            ^ strtoull(hash2.substr(i, 16).c_str(), NULL, 16);
         while (x) {
             dist++;
             x = x & (x - 1);
@@ -271,7 +268,8 @@ private:
     Rect baseline_h;
     int item_diameter;
 
-    string stage_code;
+    string stage_code = "";
+    string fingerprint = "";
     dict droptypes;
     vector<dict> drops;
     dict rectangles;
@@ -290,6 +288,7 @@ public:
 
 private:
     string stage_code = "";
+    string fingerprint = "";
     vector<dict> drops;
     dict validation = {
         { "warnings", dict::array() },
@@ -305,6 +304,7 @@ string AnalyzeResult::report()
     dict report = {
         { "drops", drops },
         { "stageId", stageId },
+        { "fingerprint", fingerprint },
         { "errors", validation["errors"] },
         { "warnings", validation["warnings"] }
     };
@@ -325,6 +325,7 @@ private:
     string get_stage();
     void get_droptypes();
     void get_drops();
+    void get_fingerprint();
 };
 
 AnalyzeResult Analyzer::analyze(Mat img, bool fallback = false)
@@ -333,6 +334,7 @@ AnalyzeResult Analyzer::analyze(Mat img, bool fallback = false)
     auto make_result = [this, &result]() {
         result.img_debug = context.img_debug;
         result.stage_code = context.stage_code;
+        result.fingerprint = context.fingerprint;
         result.drops = context.drops;
         result.validation = context.validation;
     };
@@ -455,6 +457,7 @@ AnalyzeResult Analyzer::analyze(Mat img, bool fallback = false)
         return result;
     }
 
+    get_fingerprint();
     make_result();
     return result;
 }
@@ -524,7 +527,7 @@ bool Analyzer::is_result()
     Mat img_gray = context.img_gray;
     Mat img_bin = context.img_bin127;
     Rect baseline_v = context.baseline_v;
-    int result_thresh = 50;
+    int result_thresh = 25;
 
     Rect rect_result = Rect(
         0, baseline_v.y + baseline_v.height / 2,
@@ -702,7 +705,7 @@ void Analyzer::get_droptypes()
             Point upperleft;
             droplineimg.locateROI(wholesize, upperleft);
             Mat droptypeimg;
-            if (server == "zh" || server == "ko") {
+            if (server == "CN" || server == "KR") {
                 droptypeimg
                     = context.img_gray(
                                  Rect(upperleft.x, upperleft.y + 1, droplineimg.cols / 2,
@@ -949,7 +952,7 @@ void Analyzer::get_drops()
         rectangle(context.img_debug, rect_drop, Scalar(0, 0, 255), 2);
 
         if (similarity > 0.9) {
-            string name = item_index[itemId]["name_i18n"][server];
+            string name = item_index[itemId]["name_i18n"]["zh"];
             output << "\t" << setw(5) << itemId << "\t" << name;
             if (name.size() < 12)
                 output << "\t";
@@ -975,7 +978,7 @@ void Analyzer::get_drops()
             string chr, chr2;
             int dist = 256;
             int dist2 = 256;
-            for (auto& [kchar, vhash] : hash_index["dropimg"][server].items()) {
+            for (auto& [kchar, vhash] : hash_index["item"][server].items()) {
                 int d = hamming(charhash, vhash);
                 if (d < dist) {
                     if (d == 0)
@@ -1148,6 +1151,22 @@ void Analyzer::get_drops()
     }
 }
 
+void Analyzer::get_fingerprint()
+{
+    Mat img_bin = context.img_gray;
+    Rect baseline_v = context.baseline_v;
+    img_bin = img_bin(Rect(
+        0, 0, img_bin.cols, img_bin.rows - round(baseline_v.height * 1.2)));
+    resize(img_bin, img_bin, Size(8, 8));
+    uchar* pix = img_bin.data;
+    stringstream fp;
+    for (int i = 0; i < 64; i++) {
+        fp << setw(2) << setfill('0') << hex << (int)*pix;
+        pix++;
+    }
+    context.fingerprint = fp.str();
+}
+
 double T = 0;
 
 AnalyzeResult recognize(Mat img)
@@ -1184,9 +1203,9 @@ int main(int argc, char** argv)
     path p = path(argv[0]).parent_path();
     current_path(p);
     preload();
-    server = "zh";
+    server = "CN";
 
-    string path_ = "test";
+    string path_ = "err";
 
     if (is_directory(path_)) {
         for (const auto& png : directory_iterator(path_)) {
