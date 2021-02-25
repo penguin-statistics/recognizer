@@ -1,4 +1,5 @@
 #include "json.hpp"
+#include "md5.hpp"
 #include <iomanip>
 #include <iostream>
 #include <opencv2/core.hpp>
@@ -206,6 +207,12 @@ int hamming(std::string hash1, std::string hash2)
     return dist;
 }
 
+string md5(Mat img)
+{
+    MD5 hash;
+    return hash(img.data, img.step * img.rows);
+}
+
 class AnalyzeContext {
     friend class Analyzer;
 
@@ -243,6 +250,7 @@ public:
     string report();
 
 private:
+    string hash_md5 = "";
     string stage_code = "";
     string fingerprint = "";
     vector<dict> drops;
@@ -261,6 +269,7 @@ string AnalyzeResult::report()
         { "drops", drops },
         { "stageId", stageId },
         { "fingerprint", fingerprint },
+        { "md5", hash_md5 },
         { "errors", validation["errors"] },
         { "warnings", validation["warnings"] }
     };
@@ -414,6 +423,7 @@ AnalyzeResult Analyzer::analyze(Mat img, bool fallback = false)
     }
 
     get_fingerprint();
+    result.hash_md5 = md5(context.img_small);
     make_result();
     return result;
 }
@@ -1111,8 +1121,6 @@ void Analyzer::get_fingerprint()
 {
     Mat img_bin = context.img_gray;
     Rect baseline_v = context.baseline_v;
-    img_bin = img_bin(Rect(
-        0, 0, img_bin.cols, img_bin.rows - round(baseline_v.height * 1.2)));
     resize(img_bin, img_bin, Size(8, 8));
     uchar* pix = img_bin.data;
     stringstream fp;
