@@ -1,15 +1,40 @@
+#ifndef PENGUIN_HPP_
+#define PENGUIN_HPP_
+
 #include "json.hpp"
 // #include <iomanip>
+#include <iostream>
 #include <opencv2/core.hpp>
+#include <opencv2/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 #include <set>
 using dict = nlohmann::json;
+
+void show_img(cv::Mat src)
+{
+    if (src.rows > 600) {
+        double fx = 600.0 / src.rows;
+        cv::resize(src, src,
+            cv::Size(), fx, fx, cv::INTER_AREA);
+    }
+    cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Display window", src);
+    cv::waitKey(0);
+    cv::destroyWindow("Display window");
+}
 
 namespace penguin { // const
 const int TEMPLATE_WIDTH = 183;
 const int TEMPLATE_HEIGHT = 183;
 const int TEMPLATE_DIAMETER = 163;
 const int ITEM_RESIZED_WIDTH = 50;
+} // namespace penguin
+
+namespace penguin { // extern variable
+std::string server;
+dict item_index, hash_index;
+std::map<std::string, cv::Mat> item_templs;
 } // namespace penguin
 
 namespace penguin { // tools function
@@ -24,7 +49,7 @@ enum RangeFlags {
     BEGIN = 0,
     END = 1
 };
-std::list<cv::Range> separate(cv::Mat src_bin, DirectionFlags direc, int n = 0)
+std::list<cv::Range> separate(const cv::Mat& src_bin, DirectionFlags direc, int n = 0)
 {
     std::list<cv::Range> sp;
     bool isodd = false;
@@ -218,26 +243,29 @@ enum RectFlags {
     HEIGHT = 3
 };
 
-extern std::string server;
-extern dict item_index, hash_index;
 class Widget : public cv::Rect {
 public:
-    Widget();
-    Widget(const cv::Mat& img, const cv::Rect& rect)
-        : cv::Rect(rect.tl(), img.size())
+    Widget() { }
+    Widget(const cv::Mat& img, const cv::Point& topleft)
+        : cv::Rect(topleft, img.size())
     {
         _img = img;
     }
-    Widget(const cv::Mat& img, const cv::Point& point)
-        : cv::Rect(point, img.size())
+    Widget(const cv::Mat& img, const cv::Rect& rect)
+        : Widget(img, rect.tl())
     {
-        _img = img;
     }
     void relate(const Widget& widget)
     {
         auto& self = *this;
         self.x += widget.x;
         self.y += widget.y;
+    }
+    void relate(const cv::Point& topleft)
+    {
+        auto& self = *this;
+        self.x += topleft.x;
+        self.y += topleft.y;
     }
 
 protected:
@@ -260,8 +288,8 @@ enum FontFlags {
 
 class Character : public Widget {
     struct CharDist {
-        const std::string chr;
-        const int dist;
+        std::string chr;
+        int dist;
         CharDist(const std::string& chr_, int dist_)
             : chr(chr_)
             , dist(dist_)
@@ -272,15 +300,16 @@ class Character : public Widget {
 public:
     const std::string chr() const { return _chr; }
     const int dist() const { return _dist; }
-    Character();
-    Character(const cv::Mat& img_bin, const cv::Rect& rect, FontFlags flag)
-        : Widget(img_bin, rect)
+    Character() { }
+    Character(const cv::Mat& img_bin, const cv::Point& topleft, FontFlags flag)
+        : Widget(img_bin, topleft)
     {
         font = flag;
+        _img = _img(cv::boundingRect(_img));
         _get_char();
     }
-    Character(const cv::Mat& img_bin, const cv::Point& upperleft, FontFlags flag)
-        : Character(img_bin, cv::Rect(upperleft, img_bin.size()), flag)
+    Character(const cv::Mat& img_bin, const cv::Rect& rect, FontFlags flag)
+        : Character(img_bin, rect.tl(), flag)
     {
     }
 
@@ -327,11 +356,15 @@ std::map<std::string, FontFlags> Server2Font {
 class ItemQuantity : public Widget {
 public:
     int quantity() { return _quantity; }
-    ItemQuantity();
+    ItemQuantity() { }
+    ItemQuantity(const cv::Mat& img_bin, const cv::Point& topleft)
+        : Widget(img_bin, topleft)
+    {
+        _get_quantity();
+    }
     ItemQuantity(const cv::Mat& img_bin, const cv::Rect& rect)
         : Widget(img_bin, rect)
     {
-        _get_quantity();
     }
     const Character& operator[](uint i) const { return _quantity_[i]; }
 
@@ -343,7 +376,7 @@ private:
         std::string quantity_str = "";
         auto sp = separate(_img, LEFT);
         for (const auto& range : sp) {
-            cv::Mat charimg = _img(cv::Range(0, _img.cols), range);
+            cv::Mat charimg = _img(cv::Range(0, _img.rows), range);
             auto chr = Character(charimg, cv::Point(range.start, 0), Server2Font[server]);
             chr.relate(*this);
             quantity_str += chr.chr();
@@ -353,42 +386,36 @@ private:
     }
 };
 
-class Stage; // forward definition
+class Stage;
 class ItemTemplates {
     struct Templ {
         std::string itemId;
         cv::Mat img;
-        Templ(const std::string& itemId_, const cv::Mat& templimg_)
-            : itemId(itemId_)
-            , img(templimg_)
+        Templ(std::pair<const std::string, cv::Mat> templ)
+            : itemId(templ.first)
+            , img(templ.second)
         {
         }
     };
 
 public:
-    std::vector<std::reference_wrapper<Templ>> _templ_sublist;
+    std::list<Templ> _templ_list;
     ItemTemplates()
     {
-        _templ_sublist.assign(_templ_list.begin(), _templ_list.end());
+        for (auto& templ : item_templs) {
+            _templ_list.push_back(templ);
+        }
     }
     ItemTemplates(const Stage& stage)
     {
         // TODO
     }
-
-private:
-    static std::vector<Templ> _templ_list;
-    static const int diameter = TEMPLATE_DIAMETER;
-    void append(const std::string& itemId, const cv::Mat& templimg)
-    {
-        _templ_list.push_back(Templ(itemId, templimg));
-    }
 };
 
 class Item : public Widget {
     struct ItemConfidence {
-        const std::string itemId;
-        const double confidence;
+        std::string itemId;
+        double confidence;
         ItemConfidence(const std::string& itemId_, double conf_)
             : itemId(itemId_)
             , confidence(conf_)
@@ -397,8 +424,19 @@ class Item : public Widget {
     };
 
 public:
-    std::string itemId() { return _itemId; }
-    Item();
+    const std::string& itemId() { return _itemId; }
+    Item() { }
+    Item(
+        const cv::Mat& img,
+        const cv::Point& topleft,
+        double diameter,
+        const ItemTemplates& templs = ItemTemplates())
+        : Widget(img, topleft)
+    {
+        _diameter = diameter;
+        _get_item(templs);
+        // _get_quantity();
+    }
     Item(
         const cv::Mat& img,
         const cv::Rect& rect,
@@ -406,9 +444,6 @@ public:
         const ItemTemplates& templs = ItemTemplates())
         : Widget(img, rect)
     {
-        _diameter = diameter;
-        _get_item(templs);
-        _get_quantity();
     }
 
 private:
@@ -419,17 +454,20 @@ private:
     std::vector<ItemConfidence> _confidence_list;
     void _get_item(const ItemTemplates& templs)
     {
+        auto s = cv::getTickCount();
+
+        auto& self = *this;
         cv::Mat itemimg;
-        double coeff = (double)ITEM_RESIZED_WIDTH / itemimg.cols;
+        double coeff = (double)ITEM_RESIZED_WIDTH / _img.cols;
         if (coeff < 1) {
             int width = ITEM_RESIZED_WIDTH;
-            int height = round(itemimg.rows * coeff);
+            int height = round(_img.rows * coeff);
             resize(_img, itemimg, cv::Size(width, height));
         }
         std::map<std::string, cv::Point> _tmp_itemId2loc;
-        for (const auto& item : templs._templ_sublist) {
-            const std::string& itemId = item.get().itemId;
-            cv::Mat templimg = item.get().img;
+        for (const auto& templ : templs._templ_list) {
+            const std::string& itemId = templ.itemId;
+            cv::Mat templimg = templ.img;
             double fx = _diameter * coeff / TEMPLATE_DIAMETER;
             resize(templimg, templimg, cv::Size(), fx, fx, cv::INTER_AREA);
             cv::Mat mask;
@@ -448,21 +486,22 @@ private:
                 return val1.confidence > val2.confidence;
             });
         std::string itemId = _confidence_list.front().itemId;
-        _img = _img(
-            cv::Rect(_tmp_itemId2loc[itemId],
-                cv::Size(
-                    round(TEMPLATE_WIDTH * ((double)_diameter / TEMPLATE_DIAMETER)),
-                    round(TEMPLATE_HEIGHT * ((double)_diameter / TEMPLATE_DIAMETER)))));
+        cv::Point topleft_new = _tmp_itemId2loc[itemId];
+        cv::Size size_new = cv::Size(
+            round(TEMPLATE_WIDTH * ((double)_diameter / TEMPLATE_DIAMETER)),
+            round(TEMPLATE_HEIGHT * ((double)_diameter / TEMPLATE_DIAMETER)));
+        _img = _img(cv::Rect(topleft_new, size_new));
+        self.relate(topleft_new);
         _confidence = _confidence_list.front().confidence;
         if (_confidence > 0.9) {
             _itemId = itemId;
         }
+        auto e = cv::getTickCount();
+        std::cout << (e - s) / cv::getTickFrequency() * 1000 << std::endl;
     }
     void _get_quantity()
     {
         cv::Mat quantityimg;
-
-        _quantity = ItemQuantity();
     }
 };
 
@@ -471,3 +510,5 @@ namespace result {
 } // namespace result
 
 } // namespace penguin
+
+#endif
