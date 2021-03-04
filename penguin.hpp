@@ -9,7 +9,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
-using dict = nlohmann::json;
+using dict = nlohmann::ordered_json;
 
 void show_img(cv::Mat src)
 {
@@ -311,12 +311,22 @@ public:
         auto& self = *this;
         _img = img;
         if (_parent != nullptr) {
+            cv::Size _;
+            cv::Point topleft;
+            img.locateROI(_, topleft);
+            x = topleft.x;
+            y = topleft.y;
             _relate(parent);
         }
     }
     bool empty() const
     {
         return width <= 0 || height <= 0;
+    }
+    virtual const dict& debug_report()
+    {
+        _report["Rect"] = { x, y, width, height };
+        return _report;
     }
     void show() const
     {
@@ -344,6 +354,7 @@ public:
 protected:
     cv::Mat _img;
     Widget* _parent = nullptr;
+    dict _report;
     void _relate(Widget& widget)
     {
         auto& self = *this;
@@ -358,11 +369,6 @@ protected:
     }
 };
 
-enum CharFlags {
-    CHAR_STAGE = 0,
-    CHAR_ITEM = 1
-};
-
 enum FontFlags {
     FONT_UNDEFINED = 0,
     FONT_NOVECENTO_WIDEBOLD = 1,
@@ -370,6 +376,14 @@ enum FontFlags {
     FONT_NUBER_NEXT_DEMIBOLD_CONDENSED = 3,
     FONT_RODIN_PRO_DB = 4,
     FONT_SOURCE_HAN_SANS_KR_BOLD = 5
+};
+
+const std::map<FontFlags, std::string> Font2Str {
+    { FONT_NOVECENTO_WIDEBOLD, "Novecento Widebold" },
+    { FONT_SOURCE_HAN_SANS_CN_MEDIUM, "Source Han Sans CN Medium" },
+    { FONT_NUBER_NEXT_DEMIBOLD_CONDENSED, "Nuber Next Demibold Condensed" },
+    { FONT_RODIN_PRO_DB, "Rodin Pro DB" },
+    { FONT_SOURCE_HAN_SANS_KR_BOLD, "Source Han Sans KR Bold" }
 };
 
 class Character : public Widget {
@@ -386,7 +400,7 @@ class Character : public Widget {
 public:
     const std::string chr() const { return _chr; }
     const int dist() const { return _dist; }
-    Character() { }
+    Character() = default;
     Character(
         const cv::Mat& img_bin,
         FontFlags flag,
@@ -394,21 +408,34 @@ public:
         : Widget(img_bin, parent)
     {
         font = flag;
-        _img = _img(cv::boundingRect(_img));
         _get_char();
+    }
+    const dict& debug_report()
+    {
+        Widget::debug_report();
+        _report["Char"] = _chr;
+        _report["Hash"] = _hash;
+        for (const auto& chardist : _dist_list) {
+            _report["Dist"][chardist.chr] = chardist.dist;
+        }
+        return _report;
     }
 
 private:
     std::string _chr = "";
     int _dist = HAMMING64 * 4;
-    FontFlags font;
+    FontFlags font = FONT_UNDEFINED;
     std::string _hash = "";
     std::vector<CharDist> _dist_list;
     void _get_char()
     {
-        auto src_bin = _img;
-        squarize(src_bin);
-        _hash = shash(src_bin);
+        auto& self = *this;
+        auto charrect = cv::boundingRect(_img);
+        _img = _img(charrect);
+        self._relate(charrect.tl());
+        auto charimg = _img;
+        squarize(charimg);
+        _hash = shash(charimg);
         std::string chr;
         dict char_dict;
         if (const auto& hash_index = resource.get<dict>("hash_index");
@@ -432,17 +459,17 @@ private:
     }
 };
 
-class ItemQuantity : public Widget {
-    std::map<std::string, FontFlags> Server2Font {
-        { "CN", FONT_SOURCE_HAN_SANS_CN_MEDIUM },
-        { "US", FONT_NUBER_NEXT_DEMIBOLD_CONDENSED },
-        { "JP", FONT_RODIN_PRO_DB },
-        { "KR", FONT_SOURCE_HAN_SANS_KR_BOLD }
-    };
+const std::map<std::string, FontFlags> Server2Font {
+    { "CN", FONT_SOURCE_HAN_SANS_CN_MEDIUM },
+    { "US", FONT_NUBER_NEXT_DEMIBOLD_CONDENSED },
+    { "JP", FONT_RODIN_PRO_DB },
+    { "KR", FONT_SOURCE_HAN_SANS_KR_BOLD }
+};
 
+class ItemQuantity : public Widget {
 public:
     const int quantity() const { return _quantity; }
-    ItemQuantity() { }
+    ItemQuantity() = default;
     ItemQuantity(const cv::Mat& img, Widget* const parent = nullptr)
         : Widget(img, parent)
     {
@@ -452,12 +479,22 @@ public:
         cv::threshold(_img, _img, 127, 255, cv::THRESH_BINARY);
         _get_quantity();
     }
-
     const Character& operator[](uint i) const
     {
         auto it = _characters.begin();
         std::advance(it, i);
         return *it;
+    }
+    const dict& debug_report()
+    {
+        Widget::debug_report();
+        _report["Quantity"] = _quantity;
+        _report["Font"] = Font2Str.at(Server2Font.at(server));
+        _report["Chars"] = dict::array();
+        for (auto& chr : _characters) {
+            _report["Chars"].push_back(chr.debug_report());
+        }
+        return _report;
     }
 
 private:
@@ -477,7 +514,7 @@ private:
         for (auto& range : sp) {
             int length = range.end - range.start;
             bool quantity_empty = quantity_str.empty();
-            cv::Mat charimg = qtyimg(cv::Rect(
+            auto charimg = qtyimg(cv::Rect(
                 range.start, 0, length, height));
 
             cv::Mat _;
@@ -509,7 +546,7 @@ private:
                     break;
                 }
             }
-            auto chr = Character(charimg, Server2Font[server], this);
+            auto chr = Character(charimg, Server2Font.at(server), this);
             if (auto chr_str = chr.chr(); chr_str == "W") {
                 quantity_str.insert(0, "0000");
             } else if (chr_str == "K") {
@@ -532,11 +569,15 @@ private:
     }
 };
 
-class Stage;
 class ItemTemplates {
     struct Templ {
         std::string itemId;
         cv::Mat img;
+        Templ(const std::string itemId_, cv::Mat templimg_)
+            : itemId(itemId_)
+            , img(templimg_)
+        {
+        }
         Templ(std::pair<const std::string, cv::Mat> templ)
             : itemId(templ.first)
             , img(templ.second)
@@ -551,15 +592,23 @@ public:
     };
     ItemTemplates()
     {
-        auto item_templs
+        const auto& item_templs
             = resource.get<std::map<std::string, cv::Mat>>("item_templs");
-        for (auto& templ : item_templs) {
+        for (const auto& templ : item_templs) {
             _templ_list.emplace_back(templ);
         }
     }
-    ItemTemplates(const Stage& stage)
+    ItemTemplates(const std::string stage_code)
     {
-        // TODO
+        const auto& stage_drop
+            = resource.get<dict>("stage_index")[stage_code]["drops"];
+        const auto& item_templs
+            = resource.get<std::map<std::string, cv::Mat>>("item_templs");
+        for (const auto& item : stage_drop.items()) {
+            std::string itemId = item.value();
+            auto templimg = item_templs.at(itemId);
+            _templ_list.emplace_back(Templ(itemId, templimg));
+        }
     }
 
 private:
@@ -580,7 +629,7 @@ class Item : public Widget {
 public:
     const std::string& itemId() const { return _itemId; }
     const int quantity() const { return _quantity.quantity(); }
-    Item() { }
+    Item() = default;
     Item(
         const cv::Mat& img,
         double diameter,
@@ -591,6 +640,16 @@ public:
         _diameter = diameter;
         _get_item(templs);
         _get_quantity();
+    }
+    const dict& debug_report()
+    {
+        Widget::debug_report();
+        _report["itemId"] = _itemId;
+        _report["Quantity"] = _quantity.debug_report();
+        for (const auto& conf : _confidence_list) {
+            _report["Confidence"][conf.itemId] = conf.confidence;
+        }
+        return _report;
     }
 
 private:
@@ -655,7 +714,59 @@ private:
 };
 
 namespace result {
+    class Stage : public Widget {
+    public:
+        const std::string& stage_code() const
+        {
+            return _stage_code;
+        }
+        Stage() = default;
+        Stage(const cv::Mat& img, Widget* const parent = nullptr)
+            : Widget(img, parent)
+        {
+            if (_img.channels() != 1) {
+                cv::cvtColor(_img, _img, cv::COLOR_BGR2GRAY);
+            }
+            cv::threshold(_img, _img, 127, 255, cv::THRESH_BINARY);
+            _get_stage();
+        }
+        const dict& debug_report()
+        {
+            Widget::debug_report();
+            _report["stage_code"] = _stage_code;
+            _report["stage_id"] = _stageId;
+            _report["Chars"] = dict::array();
+            for (auto& chr : _characters) {
+                _report["Chars"].push_back(chr.debug_report());
+            }
+            return _report;
+        }
 
+    private:
+        std::string _stage_code = "";
+        std::string _stageId = "";
+        std::list<Character> _characters;
+        void _get_stage()
+        {
+            auto& self = *this;
+            auto stagerect = cv::boundingRect(_img);
+            self._relate(stagerect.tl());
+            _img = _img(stagerect);
+            auto stageimg = _img;
+            auto sp = separate(stageimg, LEFT);
+            for (auto& range : sp) {
+                int length = range.end - range.start;
+                auto charimg = stageimg(cv::Rect(
+                    range.start, 0, length, height));
+                auto chr = Character(
+                    charimg, FONT_NOVECENTO_WIDEBOLD, this);
+                _stage_code += chr.chr();
+                _characters.emplace_back(chr);
+            }
+            const auto& stage_index = resource.get<dict>("stage_index");
+            _stageId = (std::string)stage_index[_stage_code]["stageId"];
+        }
+    };
 } // namespace result
 
 } // namespace penguin
