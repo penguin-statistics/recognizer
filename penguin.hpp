@@ -712,62 +712,69 @@ private:
         _quantity = ItemQuantity(quantityimg, this);
     }
 };
+} // namespace penguin
 
-namespace result {
-    class Stage : public Widget {
-    public:
-        const std::string& stage_code() const
-        {
-            return _stage_code;
+namespace penguin { // result
+class Stage : public Widget {
+public:
+    const std::string& stage_code() const
+    {
+        return _stage_code;
+    }
+    const std::string& stageId() const
+    {
+        return _stageId;
+    }
+    Stage() = default;
+    Stage(const cv::Mat& img, Widget* const parent = nullptr)
+        : Widget(img, parent)
+    {
+        if (_img.channels() != 1) {
+            cv::cvtColor(_img, _img, cv::COLOR_BGR2GRAY);
         }
-        Stage() = default;
-        Stage(const cv::Mat& img, Widget* const parent = nullptr)
-            : Widget(img, parent)
-        {
-            if (_img.channels() != 1) {
-                cv::cvtColor(_img, _img, cv::COLOR_BGR2GRAY);
-            }
-            cv::threshold(_img, _img, 127, 255, cv::THRESH_BINARY);
-            _get_stage();
+        cv::threshold(_img, _img, 127, 255, cv::THRESH_BINARY);
+        _get_stage();
+    }
+    const dict& debug_report()
+    {
+        Widget::debug_report();
+        _report["stage_code"] = _stage_code;
+        _report["stage_id"] = _stageId;
+        _report["Chars"] = dict::array();
+        for (auto& chr : _characters) {
+            _report["Chars"].push_back(chr.debug_report());
         }
-        const dict& debug_report()
-        {
-            Widget::debug_report();
-            _report["stage_code"] = _stage_code;
-            _report["stage_id"] = _stageId;
-            _report["Chars"] = dict::array();
-            for (auto& chr : _characters) {
-                _report["Chars"].push_back(chr.debug_report());
-            }
-            return _report;
-        }
+        return _report;
+    }
 
-    private:
-        std::string _stage_code = "";
-        std::string _stageId = "";
-        std::list<Character> _characters;
-        void _get_stage()
-        {
-            auto& self = *this;
-            auto stagerect = cv::boundingRect(_img);
-            self._relate(stagerect.tl());
-            _img = _img(stagerect);
-            auto stageimg = _img;
-            auto sp = separate(stageimg, LEFT);
-            for (auto& range : sp) {
-                int length = range.end - range.start;
-                auto charimg = stageimg(cv::Rect(
-                    range.start, 0, length, height));
-                auto chr = Character(
-                    charimg, FONT_NOVECENTO_WIDEBOLD, this);
-                _stage_code += chr.chr();
-                _characters.emplace_back(chr);
-            }
-            const auto& stage_index = resource.get<dict>("stage_index");
-            _stageId = (std::string)stage_index[_stage_code]["stageId"];
+private:
+    std::string _stage_code = "";
+    std::string _stageId = "";
+    std::list<Character> _characters;
+    void _get_stage()
+    {
+        auto& self = *this;
+        auto stagerect = cv::boundingRect(_img);
+        self._relate(stagerect.tl());
+        _img = _img(stagerect);
+        auto stageimg = _img;
+        auto sp = separate(stageimg, LEFT);
+        for (auto& range : sp) {
+            int length = range.end - range.start;
+            auto charimg = stageimg(cv::Rect(
+                range.start, 0, length, height));
+            auto chr = Character(
+                charimg, FONT_NOVECENTO_WIDEBOLD, this);
+            _stage_code += chr.chr();
+            _characters.emplace_back(chr);
         }
-    };
-} // namespace result
+        const auto& stage_index = resource.get<dict>("stage_index");
+        _stageId = (std::string)stage_index[_stage_code]["stageId"];
+    }
+};
+
+class Result {
+};
 
 } // namespace penguin
 
