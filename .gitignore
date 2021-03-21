@@ -4,3 +4,5 @@
 ! json.hpp
 ! md5.hpp
 ! src/*.json
+! penguin.wasm
+! penguin.js
