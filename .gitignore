@@ -1,8 +1,8 @@
 *
 ! .gitignore
-! penguin.hpp
+! core.hpp
+! recognize.hpp
+! result.hpp
 ! json.hpp
 ! md5.hpp
 ! src/*.json
-! penguin.wasm
-! penguin.js
