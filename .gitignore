@@ -1,8 +1,11 @@
 *
-! .gitignore
-! core.hpp
-! recognize.hpp
-! result.hpp
-! json.hpp
-! md5.hpp
-! src/*.json
+!.gitignore
+!core.hpp
+!recognize.hpp
+!result.hpp
+!penguin_wasm.cpp
+!*.wasm
+!*.js
+!json.hpp
+!md5.hpp
+!src/*.json
