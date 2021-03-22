@@ -32,10 +32,9 @@ void load_templ(char* itemId, uint8_t* buffer, size_t size)
     auto& resource = penguin::resource;
     if (!resource.contains<std::map<std::string, cv::Mat>>("item_templs")) {
         resource.add("item_templs", std::map<std::string, cv::Mat>());
-    } else {
-        auto& item_templs = resource.get<std::map<std::string, cv::Mat>>("item_templs");
-        item_templs[itemId] = templimg;
     }
+    auto& item_templs = resource.get<std::map<std::string, cv::Mat>>("item_templs");
+    item_templs[itemId] = templimg;
 }
 }
 
@@ -45,7 +44,11 @@ const char* recognize(uint8_t* buffer, size_t size)
     int64 start, end;
     static std::string res;
     if (!penguin::env_check()) {
+        res = "env check fail";
         return res.data();
+    } else {
+        std::cout << penguin::resource.get<dict>("stage_index").size() << std::endl;
+        std::cout << penguin::resource.get<dict>("hash_index").size() << std::endl;
     }
 
     start = cv::getTickCount();

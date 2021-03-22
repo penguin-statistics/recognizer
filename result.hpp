@@ -288,13 +288,14 @@ private:
             return;
         }
         auto sp = separate(star_img(cv::Rect(0, 0, width, height / 2)), LEFT);
-        auto it = sp.cbegin();
-        for (const auto& range : sp) {
+        for (auto it = sp.cbegin(); it != sp.cend();) {
+            const auto& range = *it;
             if (auto length = range.end - range.start;
                 length < height * STAR_WIDTH_PROP) {
-                sp.erase(it);
+                it = sp.erase(it);
+            } else {
+                ++it;
             }
-            ++it;
         }
         starrect.x = sp.front().start;
         starrect.width = sp.back().end - starrect.x;
@@ -446,7 +447,7 @@ private:
             _hash = shash(droptextimg);
         }
         const auto& droptype_dict
-            = resource.get<dict>("hash_index")["dropType"][server];
+            = resource.get<dict>("hash_index")["droptype"][server];
         int dist_spe = hamming(_hash, droptype_dict["SPECIAL_DROP"]);
         _dist_list.emplace_back("SPECIAL_DROP", dist_spe);
         int dist_fur = hamming(_hash, droptype_dict["FURNITURE"]);
@@ -650,13 +651,14 @@ private:
         auto sp = separate(img_bin(cv::Rect(0, row, width, 1)), LEFT);
         int item_diameter
             = height / DROP_AREA_HEIGHT_PROP * ITEM_DIAMETER_PROP;
-        auto it = sp.cbegin();
-        for (const auto& range : sp) {
+        for (auto it = sp.cbegin(); it != sp.cend();) {
+            const auto& range = *it;
             if (auto length = range.end - range.start;
                 length < item_diameter) {
-                sp.erase(it);
+                it = sp.erase(it);
+            } else {
+                ++it;
             }
-            ++it;
         }
         sp.front().start = 0;
         return std::tuple(baseline_h, sp);
@@ -665,6 +667,7 @@ private:
     {
         int item_diameter
             = height / DROP_AREA_HEIGHT_PROP * ITEM_DIAMETER_PROP;
+        ItemTemplates templs { stage };
         auto [baseline_h, sp] = _get_separate();
         for (const auto& droptype_range : sp) {
             auto droptypeimg = _img(cv::Range(baseline_h, height), droptype_range);
@@ -693,7 +696,7 @@ private:
                         droptype_range.start + length * (i + 1));
                     auto dropimg = _img(cv::Range(0, baseline_h), range);
                     Widget_Item drop { dropimg, item_diameter, label, this };
-                    drop.analyze(ItemTemplates(stage));
+                    drop.analyze(templs);
                     _drop_list.emplace_back(drop, type);
                     _drops_data.push_back(
                         { { "dropType", Droptype2Str[type] },
@@ -715,15 +718,10 @@ public:
     Result& analyze()
     {
         _get_baseline_v();
-        std::cout << "1" << std::endl;
         _get_result_label();
-        std::cout << "2" << std::endl;
         _get_stage();
-        std::cout << "3" << std::endl;
         _get_stars();
-        std::cout << "4" << std::endl;
         _get_drop_area();
-        std::cout << "5" << std::endl;
         return *this;
     }
     std::string get_md5()

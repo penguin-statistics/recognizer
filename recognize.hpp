@@ -158,7 +158,8 @@ public:
         const auto& item_templs
             = resource.get<std::map<std::string, cv::Mat>>("item_templs");
         for (const auto& [_, itemId] : stage_drop.items()) {
-            auto templimg = item_templs.at(itemId);
+            auto it = item_templs.find((itemId));
+            auto& templimg = item_templs.at(itemId);
             _templ_list.emplace_back(itemId, templimg);
         }
     }
@@ -540,8 +541,8 @@ private:
             int length = range.end - range.start;
             return length > height * 0.5;
         });
-        auto it = sp.cbegin(); // will move in "for" in C++20
-        for (auto& range : sp) {
+        for (auto it = sp.cbegin(); it != sp.end();) {
+            const auto& range = *it;
             int length = range.end - range.start;
             bool quantity_empty = quantity_str.empty();
             auto charimg = qtyimg(cv::Rect(
@@ -554,11 +555,10 @@ private:
                 charimg, _, stats, centroids);
             if (ccomps - 1 != 1) {
                 if (quantity_empty) {
-                    sp.erase(it);
-                    ++it;
+                    it = sp.erase(it);
                     continue;
                 } else {
-                    sp.erase(it, sp.cend());
+                    it = sp.erase(it, sp.cend());
                     break;
                 }
             }
@@ -568,11 +568,10 @@ private:
                 ccomp.width > ccomp.height
                 || ccomp.height / (double)height < _ITEM_CHR_HEIGHT_PROP) {
                 if (quantity_empty) {
-                    sp.erase(it);
-                    ++it;
+                    it = sp.erase(it);
                     continue;
                 } else {
-                    sp.erase(it, sp.cend());
+                    it = sp.erase(it, sp.cend());
                     break;
                 }
             }
