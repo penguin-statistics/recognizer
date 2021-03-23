@@ -10,6 +10,14 @@ cv::Mat decode(uint8_t* buffer, size_t size)
 }
 
 extern "C" {
+const char* get_info()
+{
+    static std::string version = "3.1.1";
+    return version.data();
+}
+}
+
+extern "C" {
 void load_server(char* server)
 {
     penguin::server = server;
@@ -46,20 +54,13 @@ const char* recognize(uint8_t* buffer, size_t size)
     if (!penguin::env_check()) {
         res = "env check fail";
         return res.data();
-    } else {
-        std::cout << penguin::resource.get<dict>("stage_index").size() << std::endl;
-        std::cout << penguin::resource.get<dict>("hash_index").size() << std::endl;
     }
 
     start = cv::getTickCount();
+
     cv::Mat img = decode(buffer, size);
     penguin::Result result { img };
-
-    try {
-        result.analyze();
-    } catch (const std::exception& e) {
-        std::cout << e.what() << '\n';
-    }
+    result.analyze();
 
     end = cv::getTickCount();
 

@@ -3,6 +3,7 @@
 
 #include "json.hpp"
 #include <any>
+// #include <iostream>
 #include <list>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -277,7 +278,8 @@ int hamming(std::string hash1, std::string hash2, HammingFlags flag = HAMMING64)
     hash2.insert(hash2.begin(), flag - hash2.size(), '0');
     int dist = 0;
     for (int i = 0; i < flag; i = i + 16) {
-        size_t x = strtoull(hash1.substr(i, 16).c_str(), NULL, 16)
+        unsigned long long x
+            = strtoull(hash1.substr(i, 16).c_str(), NULL, 16)
             ^ strtoull(hash2.substr(i, 16).c_str(), NULL, 16);
         while (x) {
             dist++;

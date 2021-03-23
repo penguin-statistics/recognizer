@@ -6,7 +6,7 @@
 #include "md5.hpp"
 #include "recognize.hpp"
 #include <iomanip>
-#include <iostream>
+// #include <iostream>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 using dict = nlohmann::ordered_json;
@@ -447,7 +447,7 @@ private:
             _hash = shash(droptextimg);
         }
         const auto& droptype_dict
-            = resource.get<dict>("hash_index")["droptype"][server];
+            = resource.get<dict>("hash_index")["dropType"][server];
         int dist_spe = hamming(_hash, droptype_dict["SPECIAL_DROP"]);
         _dist_list.emplace_back("SPECIAL_DROP", dist_spe);
         int dist_fur = hamming(_hash, droptype_dict["FURNITURE"]);
@@ -588,8 +588,12 @@ public:
     {
         if (!_img.empty()) {
             _get_drops(stage);
+        } else {
+            widget_label = "dropTypes";
+            push_exception(ERROR, EXC_NOTFOUND, report(true));
         }
         if (_drop_list.empty()) {
+            widget_label = "dropTypes";
             push_exception(ERROR, EXC_NOTFOUND, report(true));
         }
         return *this;

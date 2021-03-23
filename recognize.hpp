@@ -3,13 +3,13 @@
 
 #include "core.hpp"
 #include "json.hpp"
-#include <iostream>
+// #include <iostream>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <optional>
 using dict = nlohmann::ordered_json;
 
-extern void show_img(cv::Mat src);
+// extern void show_img(cv::Mat src);
 
 namespace penguin {
 
@@ -575,7 +575,7 @@ private:
                     break;
                 }
             }
-            std::string label = "chr" + std::to_string(_characters.size() + 1);
+            std::string label = "chr.-" + std::to_string(_characters.size() + 1);
             auto chr = Widget_Character(charimg, Server2Font.at(server), label, this)
                            .analyze();
             _characters.emplace_front(chr);
