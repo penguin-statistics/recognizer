@@ -172,6 +172,9 @@ public:
         }
         if (_stageId.empty()) {
             push_exception(ERROR, EXC_NOTFOUND, report(true));
+        } else if (const auto& stage_index = resource.get<dict>("stage_index");
+                   stage_index[_stage_code]["existence"] == false) {
+            push_exception(ERROR, EXC_ILLEAGLE);
         }
         return *this;
     }
@@ -590,11 +593,11 @@ public:
             _get_drops(stage);
         } else {
             widget_label = "dropTypes";
-            push_exception(ERROR, EXC_NOTFOUND, report(true));
+            push_exception(ERROR, EXC_NOTFOUND);
         }
-        if (_drop_list.empty()) {
+        if (_droptype_list.empty()) {
             widget_label = "dropTypes";
-            push_exception(ERROR, EXC_NOTFOUND, report(true));
+            push_exception(ERROR, EXC_NOTFOUND);
         }
         return *this;
     }
@@ -690,6 +693,10 @@ private:
                        type == DROPTYPE_FURNITURE) {
                 _drop_list.emplace_back(
                     Drop(Widget_Item(FURNI_1, label, this), type));
+            } else if (templs.templ_list().empty()) {
+                widget_label = "drops";
+                push_exception(ERROR, EXC_ILLEAGLE);
+                return;
             } else {
                 int items_count = droptype.items_count();
                 int length = (droptype_range.end - droptype_range.start) / items_count;

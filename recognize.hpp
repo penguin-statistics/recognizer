@@ -275,9 +275,9 @@ public:
         if (!debug) {
         } else {
             if (!_img.empty()) {
-                _report["debug"]["rect"] = { x, y, width, height };
+                _report["rect"] = { x, y, width, height };
             } else {
-                _report["debug"]["rect"] = "empty";
+                _report["rect"] = "empty";
             }
         }
         return _report;
@@ -318,7 +318,7 @@ public:
     void push_exception(
         ExcTypeFlags type,
         ExcSubtypeFlags what,
-        const dict& detail)
+        const dict& detail = dict::object())
     {
         Exception exc = { type, what, detail };
         push_exception(exc);
