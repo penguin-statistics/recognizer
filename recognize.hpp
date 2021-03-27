@@ -30,7 +30,7 @@ enum ExcSubtypeFlags {
     EXC_UNKNOWN = 0,
     EXC_FALSE = 1,
     EXC_NOTFOUND = 2,
-    EXC_ILLEAGLE = 3,
+    EXC_ILLEAGAL = 3,
     EXC_LOWCONF = 4
 };
 
@@ -103,8 +103,8 @@ public:
         case EXC_NOTFOUND:
             msg = "NotFound";
             break;
-        case EXC_ILLEAGLE:
-            msg = "Illeagle";
+        case EXC_ILLEAGAL:
+            msg = "Illeagal";
             break;
         case EXC_LOWCONF:
             msg = "LowConfidence";
