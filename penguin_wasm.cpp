@@ -12,7 +12,7 @@ cv::Mat decode(uint8_t* buffer, size_t size)
 extern "C" {
 const char* get_info()
 {
-    static std::string version = "3.2.1";
+    static std::string version = "3.2.2";
     return version.data();
 }
 }

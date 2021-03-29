@@ -575,6 +575,17 @@ private:
                     break;
                 }
             }
+            double charimg_area = charimg.cols * charimg.rows;
+            if (auto area_ratio = stats(1, cv::CC_STAT_AREA) / charimg_area;
+                area_ratio < 0.15 || area_ratio > 0.75) {
+                if (quantity_empty) {
+                    it = sp.erase(it);
+                    continue;
+                } else {
+                    it = sp.erase(it, sp.cend());
+                    break;
+                }
+            }
             std::string label = "chr.-" + std::to_string(_characters.size() + 1);
             auto chr = Widget_Character(charimg, Server2Font.at(server), label, this)
                            .analyze();
