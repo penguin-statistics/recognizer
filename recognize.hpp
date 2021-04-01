@@ -30,7 +30,7 @@ enum ExcSubtypeFlags {
     EXC_UNKNOWN = 0,
     EXC_FALSE = 1,
     EXC_NOTFOUND = 2,
-    EXC_ILLEAGAL = 3,
+    EXC_ILLEGAL = 3,
     EXC_LOWCONF = 4
 };
 
@@ -103,8 +103,8 @@ public:
         case EXC_NOTFOUND:
             msg = "NotFound";
             break;
-        case EXC_ILLEAGAL:
-            msg = "Illeagal";
+        case EXC_ILLEGAL:
+            msg = "illegal";
             break;
         case EXC_LOWCONF:
             msg = "LowConfidence";
@@ -586,7 +586,7 @@ private:
                     break;
                 }
             }
-            std::string label = "chr.-" + std::to_string(_characters.size() + 1);
+            std::string label = "char.-" + std::to_string(_characters.size() + 1);
             auto chr = Widget_Character(charimg, Server2Font.at(server), label, this)
                            .analyze();
             _characters.emplace_front(chr);

@@ -174,7 +174,7 @@ public:
             push_exception(ERROR, EXC_NOTFOUND, report(true));
         } else if (const auto& stage_index = resource.get<dict>("stage_index");
                    stage_index[_stage_code]["existence"] == false) {
-            push_exception(ERROR, EXC_ILLEAGAL);
+            push_exception(ERROR, EXC_ILLEGAL);
         }
         return *this;
     }
@@ -216,7 +216,7 @@ private:
             int length = range.end - range.start;
             auto charimg = stage_img(cv::Rect(
                 range.start, 0, length, height));
-            std::string label = "chr." + std::to_string(_characters.size());
+            std::string label = "char." + std::to_string(_characters.size());
             Widget_Character chr {
                 charimg, FONT_NOVECENTO_WIDEBOLD, label, this
             };
@@ -520,7 +520,7 @@ public:
         if (_droptype == DROPTYPE_UNDEFINED
             || _droptype == DROPTYPE_SANITY
             || _droptype == DROPTYPE_FIRST) {
-            push_exception(ERROR, EXC_ILLEAGAL, report(true));
+            push_exception(ERROR, EXC_ILLEGAL, report(true));
         }
         return *this;
     }
@@ -529,10 +529,10 @@ public:
         dict _report = dict::object();
         if (!debug) {
             _report.merge_patch(Widget::report());
-            _report["dropType"] = Droptype2Str[_droptype];
+            _report["dropTypes"] = Droptype2Str[_droptype];
         } else {
             _report.merge_patch(Widget::report(debug));
-            _report["dropType"] = Droptype2Str[_droptype];
+            _report["dropTypes"] = Droptype2Str[_droptype];
             _report["itemCount"] = _items_count;
             _report.merge_patch(_line.report(debug));
             if (!_text.empty()) {
@@ -592,11 +592,11 @@ public:
         if (!_img.empty()) {
             _get_drops(stage);
         } else {
-            widget_label = "dropType";
+            widget_label = "dropTypes";
             push_exception(ERROR, EXC_NOTFOUND);
         }
         if (_droptype_list.empty()) {
-            widget_label = "dropType";
+            widget_label = "dropTypes";
             push_exception(ERROR, EXC_NOTFOUND);
         }
         return *this;
@@ -607,18 +607,18 @@ public:
         if (_parent_widget == nullptr) {
             _report["exceptions"] = _exception_list;
         }
-        _report["dropType"] = dict::array();
-        _report["drop"] = dict::array();
+        _report["dropTypes"] = dict::array();
+        _report["drops"] = dict::array();
 
         int droptypes_count = _droptype_list.size();
         for (int i = 0; i < droptypes_count; i++) {
-            _report["dropType"].push_back(_droptype_list[i].report(debug));
+            _report["dropTypes"].push_back(_droptype_list[i].report(debug));
         }
         int drops_count = _drop_list.size();
         for (int i = 0; i < drops_count; i++) {
-            _report["drop"].push_back(
+            _report["drops"].push_back(
                 { { "dropType", Droptype2Str[_drop_list[i].droptype] } });
-            _report["drop"][i].merge_patch(_drop_list[i].dropitem.report(debug));
+            _report["drops"][i].merge_patch(_drop_list[i].dropitem.report(debug));
         }
         return _report;
     }
@@ -689,19 +689,19 @@ private:
                 break;
             } else if (type == DROPTYPE_LMB) {
                 continue;
-            } else if (std::string label = "drop." + std::to_string(_drop_list.size());
+            } else if (std::string label = "drops." + std::to_string(_drop_list.size());
                        type == DROPTYPE_FURNITURE) {
                 _drop_list.emplace_back(
                     Drop(Widget_Item(FURNI_1, label, this), type));
             } else if (templs.templ_list().empty()) {
-                widget_label = "drop";
-                push_exception(ERROR, EXC_ILLEAGAL);
+                widget_label = "drops";
+                push_exception(ERROR, EXC_ILLEGAL);
                 return;
             } else {
                 int items_count = droptype.items_count();
                 int length = (droptype_range.end - droptype_range.start) / items_count;
                 for (int i = 0; i < items_count; i++) {
-                    std::string label = "drop." + std::to_string(_drop_list.size());
+                    std::string label = "drops." + std::to_string(_drop_list.size());
                     auto range = cv::Range(
                         droptype_range.start + length * i,
                         droptype_range.start + length * (i + 1));
