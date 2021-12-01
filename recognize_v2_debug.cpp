@@ -1208,8 +1208,6 @@ int main(int argc, char** argv)
     system("chcp 65001");
     system("cls");
 
-    path p = path(argv[0]).parent_path();
-    current_path(p);
     preload();
     server = "CN";
 

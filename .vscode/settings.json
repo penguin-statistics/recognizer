@@ -1,0 +1,9 @@
+{
+    "conventionalCommits.scopes": [
+        "git"
+    ],
+    "cmake.debugConfig": {
+        "cwd": "${workspaceFolder}",
+        "externalConsole": true,
+    }
+}
