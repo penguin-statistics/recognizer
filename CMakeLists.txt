@@ -13,7 +13,7 @@ endif(NOT CMAKE_BUILD_TYPE)
 
 # Does not work
 # find_package(OpenCV REQUIRED PATHS "${OPENCV_DIR}/build_wasm" NO_DEFAULT_PATH)
-find_package( OpenCV REQUIRED )
+find_package(OpenCV REQUIRED)
 
 # Needed for opencv2/opencv.hpp
 include_directories(${OpenCV_INCLUDE_DIRS})
