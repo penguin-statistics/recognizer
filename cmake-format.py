@@ -26,7 +26,7 @@ with section("format"):
   disable = False
 
   # How wide to allow formatted cmake files
-  line_width = 80
+  line_width = 800
 
   # How many spaces to tab for indent
   tab_size = 4
@@ -46,11 +46,11 @@ with section("format"):
 
   # If an argument group contains more than this many sub-groups (parg or kwarg
   # groups) then force it to a vertical layout.
-  max_subgroups_hwrap = 2
+  max_subgroups_hwrap = 8
 
   # If a positional argument group contains more than this many arguments, then
   # force it to a vertical layout.
-  max_pargs_hwrap = 6
+  max_pargs_hwrap = 8
 
   # If a cmdline positional group consumes more than this many lines without
   # nesting, then invalidate the layout (and nest)
@@ -64,7 +64,7 @@ with section("format"):
 
   # If a statement is wrapped to more than one line, than dangle the closing
   # parenthesis on its own line.
-  dangle_parens = False
+  dangle_parens = True
 
   # If the trailing parenthesis must be 'dangled' on its on line, then align it
   # to this reference: `prefix`: the start of the statement,  `prefix-indent`:
