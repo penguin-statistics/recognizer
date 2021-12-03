@@ -18,7 +18,7 @@ cd penguin-stats-recognize
 
 ## Build OpenCV to Javascript + WebAssembly
 
-> I am not sure whether this step is needed, because `penguin-stats-recognize` seems only need the static libraries of OpenCV instead of `opencv.js` and `opencv.wasm` . However, these steps also produce the static libraries.
+> I am not sure whether this step is needed, because `penguin-stats-recognize` seems to only need the static libraries of OpenCV instead of `opencv.js` , and `opencv.wasm` . However, these steps also produce the static libraries.
 
 > Reference: https://docs.opencv.org/4.x/d4/da1/tutorial_js_setup.html
 
@@ -42,7 +42,7 @@ Clone OpenCV 4.5.4 (other versions may work. idk).
 git clone --depth 1 --branch 4.5.4 https://github.com/opencv/opencv.git
 ```
 
-Before building OpenCV, some switches need to be turned on to build `opencv2/imgcodecs` . Open `opencv/platforms/js/build_js.py` with a editor, and turn `-DWITH_JPEG` , `-DWITH_PNG` and `-DBUILD_opencv_imgcodecs` to `ON` .
+Before building OpenCV, some switches need to be turned on to build `opencv2/imgcodecs` . Open `opencv/platforms/js/build_js.py` with an editor, and turn `-DWITH_JPEG` , `-DWITH_PNG` and `-DBUILD_opencv_imgcodecs` to `ON` .
 
 ```py
 # opencv/platforms/js/build_js.py
@@ -64,13 +64,13 @@ Then build OpenCV.js:
 emcmake python opencv/platforms/js/build_js.py --build_wasm opencv_build_wasm
 ```
 
-After that, if there're multiple OpenCV static libraries under `opencv_build_wasm/lib/` , that means everything goes right. However, there's no `opencv_build_wasm/lib/libopencv_imgcodecs.lib` , which means `opencv2/imgcodecs` hasn't been built. Well, although the switches in `opencv/platforms/js/build_js.py` are turned on, the script doesn't build `opencv2/imgcodecs` by its own. To build it, run CMake in build mode manually: 
+After that, if there're multiple OpenCV static libraries under `opencv_build_wasm/lib/` , everything goes right. However, there's no `opencv_build_wasm/lib/libopencv_imgcodecs.lib` , which means `opencv2/imgcodecs` hasn't been built. Well, although the switches in `opencv/platforms/js/build_js.py` are turned on, the script doesn't build `opencv2/imgcodecs` on its own. To build it, run CMake in build mode manually: 
 
 ```sh
 cmake --build opencv_build_wasm
 ```
 
-Now `opencv_build_wasm/lib/libopencv_imgcodecs.lib` should exist. The last thing to do is install what have been built in previous steps: 
+Now `opencv_build_wasm/lib/libopencv_imgcodecs.lib` should exist. The last thing to do is install what has been built in previous steps: 
 
 ```sh
 cmake --install opencv_build_wasm --prefix opencv_install_wasm
@@ -80,7 +80,7 @@ If everything goes right, the built OpenCV should be located at `opencv_install_
 
 ## Build `penguin-stats-recognize`
 
-With CMake and Emscripten, `penguin-stats-recognize` can easily be built. In order to build it, run Emscripten CMake in `build` directory: 
+With CMake and Emscripten, `penguin-stats-recognize` can easily be built. To build it, run Emscripten CMake in the project root: 
 
 ```sh
 emcmake cmake -S . -B build
@@ -91,13 +91,14 @@ emcmake cmake -S . -B build
 # -- Build files have been written to: .../penguin-stats-recognize/build
 ```
 
-If the OpenCV built and insatlled in previous steps isn't located in `penguin-stats-recognize/opencv_install_wasm` , the location of the installed OpenCV should be given by adding arguments: 
+If the OpenCV that was built and installed in previous steps isn't located in the directory `opencv_install_wasm` under the project root, the location of the installed OpenCV should be specified by adding arguments: 
 
 ```sh
+# If OpenCV isn't installed at ./opencv_install_wasm, specify it 
 emcmake cmake -S . -B build -D OpenCV_DIR=path/to/opencv
 ```
 
-After a sucessfully run of Emscripten CMake, run CMake build: 
+After a successful run of Emscripten CMake, run CMake build to compile and link: 
 
 ```sh
 cmake --build build
@@ -112,7 +113,7 @@ That's it! Take a look at `build` directory, there should be `recognize.js` and 
 
 ## Test `recognize.js` and `recognize.wasm`
 
-I've written a tiny test to test if `recognize.js` and `recognize.wasm` is whether successfully built. To run it, start a HTTP server in the project root (I use Live Server plugin of VS Code).
+I've written a tiny test to test if `recognize.js` and `recognize.wasm` is whether successfully built. To run it, start an HTTP server in the project root (I use 'Live Server' plugin of VS Code).
 
 Open the DevTools of the browser and navigate to `/recognize_test.html` . You should see 3 buttons.
 
