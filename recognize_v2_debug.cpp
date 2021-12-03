@@ -71,22 +71,22 @@ Rect get_rect(dict box)
 void preload()
 {
     ifstream f;
-    f.open("src\\stage_index.json");
+    f.open("data\\stage_index.json");
     f >> stage_index;
     f.close();
     f.clear();
-    f.open("src\\item_index.json");
+    f.open("data\\item_index.json");
     f >> item_index;
     f.close();
     f.clear();
-    f.open("src\\hash_index.json");
+    f.open("data\\hash_index.json");
     f >> hash_index;
     f.close();
     f.clear();
 
     int count = 0;
     for (auto& item : item_index.items()) {
-        templs.push_back(imread("src\\items\\" + item.key() + ".jpg"));
+        templs.push_back(imread("data\\items\\" + item.key() + ".jpg"));
         item_index[item.key()]["img"] = count;
         count++;
     }
@@ -1211,7 +1211,7 @@ int main(int argc, char** argv)
     preload();
     server = "CN";
 
-    string path_ = "err";
+    string path_ = "test_image/err";
 
     if (is_directory(path_)) {
         for (const auto& png : directory_iterator(path_)) {

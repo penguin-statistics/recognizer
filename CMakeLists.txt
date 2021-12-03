@@ -20,7 +20,7 @@ endif(NOT OpenCV_DIR)
 include_directories(${OpenCV_DIR}/include/opencv4)
 
 # json.hpp & md5.hpp
-include_directories(./)
+include_directories(include)
 
 # Recognize executable
 add_executable(recognize ./recognize_v2_wasm_debug.cpp)
