@@ -1,6 +1,11 @@
 # Build Dir of CMake
 build/
 
+# OpenCV Source, Build, Install dirs
+opencv/
+opencv_build_wasm/
+opencv_install_wasm/
+
 # Created by https://www.toptal.com/developers/gitignore/api/c++,opencv,cmake,web,visualstudiocode
 # Edit at https://www.toptal.com/developers/gitignore?templates=c++,opencv,cmake,web,visualstudiocode
 
