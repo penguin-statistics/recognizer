@@ -1144,6 +1144,8 @@ void preload_json(char* stagex, char* itemx, char* hashx, char* i18n)
     item_index = dict::parse(itemx);
     hash_index = dict::parse(hashx);
     server = i18n;
+
+    cout << "[recognize.wasm]: preload_json() successful" << endl;
 }
 }
 
@@ -1153,6 +1155,8 @@ void preload_templ(char* itemId, uint8_t* buffer, size_t size)
     Mat img = decode(buffer, size);
     item_index[itemId]["img"] = templs.size();
     templs.push_back(img);
+
+    cout << "[recognize.wasm]: preload_templ() successful. img.empty()=" << img.empty() << endl;
 }
 }
 
@@ -1186,6 +1190,8 @@ const char* recognize(uint8_t* buffer, size_t size, int fallback)
     strcpy(res, res_str.c_str());
 
     free(buffer);
+
+    cout << "[recognize.wasm]: recognize() successful" << endl;
     return res;
 }
 }

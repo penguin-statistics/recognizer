@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="./build/recognize.js"></script>
+</head>
+
+<body>
+    <script text="text/javascript">
+        const preload_json = Module.cwrap('preload_json', null, ['string', 'string', 'string', 'string'])
+        const preload_templ = Module.cwrap('preload_templ', null, ['string', 'array', 'number'])
+        const recognize = Module.cwrap('recognize', 'string', ['array', 'number', 'number'])
+
+        const getExceptionMessage = Module.cwrap('getExceptionMessage', 'string', ['number'])
+
+        function obtainHashJson() {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open("GET", "/data/hash_index.json", false);
+            xmlHttp.send(null);
+            return xmlHttp.responseText
+        }
+        function obtainItemJson() {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open("GET", "/data/item_index.json", false);
+            xmlHttp.send(null);
+            return xmlHttp.responseText
+        }
+        function obtainStageJson() {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open("GET", "/data/stage_index.json", false);
+            xmlHttp.send(null);
+            return xmlHttp.responseText
+        }
+
+        function doPreloadJson() {
+            let hash = obtainHashJson();
+            let item = obtainItemJson();
+            let stage = obtainStageJson();
+            preload_json(stage, item, hash, "CN");
+        }
+
+        function doPreloadTempl() {
+            let itemList = Object.keys(JSON.parse(obtainItemJson()))
+            itemList.forEach(itemId => {
+                var oReq = new XMLHttpRequest();
+                oReq.open("GET", `/data/items/${itemId}.jpg`, true);
+                oReq.responseType = "arraybuffer";
+
+                oReq.onload = function (oEvent) {
+                    var arrayBuffer = oReq.response;
+                    if (arrayBuffer) {
+                        let byteArray = new Uint8Array(arrayBuffer);
+                        preload_templ(itemId, byteArray, byteArray.length)
+                    }
+                };
+
+                oReq.send(null);
+            })
+        }
+
+        function obtainTestImage() {
+            var xmlHttp = new XMLHttpRequest();
+            xmlHttp.open("GET", `/test_image/err/0.png`, false);
+            xmlHttp.send(null);
+            return stringToArrayBuffer(xmlHttp.response);
+        }
+
+        function doRecognize() {
+            var oReq = new XMLHttpRequest();
+            oReq.open("GET", `/test_image/err/0.png`, true);
+            oReq.responseType = "arraybuffer";
+
+            oReq.onload = function (oEvent) {
+                var arrayBuffer = oReq.response;
+                if (arrayBuffer) {
+                    let byteArray = new Uint8Array(arrayBuffer);
+                    let result = recognize(byteArray, byteArray.length, 1);
+                    console.log(result);
+                }
+            };
+
+            oReq.send(null);
+        }
+    </script>
+    <button onclick="doPreloadJson()">Preload JSON</button><br />
+    <button onclick="doPreloadTempl()">Preload Templates</button><br />
+    <button onclick="doRecognize()">Recognize</button><br />
+
+
+</body>
+
+</html>
