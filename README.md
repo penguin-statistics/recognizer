@@ -137,3 +137,17 @@ Now, the following files should exist
 `penguin-recognizer/build/penguin-recognizer.js`  
 `penguin-recognizer/build/penguin-recognizer.wasm`   
 
+## Known issues & Todo
+
+### Known issues
+
+1. In some situations, get wrong result of stage recognition. (e.g. WR-10 -> WR-1O)
+2. In some situations, get wrong result of drop type recognition. (e.g. LMB`yellow` -> EXTRA_DROP`green`)
+3. In some situations, get wrong result of drop number recognition.
+
+### Todo
+
++ [ ] add automatic fallback to fix `Known issues 1.`
++ [ ] add droptype order check to fix `Known issues 2.`
++ [ ] update drop number recognition strategy to fix `Known issues 3.`
++ [ ] depot recognition (in development)
