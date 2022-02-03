@@ -28,8 +28,8 @@ class Maker():
             code = stage["code"]
             stageId = stage["stageId"]
             drops = []
-            if "dropinfos" in stage:
-                for item in stage["dropinfos"]:
+            if "dropInfos" in stage:
+                for item in stage["dropInfos"]:
                     if "itemId" in item:
                         if item["itemId"] != "furni":
                             drops.append(item["itemId"])
