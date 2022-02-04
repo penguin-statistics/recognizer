@@ -106,6 +106,15 @@ Now, the following files should exist
 
 ### Build penguin-recognizer
 
+#### Modify `CMakeLists.txt` if necessary
+> If your `opencv` directory is at the same level as the `penguin-recognizer` directory, skip this step.
+
+Open `CMakeLists.txt`, modify the value of `OPENCV_DIR` to the path to your `opencv` directory.
+```
+set(OPENCV_DIR "/path/to/opencv")
+```
+
+
 #### Make build files
 ```
 # change directory to penguin-recognizer
