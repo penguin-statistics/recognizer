@@ -1,14 +1,17 @@
 #ifndef PENGUIN_RESULT_HPP_
 #define PENGUIN_RESULT_HPP_
 
+#include "../3rdparty/json/include/json.hpp"
+#include "../3rdparty/md5/include/md5.hpp"
 #include "core.hpp"
-#include "json.hpp"
-#include "md5.hpp"
 #include "recognize.hpp"
-#include <iomanip>
-// #include <iostream>
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
+
+#include <iomanip>
+
+
 using dict = nlohmann::ordered_json;
 
 namespace penguin { // result

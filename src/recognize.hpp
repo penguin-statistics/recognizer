@@ -1,11 +1,15 @@
 #ifndef PENGUIN_RECOGNIZE_HPP_
 #define PENGUIN_RECOGNIZE_HPP_
 
+#include "../3rdparty/json/include/json.hpp"
 #include "core.hpp"
-#include "json.hpp"
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
+
 #include <optional>
+
+
 using dict = nlohmann::ordered_json;
 
 namespace penguin
@@ -537,12 +541,6 @@ namespace penguin
         const bool empty() const
         {
             return _quantity;
-        }
-        const Widget_Character &operator[](uint i) const
-        {
-            auto it = _characters.begin();
-            std::advance(it, i);
-            return *it;
         }
         const dict report(bool debug = false)
         {

@@ -27,8 +27,12 @@ include_directories("${OPENCV_DIR}/build_wasm")
 file(GLOB opencv_include_modules "${OPENCV_DIR}/sources/modules/*/include")
 include_directories(${opencv_include_modules})
 
-# Needed by json.hpp
+# Needed by sources
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
+
+# Needed by 3rdparty
+file(GLOB 3rdparty_include_modules "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/*/include")
+include_directories(${3rdparty_include_modules})
 
 # Recognize executable
 add_executable(penguin-recognizer "${CMAKE_CURRENT_SOURCE_DIR}/src/recognizer_wasm.cpp")

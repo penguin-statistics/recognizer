@@ -1,12 +1,15 @@
 #ifndef PENGUIN_CORE_HPP_
 #define PENGUIN_CORE_HPP_
 
-#include "json.hpp"
-#include <any>
-// #include <iostream>
-#include <list>
+#include "../3rdparty/json/include/json.hpp"
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
+
+#include <any>
+#include <list>
+
+
 using dict = nlohmann::ordered_json;
 
 namespace penguin {
@@ -44,7 +47,7 @@ enum HammingFlags {
     HAMMING64 = 64
 };
 
-std::string server;
+std::string server = "";
 
 class Resource {
 public:
@@ -101,6 +104,9 @@ auto& resource = Resource::_get_instance();
 const bool env_check()
 {
     bool pass = true;
+    if (server.empty()) {
+        pass = false;
+    }
 #ifdef PENGUIN_RECOGNIZE_HPP_
     if (!resource.contains<std::map<std::string, cv::Mat>>("item_templs")
         || !resource.contains<dict>("hash_index")) {

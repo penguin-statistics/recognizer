@@ -1,7 +1,10 @@
 #include "result.hpp"
-#include <iostream>
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgcodecs.hpp>
+
+#include <iostream>
+
 
 cv::Mat decode(uint8_t* buffer, size_t size)
 {
