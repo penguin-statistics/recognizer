@@ -26,7 +26,7 @@ cd penguin-recognizer
 
 > #### ⚠**Version Warning**
 > Currently, `penguin-recognizer` is built by **`Emscripten 1.39.0`**, which is verified for supporting some old version chromium core browsers.  
-> According to the limitation of `opencv`, the latest supported version is **`Emscripten 2.0.10`**, but it might not support some old version browsers.
+> According to the limitation of `OpenCV`, the latest supported version is **`Emscripten 2.0.10`**, but it might not support some old version browsers.
 
 ```
 # Get the emsdk repo
@@ -124,7 +124,7 @@ emcmake cmake ..
 ```
 emmake make
 
-# Should print the following lines if CMake build runs successfully:
+# Should print the following output if success:
 # Scanning dependencies of target penguin-recognizer
 # [ 50%] Building CXX object CMakeFiles/penguin-recognizer.dir/src/recognizer_wasm.cpp.o
 # [100%] Linking CXX executable penguin-recognizer.js
