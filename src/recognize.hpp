@@ -210,31 +210,14 @@ public:
     virtual void set_img(const cv::Mat& img)
     {
         _img = img;
-        carlibrate();
+        _carlibrate();
     }
     virtual void set_parent(Widget* const parent_widget)
     {
         _parent_widget = parent_widget;
-        carlibrate();
+        _carlibrate();
     }
-    void carlibrate()
-    {
-        x = y = 0;
-        if (const auto& parent = *_parent_widget; _parent_widget != nullptr)
-        {
-            if (const auto& parent_img = parent.img();
-                !parent_img.empty() && !_img.empty())
-            {
-                cv::Size _;
-                cv::Point topleft_child, topleft_parent;
-                _img.locateROI(_, topleft_child);
-                parent.img().locateROI(_, topleft_parent);
-                x = topleft_child.x - topleft_parent.x;
-                y = topleft_child.y - topleft_parent.y;
-                _relate(parent);
-            }
-        }
-    }
+
     virtual const bool empty() const { return width <= 0 || height <= 0; }
     virtual const dict report(bool debug = false)
     {
@@ -330,6 +313,26 @@ public:
             _exception_list = std::move(widget._exception_list);
         }
         return *this;
+    }
+
+private:
+    void _carlibrate()
+    {
+        x = y = 0;
+        if (const auto& parent = *_parent_widget; _parent_widget != nullptr)
+        {
+            if (const auto& parent_img = parent.img();
+                !parent_img.empty() && !_img.empty())
+            {
+                cv::Size _;
+                cv::Point topleft_child, topleft_parent;
+                _img.locateROI(_, topleft_child);
+                parent_img.locateROI(_, topleft_parent);
+                x = topleft_child.x - topleft_parent.x;
+                y = topleft_child.y - topleft_parent.y;
+                _relate(parent);
+            }
+        }
     }
 
 protected:
