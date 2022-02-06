@@ -14,6 +14,13 @@
 static const std::string version = "3.4.0";
 static const std::string opencv_version = CV_VERSION;
 
+enum class RecognizerMode
+{
+    UNDEFINED = 0,
+    RESULT = 1,
+    DEPOT = 2
+};
+
 cv::Mat decode(uint8_t* buffer, size_t size)
 {
     std::vector buf(buffer, buffer + size);
@@ -58,18 +65,71 @@ const bool env_check()
 class Recognizer
 {
 public:
-    Recognizer()
+    Recognizer(RecognizerMode mode)
     {
+        _mode = mode;
     }
+    Recognizer(std::string mode)
+    {
+        if (mode == "RESULT")
+        {
+            _mode = RecognizerMode::RESULT;
+        }
+        else if (mode == "DEPOT")
+        {
+            _mode = RecognizerMode::DEPOT;
+        }
+        else
+        {
+            _mode = RecognizerMode::UNDEFINED;
+        }
+    }
+
+    void set_image(cv::Mat img)
+    {
+        _img = img;
+    }
+    void set_image(uint8_t* buffer, size_t size)
+    {
+        int64 start = cv::getTickCount();
+        _img = decode(buffer, size);
+        int64 end = cv::getTickCount();
+
+        _report["cost"]["decode"] = std::to_string((end - start) / cv::getTickFrequency() * 1000) + "ms";
+    }
+
+    std::string get_report()
+    {
+        return _report.dump();
+    }
+
     void recognize()
     {
-        _recognize();
+        switch (_mode)
+        {
+        case RecognizerMode::RESULT:
+        {
+            int64 start = cv::getTickCount();
+            penguin::Result result {_img};
+            result.analyze();
+            int64 end = cv::getTickCount();
+            _report = result.report();
+            _report["md5"] = result.get_md5();
+            _report["cost"]["recognize"] = std::to_string((end - start) / cv::getTickFrequency() * 1000) + "ms";
+            break;
+        }
+        default:
+        {
+            _report = "[ERROR] Invalid Recognizer Mode";
+            break;
+        }
+        }
     }
 
 private:
-    void _recognize()
-    {
-    }
+    RecognizerMode _mode;
+    cv::Mat _img;
+    dict _report;
 };
 
 #endif // PENGUIN_RECOGNIZER_HPP_
