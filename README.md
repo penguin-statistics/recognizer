@@ -160,3 +160,4 @@ Now, the following files should exist
 + [ ] add droptype order check to fix `Known issues 2.`
 + [ ] update drop number recognition strategy to fix `Known issues 3.`
 + [ ] depot recognition (in development)
++ [ ] new wasm interface using emscripten:bind
