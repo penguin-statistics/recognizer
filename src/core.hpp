@@ -23,7 +23,7 @@ const double _ITEM_QTY_HEIGHT_PROP = 0.16;
 const double _ITEM_CHR_HEIGHT_PROP = 0.6;
 const double _CONFIDENCE_THRESHOLD = 0.6;
 
-enum DirectionFlags
+enum class DirectionFlags
 {
     TOP = 0,
     BOTTOM = 1,
@@ -37,14 +37,14 @@ enum RangeFlags
     END = 1
 };
 
-enum ResizeFlags
+enum class ResizeFlags
 {
     RESIZE_W16_H16 = 0,
     RESIZE_W32_H8 = 1,
     RESIZE_W8_H32 = 2
 };
 
-enum HammingFlags
+enum class HammingFlags
 {
     HAMMING16 = 16,
     HAMMING64 = 64
@@ -137,7 +137,7 @@ std::list<cv::Range> separate(const cv::Mat& src_bin, DirectionFlags direc, int 
     std::list<cv::Range> sp;
     bool isodd = false;
     int begin;
-    if (direc == TOP)
+    if (direc == DirectionFlags::TOP)
     {
         for (int ro = 0; ro < src_bin.rows; ro++)
         {
@@ -170,7 +170,7 @@ std::list<cv::Range> separate(const cv::Mat& src_bin, DirectionFlags direc, int 
             sp.emplace_back(cv::Range(begin, end));
         }
     }
-    else if (direc == BOTTOM)
+    else if (direc == DirectionFlags::BOTTOM)
     {
         for (int ro = src_bin.rows - 1; ro >= 0; ro--)
         {
@@ -203,7 +203,7 @@ std::list<cv::Range> separate(const cv::Mat& src_bin, DirectionFlags direc, int 
             sp.emplace_back(cv::Range(end, begin));
         }
     }
-    else if (direc == LEFT)
+    else if (direc == DirectionFlags::LEFT)
     {
         for (int co = 0; co < src_bin.cols; co++)
         {
@@ -236,7 +236,7 @@ std::list<cv::Range> separate(const cv::Mat& src_bin, DirectionFlags direc, int 
             sp.emplace_back(cv::Range(begin, end));
         }
     }
-    else if (direc == RIGHT)
+    else if (direc == DirectionFlags::RIGHT)
     {
         for (int co = src_bin.cols - 1; co >= 0; co--)
         {
@@ -291,18 +291,18 @@ void squarize(cv::Mat& src_bin)
     }
 }
 
-std::string shash(cv::Mat src_bin, ResizeFlags flag = RESIZE_W16_H16)
+std::string shash(cv::Mat src_bin, ResizeFlags flag = ResizeFlags::RESIZE_W16_H16)
 {
     cv::Size size_;
     switch (flag)
     {
-    case RESIZE_W16_H16:
+    case ResizeFlags::RESIZE_W16_H16:
         size_ = cv::Size(16, 16);
         break;
-    case RESIZE_W32_H8:
+    case ResizeFlags::RESIZE_W32_H8:
         size_ = cv::Size(32, 8);
         break;
-    case RESIZE_W8_H32:
+    case ResizeFlags::RESIZE_W8_H32:
         size_ = cv::Size(8, 32);
         break;
     default:
@@ -328,12 +328,12 @@ std::string shash(cv::Mat src_bin, ResizeFlags flag = RESIZE_W16_H16)
     return hash_value.str();
 }
 
-int hamming(std::string hash1, std::string hash2, HammingFlags flag = HAMMING64)
+int hamming(std::string hash1, std::string hash2, HammingFlags flag = HammingFlags::HAMMING64)
 {
-    hash1.insert(hash1.begin(), flag - hash1.size(), '0');
-    hash2.insert(hash2.begin(), flag - hash2.size(), '0');
+    hash1.insert(hash1.begin(), int(flag) - hash1.size(), '0');
+    hash2.insert(hash2.begin(), int(flag) - hash2.size(), '0');
     int dist = 0;
-    for (int i = 0; i < flag; i = i + 16)
+    for (int i = 0; i < int(flag); i = i + 16)
     {
         unsigned long long x = strtoull(hash1.substr(i, 16).c_str(), NULL, 16) ^
                                strtoull(hash2.substr(i, 16).c_str(), NULL, 16);

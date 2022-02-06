@@ -56,7 +56,7 @@ private:
         cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
         cv::threshold(img_bin, img_bin, 127, 255, cv::THRESH_BINARY_INV);
 
-        auto sp = separate(img_bin, TOP);
+        auto sp = separate(img_bin, DirectionFlags::TOP);
         for (auto& range : sp)
         {
             int length = range.end - range.start;

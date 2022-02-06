@@ -21,18 +21,18 @@ const double DROP_AREA_X_PROP = 0.21;
 const double DROP_AREA_Y_PROP = 0.2;
 const double DROP_AREA_HEIGHT_PROP = 0.8;
 const double ITEM_DIAMETER_PROP = 0.524;
-const double DROPTYPE_W_H_PROP = 7;
+const double W_H_PROP = 7;
 
-enum DroptypeFlags
+enum class DroptypeFlags
 {
-    DROPTYPE_UNDEFINED = 0,
-    DROPTYPE_SANITY = 1,
-    DROPTYPE_FIRST = 2,
-    DROPTYPE_LMB = 3,
-    DROPTYPE_FURNITURE = 4,
-    DROPTYPE_NORMAL_DROP = 5,
-    DROPTYPE_SPECIAL_DROP = 6,
-    DROPTYPE_EXTRA_DROP = 7
+    UNDEFINED = 0,
+    SANITY = 1,
+    FIRST = 2,
+    LMB = 3,
+    FURNITURE = 4,
+    NORMAL_DROP = 5,
+    SPECIAL_DROP = 6,
+    EXTRA_DROP = 7
 };
 
 enum HsvFlags
@@ -43,23 +43,23 @@ enum HsvFlags
 };
 
 std::map<DroptypeFlags, std::string> Droptype2Str {
-    {DROPTYPE_UNDEFINED, ""},
-    {DROPTYPE_SANITY, "SANITY"},
-    {DROPTYPE_FIRST, "FIRST"},
-    {DROPTYPE_LMB, "LMB"},
-    {DROPTYPE_FURNITURE, "FURNITURE"},
-    {DROPTYPE_NORMAL_DROP, "NORMAL_DROP"},
-    {DROPTYPE_SPECIAL_DROP, "SPECIAL_DROP"},
-    {DROPTYPE_EXTRA_DROP, "EXTRA_DROP"}};
+    {DroptypeFlags::UNDEFINED, ""},
+    {DroptypeFlags::SANITY, "SANITY"},
+    {DroptypeFlags::FIRST, "FIRST"},
+    {DroptypeFlags::LMB, "LMB"},
+    {DroptypeFlags::FURNITURE, "FURNITURE"},
+    {DroptypeFlags::NORMAL_DROP, "NORMAL_DROP"},
+    {DroptypeFlags::SPECIAL_DROP, "SPECIAL_DROP"},
+    {DroptypeFlags::EXTRA_DROP, "EXTRA_DROP"}};
 
 const std::map<int, DroptypeFlags> HSV_H2Droptype {
-    {51, DROPTYPE_LMB},
-    {201, DROPTYPE_FIRST},
-    {0, DROPTYPE_NORMAL_DROP},
-    {360, DROPTYPE_NORMAL_DROP},
-    {25, DROPTYPE_SPECIAL_DROP},
-    {63, DROPTYPE_EXTRA_DROP},
-    {24, DROPTYPE_FURNITURE}};
+    {51, DroptypeFlags::LMB},
+    {201, DroptypeFlags::FIRST},
+    {0, DroptypeFlags::NORMAL_DROP},
+    {360, DroptypeFlags::NORMAL_DROP},
+    {25, DroptypeFlags::SPECIAL_DROP},
+    {63, DroptypeFlags::EXTRA_DROP},
+    {24, DroptypeFlags::FURNITURE}};
 
 class Widget_ResultLabel : public Widget
 {
@@ -91,7 +91,7 @@ public:
         }
         if (!_is_result)
         {
-            push_exception(ERROR, EXC_FALSE, report(true));
+            push_exception(ERROR, ExcSubtypeFlags::EXC_FALSE, report(true));
         }
         return *this;
     }
@@ -116,7 +116,7 @@ public:
 private:
     bool _is_result = false;
     std::string _hash = "";
-    int _dist = HAMMING64 * 4;
+    int _dist = int(HammingFlags::HAMMING64) * 4;
     void _get_is_result()
     {
         auto& self = *this;
@@ -175,12 +175,12 @@ public:
         }
         if (_stageId.empty())
         {
-            push_exception(ERROR, EXC_NOTFOUND, report(true));
+            push_exception(ERROR, ExcSubtypeFlags::EXC_NOTFOUND, report(true));
         }
         else if (const auto& stage_index = resource.get<dict>("stage_index");
                  stage_index[_stage_code]["existence"] == false)
         {
-            push_exception(ERROR, EXC_ILLEGAL);
+            push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL);
         }
         return *this;
     }
@@ -222,13 +222,13 @@ private:
         }
         _img = _img(stagerect);
         auto stage_img = _img;
-        auto sp = separate(stage_img, LEFT);
+        auto sp = separate(stage_img, DirectionFlags::LEFT);
         for (auto& range : sp)
         {
             int length = range.end - range.start;
             auto charimg = stage_img(cv::Rect(range.start, 0, length, height));
             std::string label = "char." + std::to_string(_characters.size());
-            Widget_Character chr {charimg, FONT_NOVECENTO_WIDEBOLD, label, this};
+            Widget_Character chr {charimg, FontFlags::NOVECENTO_WIDEBOLD, label, this};
             chr.analyze();
             _stage_code += chr.chr();
             _characters.emplace_back(chr);
@@ -270,7 +270,7 @@ public:
         }
         if (_stars != 3)
         {
-            push_exception(ERROR, EXC_FALSE, report(true));
+            push_exception(ERROR, ExcSubtypeFlags::EXC_FALSE, report(true));
         }
         return *this;
     }
@@ -296,14 +296,14 @@ private:
     {
         auto& self = *this;
         auto star_img = _img;
-        auto laststar_range = separate(star_img, RIGHT, 1).back();
+        auto laststar_range = separate(star_img, DirectionFlags::RIGHT, 1).back();
         auto laststar = star_img(cv::Range(0, height), laststar_range);
         auto starrect = cv::boundingRect(laststar);
         if (starrect.empty())
         {
             return;
         }
-        auto sp = separate(star_img(cv::Rect(0, 0, width, height / 2)), LEFT);
+        auto sp = separate(star_img(cv::Rect(0, 0, width, height / 2)), DirectionFlags::LEFT);
         for (auto it = sp.cbegin(); it != sp.cend();)
         {
             const auto& range = *it;
@@ -358,7 +358,7 @@ public:
     }
 
 private:
-    DroptypeFlags _droptype = DROPTYPE_UNDEFINED;
+    DroptypeFlags _droptype = DroptypeFlags::UNDEFINED;
     cv::Vec3f _hsv;
     int _dist = HSV_DIST_MAX;
     void _get_droptype()
@@ -367,13 +367,13 @@ private:
         auto hsv = _hsv;
         if (hsv[S] < 0.1 && hsv[V] <= 0.9)
         {
-            _droptype = DROPTYPE_NORMAL_DROP;
+            _droptype = DroptypeFlags::NORMAL_DROP;
             _dist = 0;
             return;
         }
         else if (hsv[S] < 0.1 && hsv[V] > 0.9)
         {
-            _droptype = DROPTYPE_SANITY;
+            _droptype = DroptypeFlags::SANITY;
             _dist = 0;
             return;
         }
@@ -381,7 +381,7 @@ private:
         {
             for (const auto& [kh, vtype] : HSV_H2Droptype)
             {
-                if (vtype == DROPTYPE_NORMAL_DROP || vtype == DROPTYPE_SANITY)
+                if (vtype == DroptypeFlags::NORMAL_DROP || vtype == DroptypeFlags::SANITY)
                 {
                     continue;
                 }
@@ -450,9 +450,9 @@ public:
     }
 
 private:
-    DroptypeFlags _droptype = DROPTYPE_UNDEFINED;
+    DroptypeFlags _droptype = DroptypeFlags::UNDEFINED;
     std::string _hash = "";
-    int _dist = HAMMING64 * 4;
+    int _dist = int(HammingFlags::HAMMING64) * 4;
     std::vector<DroptypeDist> _dist_list;
     void _get_droptype()
     {
@@ -464,7 +464,7 @@ private:
         }
         if (server == "US")
         {
-            _hash = shash(droptextimg, RESIZE_W32_H8);
+            _hash = shash(droptextimg, ResizeFlags::RESIZE_W32_H8);
         }
         else
         {
@@ -479,16 +479,16 @@ private:
         if (dist_spe < dist_fur)
         {
             _dist = dist_spe;
-            _droptype = DROPTYPE_SPECIAL_DROP;
+            _droptype = DroptypeFlags::SPECIAL_DROP;
         }
         else if (dist_fur < dist_spe)
         {
             _dist = dist_fur;
-            _droptype = DROPTYPE_FURNITURE;
+            _droptype = DroptypeFlags::FURNITURE;
         }
         else
         {
-            _droptype = DROPTYPE_UNDEFINED;
+            _droptype = DroptypeFlags::UNDEFINED;
         }
     }
     void _process_img()
@@ -541,10 +541,10 @@ public:
         {
             _get_droptype();
         }
-        if (_droptype == DROPTYPE_UNDEFINED || _droptype == DROPTYPE_SANITY ||
-            _droptype == DROPTYPE_FIRST)
+        if (_droptype == DroptypeFlags::UNDEFINED || _droptype == DroptypeFlags::SANITY ||
+            _droptype == DroptypeFlags::FIRST)
         {
-            push_exception(ERROR, EXC_ILLEGAL, report(true));
+            push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL, report(true));
         }
         return *this;
     }
@@ -571,8 +571,8 @@ public:
     }
 
 private:
-    DroptypeFlags _droptype = DROPTYPE_UNDEFINED;
-    uint _items_count = round(width / (height * DROPTYPE_W_H_PROP));
+    DroptypeFlags _droptype = DroptypeFlags::UNDEFINED;
+    uint _items_count = round(width / (height * W_H_PROP));
     Widget_DroptypeLine _line {this};
     Widget_DroptypeText _text {this};
     void _get_droptype()
@@ -581,8 +581,8 @@ private:
         _line.set_img(lineimg);
         _line.analyze();
         _droptype = _line.droptype();
-        if (_droptype == DROPTYPE_SPECIAL_DROP ||
-            _droptype == DROPTYPE_FURNITURE)
+        if (_droptype == DroptypeFlags::SPECIAL_DROP ||
+            _droptype == DroptypeFlags::FURNITURE)
         {
             auto textimg = _img(cv::Rect(0, 1, width, height - 1));
             _text.set_img(textimg);
@@ -617,12 +617,12 @@ public:
         else
         {
             widget_label = "dropTypes";
-            push_exception(ERROR, EXC_NOTFOUND);
+            push_exception(ERROR, ExcSubtypeFlags::EXC_NOTFOUND);
         }
         if (_droptype_list.empty())
         {
             widget_label = "dropTypes";
-            push_exception(ERROR, EXC_NOTFOUND);
+            push_exception(ERROR, ExcSubtypeFlags::EXC_NOTFOUND);
         }
         return *this;
     }
@@ -687,7 +687,7 @@ private:
             }
         }
         int baseline_h = row + offset;
-        auto sp = separate(img_bin(cv::Rect(0, row, width, 1)), LEFT);
+        auto sp = separate(img_bin(cv::Rect(0, row, width, 1)), DirectionFlags::LEFT);
         int item_diameter = height / DROP_AREA_HEIGHT_PROP * ITEM_DIAMETER_PROP;
         for (auto it = sp.cbegin(); it != sp.cend();)
         {
@@ -719,18 +719,18 @@ private:
             droptype.analyze();
             _droptype_list.emplace_back(droptype);
             if (const auto type = droptype.droptype();
-                type == DROPTYPE_UNDEFINED || type == DROPTYPE_SANITY ||
-                type == DROPTYPE_FIRST)
+                type == DroptypeFlags::UNDEFINED || type == DroptypeFlags::SANITY ||
+                type == DroptypeFlags::FIRST)
             {
                 break;
             }
-            else if (type == DROPTYPE_LMB)
+            else if (type == DroptypeFlags::LMB)
             {
                 continue;
             }
             else if (std::string label =
                          "drops." + std::to_string(_drop_list.size());
-                     type == DROPTYPE_FURNITURE)
+                     type == DroptypeFlags::FURNITURE)
             {
                 _drop_list.emplace_back(
                     Drop(Widget_Item(FURNI_1, label, this), type));
@@ -738,7 +738,7 @@ private:
             else if (templs.templ_list().empty())
             {
                 widget_label = "drops";
-                push_exception(ERROR, EXC_ILLEGAL);
+                push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL);
                 return;
             }
             else
@@ -833,7 +833,7 @@ private:
 
     void _get_baseline_v()
     {
-        if (_status == STATUS_HASERROR || _status == STATUS_ERROR)
+        if (_status == StatusFlags::STATUS_HASERROR || _status == StatusFlags::STATUS_ERROR)
         {
             return;
         }
@@ -882,12 +882,12 @@ private:
         if (_baseline_v.empty() || _baseline_v.height < BASELINE_V_HEIGHT_MIN ||
             _baseline_v.x <= _baseline_v.height)
         {
-            _result_label.push_exception(ERROR, EXC_FALSE, report(true));
+            _result_label.push_exception(ERROR, ExcSubtypeFlags::EXC_FALSE, report(true));
         }
     }
     void _get_result_label()
     {
-        if (_status == STATUS_HASERROR || _status == STATUS_ERROR)
+        if (_status == StatusFlags::STATUS_HASERROR || _status == StatusFlags::STATUS_ERROR)
         {
             return;
         }
@@ -900,7 +900,7 @@ private:
     }
     void _get_stage()
     {
-        if (_status == STATUS_HASERROR || _status == STATUS_ERROR)
+        if (_status == StatusFlags::STATUS_HASERROR || _status == StatusFlags::STATUS_ERROR)
         {
             return;
         }
@@ -912,7 +912,7 @@ private:
     }
     void _get_stars()
     {
-        if (_status == STATUS_HASERROR || _status == STATUS_ERROR)
+        if (_status == StatusFlags::STATUS_HASERROR || _status == StatusFlags::STATUS_ERROR)
         {
             return;
         }
@@ -924,7 +924,7 @@ private:
     }
     void _get_drop_area()
     {
-        if (_status == STATUS_HASERROR || _status == STATUS_ERROR)
+        if (_status == StatusFlags::STATUS_HASERROR || _status == StatusFlags::STATUS_ERROR)
         {
             return;
         }

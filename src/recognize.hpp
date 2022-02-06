@@ -13,7 +13,7 @@ using dict = nlohmann::ordered_json;
 namespace penguin
 {
 
-enum StatusFlags
+enum class StatusFlags
 {
     STATUS_NORMAL = 0,
     STATUS_HASWARNING = 1,
@@ -28,7 +28,7 @@ enum ExcTypeFlags
     ERROR = 2
 };
 
-enum ExcSubtypeFlags
+enum class ExcSubtypeFlags
 {
     EXC_UNKNOWN = 0,
     EXC_FALSE = 1,
@@ -37,14 +37,14 @@ enum ExcSubtypeFlags
     EXC_LOWCONF = 4
 };
 
-enum FontFlags
+enum class FontFlags
 {
-    FONT_UNDEFINED = 0,
-    FONT_NOVECENTO_WIDEBOLD = 1,
-    FONT_SOURCE_HAN_SANS_CN_MEDIUM = 2,
-    FONT_NUBER_NEXT_DEMIBOLD_CONDENSED = 3,
-    FONT_RODIN_PRO_DB = 4,
-    FONT_SOURCE_HAN_SANS_KR_BOLD = 5
+    UNDEFINED = 0,
+    NOVECENTO_WIDEBOLD = 1,
+    SOURCE_HAN_SANS_CN_MEDIUM = 2,
+    NUBER_NEXT_DEMIBOLD_CONDENSED = 3,
+    RODIN_PRO_DB = 4,
+    SOURCE_HAN_SANS_KR_BOLD = 5
 };
 
 enum FurniFlags
@@ -59,17 +59,17 @@ enum WithoutExceptionFlags
 };
 
 const std::map<FontFlags, std::string> Font2Str {
-    {FONT_NOVECENTO_WIDEBOLD, "Novecento Widebold"},
-    {FONT_SOURCE_HAN_SANS_CN_MEDIUM, "Source Han Sans CN Medium"},
-    {FONT_NUBER_NEXT_DEMIBOLD_CONDENSED, "Nuber Next Demibold Condensed"},
-    {FONT_RODIN_PRO_DB, "Rodin Pro DB"},
-    {FONT_SOURCE_HAN_SANS_KR_BOLD, "Source Han Sans KR Bold"}};
+    {FontFlags::NOVECENTO_WIDEBOLD, "Novecento Widebold"},
+    {FontFlags::SOURCE_HAN_SANS_CN_MEDIUM, "Source Han Sans CN Medium"},
+    {FontFlags::NUBER_NEXT_DEMIBOLD_CONDENSED, "Nuber Next Demibold Condensed"},
+    {FontFlags::RODIN_PRO_DB, "Rodin Pro DB"},
+    {FontFlags::SOURCE_HAN_SANS_KR_BOLD, "Source Han Sans KR Bold"}};
 
 const std::map<std::string, FontFlags> Server2Font {
-    {"CN", FONT_SOURCE_HAN_SANS_CN_MEDIUM},
-    {"US", FONT_NUBER_NEXT_DEMIBOLD_CONDENSED},
-    {"JP", FONT_RODIN_PRO_DB},
-    {"KR", FONT_SOURCE_HAN_SANS_KR_BOLD}};
+    {"CN", FontFlags::SOURCE_HAN_SANS_CN_MEDIUM},
+    {"US", FontFlags::NUBER_NEXT_DEMIBOLD_CONDENSED},
+    {"JP", FontFlags::RODIN_PRO_DB},
+    {"KR", FontFlags::SOURCE_HAN_SANS_KR_BOLD}};
 
 class Exception
 {
@@ -96,19 +96,19 @@ public:
     {
         switch (exc_subtype)
         {
-        case EXC_UNKNOWN:
+        case ExcSubtypeFlags::EXC_UNKNOWN:
             msg = "Unknown";
             break;
-        case EXC_FALSE:
+        case ExcSubtypeFlags::EXC_FALSE:
             msg = "False";
             break;
-        case EXC_NOTFOUND:
+        case ExcSubtypeFlags::EXC_NOTFOUND:
             msg = "NotFound";
             break;
-        case EXC_ILLEGAL:
+        case ExcSubtypeFlags::EXC_ILLEGAL:
             msg = "illegal";
             break;
-        case EXC_LOWCONF:
+        case ExcSubtypeFlags::EXC_LOWCONF:
             msg = "LowConfidence";
             break;
         }
@@ -335,7 +335,7 @@ public:
 protected:
     cv::Mat _img;
     Widget* _parent_widget = nullptr;
-    StatusFlags _status = STATUS_NORMAL;
+    StatusFlags _status = StatusFlags::STATUS_NORMAL;
     dict _exception_list = dict::array();
     void _relate(const Widget& widget)
     {
@@ -374,7 +374,7 @@ public:
             _get_char();
             if (_dist > 64 && without_exception == false)
             {
-                push_exception(WARNING, EXC_LOWCONF, report(true));
+                push_exception(WARNING, ExcSubtypeFlags::EXC_LOWCONF, report(true));
             }
         }
         else
@@ -407,8 +407,8 @@ public:
 private:
     std::string _chr;
     std::string _hash;
-    int _dist = HAMMING64 * 4;
-    FontFlags font = FONT_UNDEFINED;
+    int _dist = int(HammingFlags::HAMMING64) * 4;
+    FontFlags font = FontFlags::UNDEFINED;
     std::vector<CharDist> _dist_list;
     void _get_char()
     {
@@ -426,13 +426,13 @@ private:
         std::string chr;
         dict char_dict;
         if (const auto& hash_index = resource.get<dict>("hash_index");
-            font == FONT_NOVECENTO_WIDEBOLD)
+            font == FontFlags::NOVECENTO_WIDEBOLD)
             char_dict = hash_index["stage"];
         else
             char_dict = hash_index["item"][server];
         for (const auto& [kchar, vhash] : char_dict.items())
         {
-            int dist = hamming(_hash, vhash, HAMMING64);
+            int dist = hamming(_hash, vhash, HammingFlags::HAMMING64);
             _dist_list.emplace_back(kchar, dist);
             if (dist < _dist)
             {
@@ -472,7 +472,7 @@ public:
         }
         if (_quantity == 0)
         {
-            push_exception(ERROR, EXC_NOTFOUND, report(true));
+            push_exception(ERROR, ExcSubtypeFlags::EXC_NOTFOUND, report(true));
         }
         return *this;
     }
@@ -516,7 +516,7 @@ private:
         auto& self = *this;
         auto qtyimg = _img;
         std::string quantity_str;
-        auto sp = separate(qtyimg, RIGHT);
+        auto sp = separate(qtyimg, DirectionFlags::RIGHT);
         sp.remove_if([&](const cv::Range& range) {
             int length = range.end - range.start;
             return length > height * 0.7 || length < height * 0.1;
@@ -655,7 +655,7 @@ public:
             if (_confidence < _CONFIDENCE_THRESHOLD &&
                 without_exception == false)
             {
-                push_exception(ERROR, EXC_LOWCONF, report(true));
+                push_exception(ERROR, ExcSubtypeFlags::EXC_LOWCONF, report(true));
             }
         }
         else
