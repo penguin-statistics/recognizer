@@ -4,24 +4,30 @@
 
 #include "result.hpp"
 
-cv::Mat decode(uint8_t* buffer, size_t size) {
+cv::Mat decode(uint8_t* buffer, size_t size)
+{
     std::vector buf(buffer, buffer + size);
     return cv::imdecode(buf, cv::IMREAD_COLOR);
 }
 
 extern "C" {
-const char* get_info() {
+const char* get_info()
+{
     static std::string version = "3.3.0";
     return version.data();
 }
 }
 
 extern "C" {
-void load_server(char* server) { penguin::server = server; }
+void load_server(char* server)
+{
+    penguin::server = server;
+}
 }
 
 extern "C" {
-void load_json(char* stage_index, char* hash_index) {
+void load_json(char* stage_index, char* hash_index)
+{
     auto& resource = penguin::resource;
     resource.add("stage_index", dict::parse(stage_index));
     resource.add("hash_index", dict::parse(hash_index));
@@ -29,10 +35,12 @@ void load_json(char* stage_index, char* hash_index) {
 }
 
 extern "C" {
-void load_templ(char* itemId, uint8_t* buffer, size_t size) {
+void load_templ(char* itemId, uint8_t* buffer, size_t size)
+{
     cv::Mat templimg = decode(buffer, size);
     auto& resource = penguin::resource;
-    if (!resource.contains<std::map<std::string, cv::Mat>>("item_templs")) {
+    if (!resource.contains<std::map<std::string, cv::Mat>>("item_templs"))
+    {
         resource.add("item_templs", std::map<std::string, cv::Mat>());
     }
     auto& item_templs =
@@ -42,10 +50,12 @@ void load_templ(char* itemId, uint8_t* buffer, size_t size) {
 }
 
 extern "C" {
-const char* recognize(uint8_t* buffer, size_t size) {
+const char* recognize(uint8_t* buffer, size_t size)
+{
     int64 start, end;
     static std::string res;
-    if (!penguin::env_check()) {
+    if (!penguin::env_check())
+    {
         res = "env check fail";
         return res.data();
     }
@@ -53,7 +63,7 @@ const char* recognize(uint8_t* buffer, size_t size) {
     start = cv::getTickCount();
 
     cv::Mat img = decode(buffer, size);
-    penguin::Result result{img};
+    penguin::Result result {img};
     result.analyze();
 
     end = cv::getTickCount();

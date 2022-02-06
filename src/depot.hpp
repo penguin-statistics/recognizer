@@ -14,21 +14,31 @@ using dict = nlohmann::ordered_json;
 
 extern void show_img(cv::Mat src);
 
-namespace penguin {
+namespace penguin
+{
 
-enum CircleFlags { X = 0, Y = 1, R = 2 };
+enum CircleFlags
+{
+    X = 0,
+    Y = 1,
+    R = 2
+};
 
-class Depot : public Widget {
+class Depot : public Widget
+{
 public:
     Depot() = default;
-    Depot(const cv::Mat &img) : Widget(img) {}
-    Depot &analyze() {
+    Depot(const cv::Mat& img)
+        : Widget(img) {}
+    Depot& analyze()
+    {
         _get_max_diameter();
         _preprocess();
         _get_item_list();
         return *this;
     }
-    const dict report(bool debug = false) {
+    const dict report(bool debug = false)
+    {
         dict _report = dict::object();
         return _report;
     }
@@ -39,28 +49,33 @@ private:
     int _item_diameter;
     std::vector<Widget_Item> _item_list;
 
-    void _get_max_diameter() {
+    void _get_max_diameter()
+    {
         cv::Mat img_bin = _img;
         img_bin.adjustROI(0, 0, -width / 4, -width / 4);
         cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
         cv::threshold(img_bin, img_bin, 127, 255, cv::THRESH_BINARY_INV);
 
         auto sp = separate(img_bin, TOP);
-        for (auto &range : sp) {
+        for (auto& range : sp)
+        {
             int length = range.end - range.start;
-            if (length > _max_diameter) {
+            if (length > _max_diameter)
+            {
                 _max_diameter = length;
             }
         }
     }
-    void _preprocess() {
+    void _preprocess()
+    {
         _img_ext = _img;
         auto img_edge =
             cv::Mat(height, _max_diameter, CV_8UC3, cv::Scalar(0, 0, 0));
         cv::hconcat(img_edge, _img_ext, _img_ext);
         cv::hconcat(_img_ext, img_edge, _img_ext);
     }
-    void _get_item_list() {
+    void _get_item_list()
+    {
         cv::Mat img_bin = _img_ext;
         cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
 
@@ -81,21 +96,27 @@ private:
                 return p1[Y] < p2[Y];
         };
         std::sort(item_circles.begin(), item_circles.end(), comp);
-        if (item_circles.size() >= 2) {  // delete concentric circles
+        if (item_circles.size() >= 2)
+        { // delete concentric circles
             for (auto it = std::next(item_circles.cbegin());
-                 it != item_circles.cend();) {
-                const auto &c2 = *it;
-                const auto &c1 = *std::prev(it);
-                if (c1[X] == c2[X] && c1[Y] == c2[Y]) {
+                 it != item_circles.cend();)
+            {
+                const auto& c2 = *it;
+                const auto& c1 = *std::prev(it);
+                if (c1[X] == c2[X] && c1[Y] == c2[Y])
+                {
                     it = item_circles.erase(it);
-                } else {
+                }
+                else
+                {
                     ++it;
                 }
             }
         }
         _item_diameter = round(cv::mean(item_circles)[R] * 2);
 
-        for (const cv::Vec3i &c : item_circles) {
+        for (const cv::Vec3i& c : item_circles)
+        {
             auto center = cv::Point(c[X], c[Y]);
             int radius = c[R];
             cv::circle(img_blur, center, 1, cv::Scalar(0, 100, 100), 3,
@@ -109,21 +130,24 @@ private:
         int radius = _item_diameter / 2;
         int offset = radius * 1.2;
         ItemTemplates templs;
-        for (const cv::Vec3i &c : item_circles) {
+        for (const cv::Vec3i& c : item_circles)
+        {
             std::string label = "item";
             auto p1 = cv::Point(c[X] - offset, c[Y] - offset);
             auto p2 = cv::Point(c[X] + offset, c[Y] + offset);
             auto itemimg = _img_ext(cv::Rect(p1, p2));
-            Widget_Item item{itemimg, _item_diameter, label, this};
+            Widget_Item item {itemimg, _item_diameter, label, this};
             item.analyze(templs, WITHOUT_EXCEPTION);
             std::cout << item.itemId() << ": " << item.confidence()
                       << std::endl;
-            if (item.confidence() > _CONFIDENCE_THRESHOLD) {
+            if (item.confidence() > _CONFIDENCE_THRESHOLD)
+            {
                 _item_list.push_back(item);
             }
         }
 
-        for (auto &item : _item_list) {
+        for (auto& item : _item_list)
+        {
             auto item_rect = cv::Rect(item.x, item.y, item.width, item.height);
             cv::rectangle(_img_ext, item_rect, cv::Scalar(0, 0, 255), 2);
             cv::putText(_img_ext, std::to_string(item.quantity()),
@@ -134,6 +158,6 @@ private:
     }
 };
 
-}  // namespace penguin
+} // namespace penguin
 
-#endif  // PENGUIN_DEPOT_HPP_
+#endif // PENGUIN_DEPOT_HPP_
