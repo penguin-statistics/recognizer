@@ -11,20 +11,22 @@
 #include <iostream>
 #include <optional>
 
-
 using dict = nlohmann::ordered_json;
 
 extern void show_img(cv::Mat src);
 
-namespace penguin {
+namespace penguin
+{
 
-enum CircleFlags {
+enum CircleFlags
+{
     X = 0,
     Y = 1,
     R = 2
 };
 
-class Depot : public Widget {
+class Depot : public Widget
+{
 public:
     Depot() = default;
     Depot(const cv::Mat& img)
@@ -58,9 +60,11 @@ private:
         cv::threshold(img_bin, img_bin, 127, 255, cv::THRESH_BINARY_INV);
 
         auto sp = separate(img_bin, TOP);
-        for (auto& range : sp) {
+        for (auto& range : sp)
+        {
             int length = range.end - range.start;
-            if (length > _max_diameter) {
+            if (length > _max_diameter)
+            {
                 _max_diameter = length;
             }
         }
@@ -81,8 +85,8 @@ private:
         cv::medianBlur(img_bin, img_blur, 5);
         std::vector<cv::Vec3f> item_circles;
         cv::HoughCircles(img_blur, item_circles, cv::HOUGH_GRADIENT_ALT, 1,
-            _max_diameter / 2, 200, 0.4,
-            _max_diameter / 4, _max_diameter / 2);
+                         _max_diameter / 2, 200, 0.4,
+                         _max_diameter / 4, _max_diameter / 2);
         std::cout << item_circles.size() << std::endl;
 
         auto comp = [this](cv::Vec3f p1, cv::Vec3f p2) {
@@ -94,20 +98,26 @@ private:
                 return p1[Y] < p2[Y];
         };
         std::sort(item_circles.begin(), item_circles.end(), comp);
-        if (item_circles.size() >= 2) { // delete concentric circles
-            for (auto it = std::next(item_circles.cbegin()); it != item_circles.cend();) {
+        if (item_circles.size() >= 2)
+        { // delete concentric circles
+            for (auto it = std::next(item_circles.cbegin()); it != item_circles.cend();)
+            {
                 const auto& c2 = *it;
                 const auto& c1 = *std::prev(it);
-                if (c1[X] == c2[X] && c1[Y] == c2[Y]) {
+                if (c1[X] == c2[X] && c1[Y] == c2[Y])
+                {
                     it = item_circles.erase(it);
-                } else {
+                }
+                else
+                {
                     ++it;
                 }
             }
         }
         _item_diameter = round(cv::mean(item_circles)[R] * 2);
 
-        for (const cv::Vec3i& c : item_circles) {
+        for (const cv::Vec3i& c : item_circles)
+        {
             auto center = cv::Point(c[X], c[Y]);
             int radius = c[R];
             cv::circle(img_blur, center, 1, cv::Scalar(0, 100, 100), 3, cv::LINE_AA);
@@ -119,24 +129,27 @@ private:
         int radius = _item_diameter / 2;
         int offset = radius * 1.2;
         ItemTemplates templs;
-        for (const cv::Vec3i& c : item_circles) {
+        for (const cv::Vec3i& c : item_circles)
+        {
             std::string label = "item";
             auto p1 = cv::Point(c[X] - offset, c[Y] - offset);
             auto p2 = cv::Point(c[X] + offset, c[Y] + offset);
             auto itemimg = _img_ext(cv::Rect(p1, p2));
-            Widget_Item item { itemimg, _item_diameter, label, this };
+            Widget_Item item {itemimg, _item_diameter, label, this};
             item.analyze(templs, WITHOUT_EXCEPTION);
             std::cout << item.itemId() << ": " << item.confidence() << std::endl;
-            if (item.confidence() > _CONFIDENCE_THRESHOLD) {
+            if (item.confidence() > _CONFIDENCE_THRESHOLD)
+            {
                 _item_list.push_back(item);
             }
         }
 
-        for (auto& item : _item_list) {
+        for (auto& item : _item_list)
+        {
             auto item_rect = cv::Rect(item.x, item.y, item.width, item.height);
             cv::rectangle(_img_ext, item_rect, cv::Scalar(0, 0, 255), 2);
             cv::putText(_img_ext, std::to_string(item.quantity()), cv::Point(item.x, item.y + item.height - 10),
-                cv::FONT_ITALIC, 1, cv::Scalar(0, 0, 255), 2);
+                        cv::FONT_ITALIC, 1, cv::Scalar(0, 0, 255), 2);
         }
         show_img(_img_ext);
     }

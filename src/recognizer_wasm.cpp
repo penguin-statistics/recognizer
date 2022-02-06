@@ -5,7 +5,6 @@
 
 #include <iostream>
 
-
 cv::Mat decode(uint8_t* buffer, size_t size)
 {
     std::vector buf(buffer, buffer + size);
@@ -41,7 +40,8 @@ void load_templ(char* itemId, uint8_t* buffer, size_t size)
 {
     cv::Mat templimg = decode(buffer, size);
     auto& resource = penguin::resource;
-    if (!resource.contains<std::map<std::string, cv::Mat>>("item_templs")) {
+    if (!resource.contains<std::map<std::string, cv::Mat>>("item_templs"))
+    {
         resource.add("item_templs", std::map<std::string, cv::Mat>());
     }
     auto& item_templs = resource.get<std::map<std::string, cv::Mat>>("item_templs");
@@ -54,7 +54,8 @@ const char* recognize(uint8_t* buffer, size_t size)
 {
     int64 start, end;
     static std::string res;
-    if (!penguin::env_check()) {
+    if (!penguin::env_check())
+    {
         res = "env check fail";
         return res.data();
     }
@@ -62,7 +63,7 @@ const char* recognize(uint8_t* buffer, size_t size)
     start = cv::getTickCount();
 
     cv::Mat img = decode(buffer, size);
-    penguin::Result result { img };
+    penguin::Result result {img};
     result.analyze();
 
     end = cv::getTickCount();
