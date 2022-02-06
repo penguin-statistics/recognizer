@@ -786,20 +786,20 @@ public:
         MD5 md5;
         return md5(_img.data, _img.step * _img.rows);
     }
-    std::string get_fingerprint()
-    {
-        cv::Mat img;
-        cv::resize(_img, img, cv::Size(8, 8));
-        cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
-        uchar* pix = img.data;
-        std::stringstream fp;
-        for (int i = 0; i < 64; i++)
-        {
-            fp << std::setw(2) << std::setfill('0') << std::hex << (int)*pix;
-            pix++;
-        }
-        return fp.str();
-    }
+    // std::string get_fingerprint()
+    // {
+    //     cv::Mat img;
+    //     cv::resize(_img, img, cv::Size(8, 8));
+    //     cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+    //     uchar* pix = img.data;
+    //     std::stringstream fp;
+    //     for (int i = 0; i < 64; i++)
+    //     {
+    //         fp << std::setw(2) << std::setfill('0') << std::hex << (int)*pix;
+    //         pix++;
+    //     }
+    //     return fp.str();
+    // }
     const dict report(bool debug = false)
     {
         dict _report = dict::object();

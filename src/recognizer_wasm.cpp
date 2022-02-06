@@ -70,7 +70,7 @@ const char* recognize(uint8_t* buffer, size_t size)
 
     dict report = result.report();
     report["md5"] = result.get_md5();
-    report["fingerprint"] = result.get_fingerprint();
+    // report["fingerprint"] = result.get_fingerprint();
     report["cost"] = (end - start) / cv::getTickFrequency() * 1000;
 
     res = report.dump();
