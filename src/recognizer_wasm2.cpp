@@ -12,7 +12,7 @@ EMSCRIPTEN_BINDINGS(recognizer)
     emscripten::function("env_check", &env_check);
     emscripten::class_<Recognizer>("Recognizer")
         .constructor<std::string>()
-        .function("set_iamge", selete_overload<void(uint8_t*, size_t)>(&Recognizer::set_image))
+        .function("set_image", emscripten::select_overload<void(uint8_t*, size_t)>(&Recognizer::set_image))
         .function("recognize", &Recognizer::recognize)
         .function("get_report", &Recognizer::get_report);
 }

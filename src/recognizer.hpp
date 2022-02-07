@@ -44,7 +44,7 @@ void load_hash_index(std::string hash_index)
     resource.add("hash_index", dict::parse(hash_index));
 }
 
-void load_templ(char* itemId, uint8_t* buffer, size_t size)
+void load_templ(std::string itemId, uint8_t* buffer, size_t size)
 {
     cv::Mat templimg = decode(buffer, size);
     auto& resource = penguin::resource;
