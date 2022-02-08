@@ -1,8 +1,5 @@
 .vscode
-err
-examples
 *.obj
 *.pdb
 *.ilk
-test*.*
 .history
