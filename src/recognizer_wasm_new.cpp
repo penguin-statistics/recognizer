@@ -4,9 +4,15 @@
 
 using namespace emscripten;
 
+std::string getExceptionMessage(intptr_t exceptionPtr)
+{
+    return std::string(reinterpret_cast<std::exception*>(exceptionPtr)->what());
+}
+
 #ifdef __EMSCRIPTEN__
 EMSCRIPTEN_BINDINGS(recognizer)
 {
+    function("getExceptionMessage", &getExceptionMessage);
     constant("version", version);
     constant("opencv_version", opencv_version);
     function("load_server", &load_server);
