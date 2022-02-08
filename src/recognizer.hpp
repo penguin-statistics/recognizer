@@ -21,6 +21,12 @@ enum class RecognizerMode
     DEPOT = 2
 };
 
+cv::Mat decode(std::string JSarrayBuffer)
+{
+    std::vector<uint8_t> buf(JSarrayBuffer.cbegin(), JSarrayBuffer.cend());
+    return cv::imdecode(buf, cv::IMREAD_COLOR);
+}
+
 cv::Mat decode(uint8_t* buffer, size_t size)
 {
     std::vector buf(buffer, buffer + size);
@@ -44,9 +50,9 @@ void load_hash_index(std::string hash_index)
     resource.add("hash_index", dict::parse(hash_index));
 }
 
-void load_templ(std::string itemId, uint8_t* buffer, size_t size)
+void load_templ(std::string itemId, std::string JSarrayBuffer)
 {
-    cv::Mat templimg = decode(buffer, size);
+    cv::Mat templimg = decode(JSarrayBuffer);
     auto& resource = penguin::resource;
     if (!resource.contains<std::map<std::string, cv::Mat>>("item_templs"))
     {
@@ -59,7 +65,7 @@ void load_templ(std::string itemId, uint8_t* buffer, size_t size)
 
 const bool env_check()
 {
-    return penguin::env_check();
+    return penguin::env_check(); // to review
 }
 
 class Recognizer
@@ -89,13 +95,13 @@ public:
     {
         _img = img;
     }
-    void set_image(uint8_t* buffer, size_t size)
+    void set_image(std::string JSarrayBuffer)
     {
         int64 start = cv::getTickCount();
-        _img = decode(buffer, size);
+        _img = decode(JSarrayBuffer);
         int64 end = cv::getTickCount();
-
-        _report["cost"]["decode"] = std::to_string((end - start) / cv::getTickFrequency() * 1000) + "ms";
+        _report["cost"]["decode"] =
+            std::to_string((end - start) / cv::getTickFrequency() * 1000) + "ms";
     }
 
     std::string get_report()
@@ -115,7 +121,8 @@ public:
             int64 end = cv::getTickCount();
             _report = result.report();
             _report["md5"] = result.get_md5();
-            _report["cost"]["recognize"] = std::to_string((end - start) / cv::getTickFrequency() * 1000) + "ms";
+            _report["cost"]["recognize"] =
+                std::to_string((end - start) / cv::getTickFrequency() * 1000) + "ms";
             break;
         }
         default:
