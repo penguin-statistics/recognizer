@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<script src="/build/penguin-recognizer.js"></script>
+<script>
+
+    function load_stage_index() {
+        const xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", "/resources/json/stage_index.json", true);
+        xmlhttp.onload = function () {
+            Module.load_stage_index(xmlhttp.responseText);
+            console.log("[OK] loaded stage_index");
+        };
+        xmlhttp.send();
+    };
+
+    function load_hash_index() {
+        const xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", "/resources/json/hash_index.json", true);
+        xmlhttp.onload = function () {
+            Module.load_stage_index(xmlhttp.responseText);
+            console.log("[OK] loaded hash_index");
+        };
+        xmlhttp.send();
+    };
+
+    function load_templ() {
+        const xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", "/resources/icon/items", true);
+        xmlhttp.responseType = "document";
+        xmlhttp.onload = function () {
+            var lst = xmlhttp.response.getElementsByTagName('li');
+            console.log(`[OK] got namelist`);
+            [...lst].map(el => el.innerText).forEach(fn => {
+                const xmlhttp = new XMLHttpRequest();
+                xmlhttp.open("GET", `/resources/icon/items/${fn}`, true);
+                xmlhttp.responseType = "arraybuffer";
+                xmlhttp.onload = function () {
+                    Module.load_templ(fn.split('.')[0], xmlhttp.response);
+                    console.log(`[OK] loaded templ: ${fn}`);
+                };
+                xmlhttp.send();
+            });
+        };
+        xmlhttp.send();
+    };
+    Module.onRuntimeInitialized = _ => {
+        console.log(`version: ${Module.version}`);
+        console.log(`opencv_version: ${Module.opencv_version}`);
+        load_hash_index();
+        load_stage_index();
+        load_templ();
+    };
+
+</script>
+
+
+</html>
