@@ -53,4 +53,4 @@ file(GLOB opencv_3rdlibs "${OPENCV_DIR}/build_wasm/3rdparty/lib/*.a")
 target_link_libraries(penguin-recognizer ${opencv_3rdlibs})
 
 # Specify linker arguments
-set_target_properties(penguin-recognizer PROPERTIES LINK_FLAGS "--bind -O3")
+set_target_properties(penguin-recognizer PROPERTIES LINK_FLAGS "--bind -O3 -s ALLOW_MEMORY_GROWTH=1")
