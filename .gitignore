@@ -1,5 +1,7 @@
 .vscode
+examples
 *.obj
 *.pdb
 *.ilk
+test*.*
 .history
