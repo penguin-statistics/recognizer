@@ -119,7 +119,7 @@ public:
             penguin::Result result {_img};
             result.analyze();
             int64 end = cv::getTickCount();
-            _report = result.report();
+            _report.merge_patch(result.report());
             _report["md5"] = result.get_md5();
             _report["cost"]["recognize"] =
                 std::to_string((end - start) / cv::getTickFrequency() * 1000) + "ms";
