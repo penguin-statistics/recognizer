@@ -3,9 +3,13 @@
 
 #define PENGUIN_VERSION
 
+#include <filesystem>
+#include <fstream>
+#include <map>
+#include <string>
+
 #include <opencv2/core/version.hpp>
 #include <opencv2/imgcodecs.hpp>
-#include <string>
 
 #include "core.hpp"
 #include "depot.hpp"
@@ -38,19 +42,52 @@ void load_server(std::string server)
     penguin::server = server;
 }
 
-void load_stage_index(std::string stage_index)
+void load_stage_index() // local
+{
+    std::ifstream f;
+    dict stage_index;
+    f.open("../resources/json/stage_index.json");
+    f >> stage_index;
+    f.close();
+    penguin::resource.add("stage_index", stage_index);
+}
+
+void load_stage_index(std::string stage_index) // wasm
 {
     auto& resource = penguin::resource;
     resource.add("stage_index", dict::parse(stage_index));
 }
 
-void load_hash_index(std::string hash_index)
+void load_hash_index() // local
+{
+    std::ifstream f;
+    dict hash_index;
+    f.open("../resources/json/hash_index.json");
+    f >> hash_index;
+    f.close();
+    penguin::resource.add("hash_index", hash_index);
+}
+
+void load_hash_index(std::string hash_index) // wasm
 {
     auto& resource = penguin::resource;
     resource.add("hash_index", dict::parse(hash_index));
 }
 
-void load_templ(std::string itemId, std::string JSarrayBuffer)
+void load_templs() // local
+{
+    std::map<std::string, cv::Mat> item_templs;
+    for (auto& templ : std::filesystem::directory_iterator(
+             "../resources/icon/items"))
+    {
+        std::string itemId = templ.path().stem().string();
+        cv::Mat templimg = cv::imread(templ.path().string());
+        item_templs[itemId] = templimg;
+    }
+    penguin::resource.add("item_templs", item_templs);
+}
+
+void load_templs(std::string itemId, std::string JSarrayBuffer) // wasm
 {
     cv::Mat templimg = decode(JSarrayBuffer);
     auto& resource = penguin::resource;
