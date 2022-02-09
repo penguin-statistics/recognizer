@@ -2,6 +2,7 @@
 #define PENGUIN_RESULT_HPP_
 
 #include <iomanip>
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 

@@ -1,9 +1,10 @@
 #ifndef PENGUIN_RECOGNIZE_HPP_
 #define PENGUIN_RECOGNIZE_HPP_
 
+#include <optional>
+
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
-#include <optional>
 
 #include "../3rdparty/json/include/json.hpp"
 #include "core.hpp"
