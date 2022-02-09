@@ -27,7 +27,7 @@
         xmlhttp.send();
     };
 
-    function load_templ(resolve, reject) {
+    function load_templs(resolve, reject) {
         const xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", "/resources/icon/items", true);
         xmlhttp.responseType = "document";
@@ -39,7 +39,7 @@
                     xmlhttp.open("GET", `/resources/icon/items/${fn}`, true);
                     xmlhttp.responseType = "arraybuffer";
                     xmlhttp.onload = function () {
-                        Module.load_templ(fn.split('.')[0], xmlhttp.response);
+                        Module.load_templs(fn.split('.')[0], xmlhttp.response);
                         console.log(`[OK] loaded templ: ${fn}`);
                         if (index === arr.length - 1) {
                             resolve();
@@ -76,9 +76,9 @@
         Module.load_server("CN");
         const promise1 = new Promise(load_stage_index);
         const promise2 = new Promise(load_hash_index);
-        const promise3 = new Promise(load_templ);
+        const promise3 = new Promise(load_templs);
         Promise.all([promise1, promise2, promise3]).then(() => {
-            console.log(Module.env_check());
+            console.log(`env check: ${Module.env_check()}`);
             recognize();
         });
     };
