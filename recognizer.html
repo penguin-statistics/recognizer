@@ -3,52 +3,84 @@
 <script src="/build/penguin-recognizer.js"></script>
 <script>
 
-    function load_stage_index() {
+    function load_stage_index(resolve, reject) {
         const xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", "/resources/json/stage_index.json", true);
         xmlhttp.onload = function () {
-            Module.load_stage_index(xmlhttp.responseText);
+            stage_index = xmlhttp.responseText;
+            Module.load_stage_index(stage_index);
             console.log("[OK] loaded stage_index");
+            resolve();
         };
         xmlhttp.send();
     };
 
-    function load_hash_index() {
+    function load_hash_index(resolve, reject) {
         const xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", "/resources/json/hash_index.json", true);
         xmlhttp.onload = function () {
-            Module.load_stage_index(xmlhttp.responseText);
+            hash_index = xmlhttp.responseText;
+            Module.load_hash_index(hash_index);
             console.log("[OK] loaded hash_index");
+            resolve();
         };
         xmlhttp.send();
     };
 
-    function load_templ() {
+    function load_templ(resolve, reject) {
         const xmlhttp = new XMLHttpRequest();
         xmlhttp.open("GET", "/resources/icon/items", true);
         xmlhttp.responseType = "document";
         xmlhttp.onload = function () {
             var lst = xmlhttp.response.getElementsByTagName('li');
-            console.log(`[OK] got namelist`);
-            [...lst].map(el => el.innerText).forEach(fn => {
-                const xmlhttp = new XMLHttpRequest();
-                xmlhttp.open("GET", `/resources/icon/items/${fn}`, true);
-                xmlhttp.responseType = "arraybuffer";
-                xmlhttp.onload = function () {
-                    Module.load_templ(fn.split('.')[0], xmlhttp.response);
-                    console.log(`[OK] loaded templ: ${fn}`);
-                };
-                xmlhttp.send();
-            });
+            new Promise((resolve, reject) => {
+                [...lst].map(el => el.innerText).forEach((fn, index, arr) => {
+                    const xmlhttp = new XMLHttpRequest();
+                    xmlhttp.open("GET", `/resources/icon/items/${fn}`, true);
+                    xmlhttp.responseType = "arraybuffer";
+                    xmlhttp.onload = function () {
+                        Module.load_templ(fn.split('.')[0], xmlhttp.response);
+                        console.log(`[OK] loaded templ: ${fn}`);
+                        if (index === arr.length - 1) {
+                            resolve();
+                        }
+                    };
+                    xmlhttp.send();
+                });
+            }).then(() => { resolve(); })
         };
         xmlhttp.send();
     };
-    Module.onRuntimeInitialized = _ => {
+
+    function recognize() {
+        var recognizer = new Module.Recognizer("RESULT");
+        const xmlhttp = new XMLHttpRequest();
+        xmlhttp.open("GET", `/test_images/test.jpg`, true);
+        xmlhttp.responseType = "arraybuffer";
+        xmlhttp.onload = function () {
+            recognizer.set_image(xmlhttp.response);
+            try { recognizer.recognize(); }
+            catch (e) {
+                console.error(Module.getExceptionMessage(e));
+            }
+            finally {
+                console.log(recognizer.get_report());
+            }
+        };
+        xmlhttp.send();
+    }
+
+    Module.onRuntimeInitialized = async _ => {
         console.log(`version: ${Module.version}`);
         console.log(`opencv_version: ${Module.opencv_version}`);
-        load_hash_index();
-        load_stage_index();
-        load_templ();
+        Module.load_server("CN");
+        const promise1 = new Promise(load_stage_index);
+        const promise2 = new Promise(load_hash_index);
+        const promise3 = new Promise(load_templ);
+        Promise.all([promise1, promise2, promise3]).then(() => {
+            console.log(Module.env_check());
+            recognize();
+        });
     };
 
 </script>
