@@ -7,6 +7,7 @@
 #include <fstream>
 #include <map>
 #include <string>
+#include <vector>
 
 #include <opencv2/core/version.hpp>
 #include <opencv2/imgcodecs.hpp>
@@ -194,7 +195,7 @@ public:
     emscripten::val wget_debug_img()
     {
         auto& img = get_debug_img();
-        std::string buf;
+        std::vector<uint8_t> buf;
         cv::imencode("png", img, buf);
         return emscripten::val(
             emscripten::typed_memory_view(buf.size(), buf.data()));
