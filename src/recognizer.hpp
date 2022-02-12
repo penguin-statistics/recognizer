@@ -11,6 +11,7 @@
 
 #include <opencv2/core/version.hpp>
 #include <opencv2/imgcodecs.hpp>
+#include <opencv2/imgproc.hpp>
 
 #include "core.hpp"
 #include "depot.hpp"
