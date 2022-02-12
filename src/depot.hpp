@@ -12,7 +12,7 @@
 
 using dict = nlohmann::ordered_json;
 
-extern void show_img(cv::Mat src);
+// extern void show_img(cv::Mat src);
 
 namespace penguin
 {
@@ -125,7 +125,7 @@ private:
                    cv::LINE_AA);
         }
 
-        show_img(img_blur);
+        // show_img(img_blur);
 
         int radius = _item_diameter / 2;
         int offset = radius * 1.2;
@@ -154,7 +154,7 @@ private:
                         cv::Point(item.x, item.y + item.height - 10),
                         cv::FONT_ITALIC, 1, cv::Scalar(0, 0, 255), 2);
         }
-        show_img(_img_ext);
+        // show_img(_img_ext);
     }
 };
 
