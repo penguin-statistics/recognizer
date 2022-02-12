@@ -197,7 +197,7 @@ public:
     {
         cv::Mat img = get_debug_img();
         std::vector<uint8_t> buf;
-        cv::imencode("png", img, buf);
+        cv::imencode(".png", img, buf);
         return emscripten::val(
             emscripten::typed_memory_view(buf.size(), buf.data()));
     }
