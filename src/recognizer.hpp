@@ -194,7 +194,7 @@ public:
 #include <emscripten/val.h>
     emscripten::val wget_debug_img()
     {
-        auto& img = get_debug_img();
+        cv::Mat img = get_debug_img();
         std::vector<uint8_t> buf;
         cv::imencode("png", img, buf);
         return emscripten::val(
