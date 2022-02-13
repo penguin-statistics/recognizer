@@ -53,10 +53,11 @@ emcc -v
 > #### ℹ️**Version Info**
 > Currently, `penguin-recognizer` is built by **`OpenCV 4.5.1`**.  
 > Other verified version:  
-> **`OpenCV 4.5.4`** Tested by [FlandiaYingman](https://github.com/FlandiaYingman)
+> **`OpenCV 4.5.4`** Tested by [FlandiaYingman](https://github.com/FlandiaYingman)  
+> **`OpenCV 4.5.5-dev`** (latest) Tested by [KumoSiunaus](https://github.com/KumoSiunaus)
 
 ```
-git clone --depth=1 -b 4.5.4 https://github.com/opencv/opencv.git opencv/sources
+git clone --depth=1 -b 4.5.5 https://github.com/opencv/opencv.git opencv/sources
 ```
 
 Before building OpenCV, some build settings have to be customized.  
@@ -160,4 +161,4 @@ Now, the following files should exist
 + [ ] add droptype order check to fix `Known issues 2.`
 + [ ] update drop number recognition strategy to fix `Known issues 3.`
 + [ ] depot recognition (in development)
-+ [ ] new wasm interface using emscripten:bind
++ [ ] new wasm interface using emscripten::bind
