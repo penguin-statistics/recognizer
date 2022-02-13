@@ -5,7 +5,7 @@ This is the core of recognition component for [Penguin Statistics](https://pengu
 + screenshot recognition
 + depot recognition (in development)
 
-This recognizer is developed by C++ and providing front-end recognition service by [WebAseembly](https://webassembly.org/) technology. It can be also used in other scenarios to get the statistics of Arknights.
+This recognizer is developed by C++ and providing front-end recognition service by [WebAssembly](https://webassembly.org/) technology. It can be also used in other scenarios to get the statistics of Arknights.
 
 ## WASM Build Guide
 
