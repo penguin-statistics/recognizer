@@ -1,6 +1,7 @@
 #ifndef PENGUIN_RECOGNIZE_HPP_
 #define PENGUIN_RECOGNIZE_HPP_
 
+#include <limits>
 #include <optional>
 
 #include <opencv2/core.hpp>
@@ -135,7 +136,7 @@ class ItemTemplates
     };
 
 public:
-    const std::list<Templ>& templ_list() const { return _templ_list; };
+    const std::vector<Templ>& templ_list() const { return _templ_list; };
     ItemTemplates()
     {
         const auto& item_templs =
@@ -160,7 +161,7 @@ public:
     }
 
 private:
-    std::list<Templ> _templ_list;
+    std::vector<Templ> _templ_list;
 };
 
 class Widget
@@ -357,17 +358,19 @@ protected:
 
 class Widget_Character : public Widget
 {
-    struct CharDist
+    struct Candidate
     {
         std::string chr;
         int dist;
-        CharDist(const std::string& chr_, int dist_)
+        Candidate(const std::string& chr_, int dist_)
             : chr(chr_), dist(dist_) {}
     };
 
 public:
-    const std::string chr() const { return _chr; }
-    const int dist() const { return _dist; }
+    const std::string chr() const { return _chr(); }
+    const int dist() const { return _dist(); }
+    const int candidate_index() const { return _candidate_index; }
+    const std::vector<Candidate> candidates() const { return _candidates; }
     Widget_Character() = default;
     Widget_Character(const cv::Mat& img_bin, FontFlags flag, const std::string& label, Widget* const parent_widget = nullptr)
         : Widget(img_bin, label, parent_widget), font(flag) {}
@@ -376,7 +379,7 @@ public:
         if (!_img.empty())
         {
             _get_char();
-            if (_dist > 64 && without_exception == false)
+            if (_dist() > 64 && without_exception == false)
             {
                 push_exception(WARNING, ExcSubtypeFlags::EXC_LOWCONF, report(true));
             }
@@ -387,33 +390,60 @@ public:
         }
         return *this;
     }
+    Widget_Character& _next_candidate()
+    {
+        return _set_candidate(_candidate_index + 1);
+    }
+    Widget_Character& _set_candidate(int index)
+    {
+        if (index < _candidates.size())
+        {
+            _candidate_index = index;
+        }
+        return *this;
+    }
     const dict report(bool debug = false)
     {
         dict _report = dict::object();
         if (!debug)
         {
             _report.merge_patch(Widget::report());
-            _report["char"] = _chr;
+            _report["char"] = _chr();
         }
         else
         {
             _report.merge_patch(Widget::report(debug));
-            _report["char"] = _chr;
+            _report["char"] = _chr();
             _report["hash"] = _hash;
-            for (const auto& chardist : _dist_list)
+            for (const auto& candidate : _candidates)
             {
-                _report["dist"][chardist.chr] = chardist.dist;
+                _report["dist"][candidate.chr] = candidate.dist;
             }
         }
         return _report;
     }
 
 private:
-    std::string _chr;
     std::string _hash;
-    int _dist = int(HammingFlags::HAMMING64) * 4;
+    int _candidate_index = 0;
     FontFlags font = FontFlags::UNDEFINED;
-    std::vector<CharDist> _dist_list;
+    std::vector<Candidate> _candidates;
+    const std::string& _chr() const
+    {
+        return _chr(_candidate_index);
+    }
+    const std::string& _chr(int index) const
+    {
+        return _candidates[index].chr;
+    }
+    const int _dist() const
+    {
+        return _dist(_candidate_index);
+    }
+    const int _dist(int index) const
+    {
+        return _candidates[index].dist;
+    }
     void _get_char()
     {
         auto& self = *this;
@@ -437,16 +467,11 @@ private:
         for (const auto& [kchar, vhash] : char_dict.items())
         {
             int dist = hamming(_hash, vhash, HammingFlags::HAMMING64);
-            _dist_list.emplace_back(kchar, dist);
-            if (dist < _dist)
-            {
-                _chr = kchar;
-                _dist = dist;
-            }
+            _candidates.emplace_back(kchar, dist);
         }
 
-        std::sort(_dist_list.begin(), _dist_list.end(),
-                  [](const CharDist& val1, const CharDist& val2) {
+        std::sort(_candidates.begin(), _candidates.end(),
+                  [](const Candidate& val1, const Candidate& val2) {
                       return val1.dist < val2.dist;
                   });
     }
@@ -480,7 +505,7 @@ public:
         }
         return *this;
     }
-    void set_quantity(const uint quantity) { _quantity = quantity; }
+    void set_quantity(const int quantity) { _quantity = quantity; }
     void set_img(const cv::Mat& img)
     {
         Widget::set_img(img);
@@ -513,7 +538,7 @@ public:
     }
 
 private:
-    uint _quantity = 0;
+    int _quantity = 0;
     std::vector<Widget_Character> _characters;
     void _get_quantity()
     {

@@ -17,7 +17,7 @@
 #include "depot.hpp"
 #include "result.hpp"
 
-static const std::string version = "3.4.0";
+static const std::string version = "3.4.1";
 static const std::string opencv_version = CV_VERSION;
 
 cv::Mat decode(std::string JSarrayBuffer)
@@ -181,6 +181,7 @@ public:
             for (const auto& exp : report["exceptions"])
             {
                 if (exp["type"] == "ERROR" &&
+                    exp["detail"].contains("rect") &&
                     exp["detail"]["rect"] != "empty")
                 {
                     cv::Rect rect = get_rect(exp["detail"]["rect"]);

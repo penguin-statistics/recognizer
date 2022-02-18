@@ -2,6 +2,8 @@
 #define PENGUIN_RESULT_HPP_
 
 #include <iomanip>
+#include <limits>
+#include <queue>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -147,8 +149,8 @@ private:
 class Widget_Stage : public Widget
 {
 public:
-    const std::string& stage_code() const { return _stage_code; }
-    const std::string& stageId() const { return _stageId; }
+    const std::string stage_code() const { return _stage_code(); }
+    const std::string stageId() const { return _stageId(); }
     Widget_Stage() = default;
     Widget_Stage(Widget* const parent_widget)
         : Widget("stage", parent_widget) {}
@@ -174,14 +176,35 @@ public:
         {
             _get_stage();
         }
-        if (_stageId.empty())
+        if (_stageId().empty())
         {
             push_exception(ERROR, ExcSubtypeFlags::EXC_NOTFOUND, report(true));
         }
         else if (const auto& stage_index = resource.get<dict>("stage_index");
-                 stage_index[_stage_code]["existence"] == false)
+                 stage_index[_stage_code()]["existence"] == false)
         {
-            push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL);
+            push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL, report(true));
+        }
+        return *this;
+    }
+    Widget_Stage& _next_candidate()
+    {
+        return _set_candidate(_candidate_index + 1);
+    }
+    Widget_Stage& _set_candidate(int index)
+    {
+        if (index < _CANDIDATES_COUNT)
+        {
+            int length = _stage_chrs.size();
+            auto candidate = _candidates[index];
+            for (int i = 0; i < length; ++i)
+            {
+                if (_stage_chrs[i].candidate_index() != candidate[i])
+                {
+                    _stage_chrs[i]._set_candidate(candidate[i]);
+                }
+            }
+            _candidate_index = index;
         }
         return *this;
     }
@@ -191,15 +214,19 @@ public:
         if (!debug)
         {
             _report.merge_patch(Widget::report());
-            _report["stageCode"] = _stage_code;
-            _report["stageId"] = _stageId;
+            _report["stageCode"] = _stage_code();
+            _report["stageId"] = _stageId();
         }
         else
         {
             _report.merge_patch(Widget::report(debug));
-            _report["stageCode"] = _stage_code;
-            _report["stageId"] = _stageId;
-            for (auto& chr : _characters)
+            _report["stageCode"] = _stage_code();
+            _report["stageId"] = _stageId();
+            for (const auto& candidate : _candidates)
+            {
+                _report["dist"][_stage_code(candidate)] = _dist(candidate);
+            }
+            for (auto& chr : _stage_chrs)
             {
                 _report["chars"].push_back(chr.report(debug));
             }
@@ -208,10 +235,57 @@ public:
     }
 
 private:
-    std::string _stage_code = "";
-    std::string _stageId = "";
-    bool existance = false;
-    std::list<Widget_Character> _characters;
+    const int _CANDIDATES_COUNT = 5;
+    bool _existance = false;
+    std::vector<Widget_Character> _stage_chrs;
+    std::vector<std::vector<int>> _candidates {{0, 0, 0, 0, 0}};
+    int _candidate_index = 0;
+    const std::string _stage_code() const
+    {
+        return _stage_code(_candidates[_candidate_index]);
+    }
+    const std::string _stage_code(const std::vector<int>& chr_indexs) const
+    {
+        std::string code;
+        int length = _stage_chrs.size();
+        for (int i = 0; i < length; ++i)
+        {
+            code += _stage_chrs[i].candidates()[chr_indexs[i]].chr;
+        }
+        return code;
+    }
+    const std::string _stageId() const
+    {
+        auto stageId = _stageId(_candidates[_candidate_index]);
+        return stageId;
+    }
+    const std::string _stageId(const std::vector<int>& chr_indexs) const
+    {
+        auto stage_code = _stage_code(chr_indexs);
+        if (const auto& stage_index = resource.get<dict>("stage_index");
+            stage_index.contains(stage_code))
+        {
+            return (std::string)stage_index[stage_code]["stageId"];
+        }
+        else
+        {
+            return "";
+        }
+    }
+    const int _dist() const
+    {
+        return _dist(_candidates[_candidate_index]);
+    }
+    const int _dist(const std::vector<int>& chr_indexs) const
+    {
+        int dist = 0;
+        int length = _stage_chrs.size();
+        for (int i = 0; i < length; ++i)
+        {
+            dist += _stage_chrs[i].candidates()[chr_indexs[i]].dist;
+        }
+        return dist;
+    }
     void _get_stage()
     {
         auto& self = *this;
@@ -228,16 +302,58 @@ private:
         {
             int length = range.end - range.start;
             auto charimg = stage_img(cv::Rect(range.start, 0, length, height));
-            std::string label = "char." + std::to_string(_characters.size());
+            std::string label = "char." + std::to_string(_stage_chrs.size());
             Widget_Character chr {charimg, FontFlags::NOVECENTO_WIDEBOLD, label, this};
             chr.analyze();
-            _stage_code += chr.chr();
-            _characters.emplace_back(chr);
+            _stage_chrs.emplace_back(chr);
         }
-        if (const auto& stage_index = resource.get<dict>("stage_index");
-            stage_index.contains(_stage_code))
+        if (_stageId().empty())
         {
-            _stageId = (std::string)stage_index[_stage_code]["stageId"];
+            _get_candidates();
+        }
+        while (_stageId().empty() && _candidate_index < _CANDIDATES_COUNT)
+        {
+            _next_candidate();
+        }
+    }
+    void _get_candidates()
+    {
+        auto comp = [](std::vector<Widget_Character> a,
+                       std::vector<Widget_Character> b) {
+            int dist_a = 0, dist_b = 0;
+            for (const auto& chr : a)
+            {
+                dist_a += chr.dist();
+            }
+            for (const auto& chr : b)
+            {
+                dist_b += chr.dist();
+            }
+            return dist_a > dist_b;
+        };
+        std::priority_queue<
+            std::vector<Widget_Character>,
+            std::vector<std::vector<Widget_Character>>,
+            decltype(comp)>
+            q(comp);
+        auto last_pop = _stage_chrs;
+        int length = _stage_chrs.size();
+        while (_candidates.size() < _CANDIDATES_COUNT)
+        {
+            for (int i = 0; i < length; ++i)
+            {
+                auto child = last_pop;
+                child[i]._next_candidate();
+                q.push(child);
+            }
+            last_pop = q.top();
+            q.pop();
+            std::vector<int> chrs_indexs;
+            for (const auto& chr : last_pop)
+            {
+                chrs_indexs.emplace_back(chr.candidate_index());
+            }
+            _candidates.emplace_back(chrs_indexs);
         }
     }
 };
@@ -292,7 +408,7 @@ public:
     }
 
 private:
-    uint _stars = 0;
+    int _stars = 0;
     void _get_is_3stars()
     {
         auto& self = *this;
@@ -573,7 +689,7 @@ public:
 
 private:
     DroptypeFlags _droptype = DroptypeFlags::UNDEFINED;
-    uint _items_count = round(width / (height * W_H_PROP));
+    int _items_count = round(width / (height * W_H_PROP));
     Widget_DroptypeLine _line {this};
     Widget_DroptypeText _text {this};
     void _get_droptype()
@@ -739,7 +855,7 @@ private:
             else if (templs.templ_list().empty())
             {
                 widget_label = "drops";
-                push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL);
+                push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL, report(true));
                 return;
             }
             else
