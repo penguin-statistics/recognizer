@@ -100,20 +100,19 @@ public:
     }
     const dict report(bool debug = false)
     {
-        dict _report = dict::object();
+        dict rpt = dict::object();
+        rpt.merge_patch(Widget::report(debug));
         if (!debug)
         {
-            _report.merge_patch(Widget::report());
-            _report["isResult"] = _is_result;
+            rpt["isResult"] = _is_result;
         }
         else
         {
-            _report.merge_patch(Widget::report(debug));
-            _report["isResult"] = _is_result;
-            _report["hash"] = _hash;
-            _report["dist"] = _dist;
+            rpt["isResult"] = _is_result;
+            rpt["hash"] = _hash;
+            rpt["dist"] = _dist;
         }
-        return _report;
+        return rpt;
     }
 
 private:
@@ -210,28 +209,27 @@ public:
     }
     const dict report(bool debug = false)
     {
-        dict _report = dict::object();
+        dict rpt = dict::object();
+        rpt.merge_patch(Widget::report(debug));
         if (!debug)
         {
-            _report.merge_patch(Widget::report());
-            _report["stageCode"] = _stage_code();
-            _report["stageId"] = _stageId();
+            rpt["stageCode"] = _stage_code();
+            rpt["stageId"] = _stageId();
         }
         else
         {
-            _report.merge_patch(Widget::report(debug));
-            _report["stageCode"] = _stage_code();
-            _report["stageId"] = _stageId();
+            rpt["stageCode"] = _stage_code();
+            rpt["stageId"] = _stageId();
             for (const auto& candidate : _candidates)
             {
-                _report["dist"][_stage_code(candidate)] = _dist(candidate);
+                rpt["dist"][_stage_code(candidate)] = _dist(candidate);
             }
             for (auto& chr : _stage_chrs)
             {
-                _report["chars"].push_back(chr.report(debug));
+                rpt["chars"].push_back(chr.report(debug));
             }
         }
-        return _report;
+        return rpt;
     }
 
 private:
@@ -364,9 +362,9 @@ public:
     const bool is_3stars() const { return _stars == 3; }
     Widget_Stars() = default;
     Widget_Stars(Widget* const parent_widget)
-        : Widget("3stars", parent_widget) {}
+        : Widget("stars", parent_widget) {}
     Widget_Stars(const cv::Mat& img, Widget* const parent_widget = nullptr)
-        : Widget(img, "3stars", parent_widget)
+        : Widget("stars", parent_widget)
     {
         set_img(img);
     }
@@ -393,18 +391,17 @@ public:
     }
     const dict report(bool debug = false)
     {
-        dict _report = dict::object();
+        dict rpt = dict::object();
+        rpt.merge_patch(Widget::report(debug));
         if (!debug)
         {
-            _report.merge_patch(Widget::report());
-            _report["count"] = _stars;
+            rpt["count"] = _stars;
         }
         else
         {
-            _report.merge_patch(Widget::report(debug));
-            _report["count"] = _stars;
+            rpt["count"] = _stars;
         }
-        return _report;
+        return rpt;
     }
 
 private:
@@ -462,16 +459,16 @@ public:
     }
     const dict report(bool debug = false)
     {
-        dict _report = dict::object();
+        dict rpt = dict::object();
         if (!debug)
         {
         }
         else
         {
-            _report["hsv"] = {(int)round(_hsv[H]), _hsv[S], _hsv[V]};
-            _report["dist"] = _dist;
+            rpt["hsv"] = {(int)round(_hsv[H]), _hsv[S], _hsv[V]};
+            rpt["dist"] = _dist;
         }
-        return _report;
+        return rpt;
     }
 
 private:
@@ -551,19 +548,19 @@ public:
     }
     const dict report(bool debug = false)
     {
-        dict _report = dict::object();
+        dict rpt = dict::object();
         if (!debug)
         {
         }
         else
         {
-            _report["hash"] = _hash;
+            rpt["hash"] = _hash;
             for (const auto& droptypedist : _dist_list)
             {
-                _report["dist"][droptypedist.droptype] = droptypedist.dist;
+                rpt["dist"][droptypedist.droptype] = droptypedist.dist;
             }
         }
-        return _report;
+        return rpt;
     }
 
 private:
@@ -667,24 +664,24 @@ public:
     }
     const dict report(bool debug = false)
     {
-        dict _report = dict::object();
+        dict rpt = dict::object();
+        rpt.merge_patch(Widget::report(debug));
         if (!debug)
         {
-            _report.merge_patch(Widget::report());
-            _report["dropTypes"] = Droptype2Str[_droptype];
+            rpt["dropType"] = Droptype2Str[_droptype];
+            rpt["itemCount"] = _items_count;
         }
         else
         {
-            _report.merge_patch(Widget::report(debug));
-            _report["dropTypes"] = Droptype2Str[_droptype];
-            _report["itemCount"] = _items_count;
-            _report.merge_patch(_line.report(debug));
+            rpt["dropType"] = Droptype2Str[_droptype];
+            rpt["itemCount"] = _items_count;
+            rpt.merge_patch(_line.report(debug));
             if (!_text.empty())
             {
-                _report.merge_patch(_text.report(debug));
+                rpt.merge_patch(_text.report(debug));
             }
         }
-        return _report;
+        return rpt;
     }
 
 private:
@@ -722,9 +719,9 @@ class Widget_DropArea : public Widget
 public:
     Widget_DropArea() = default;
     Widget_DropArea(Widget* const parent_widget)
-        : Widget(parent_widget) {}
+        : Widget("dropArea", parent_widget) {}
     Widget_DropArea(const cv::Mat& img, const std::string& stage, Widget* const parent_widget = nullptr)
-        : Widget(img, parent_widget) {}
+        : Widget(img, "dropArea", parent_widget) {}
     Widget_DropArea& analyze(const std::string& stage)
     {
         if (!_img.empty())
@@ -733,40 +730,36 @@ public:
         }
         else
         {
-            widget_label = "dropTypes";
-            push_exception(ERROR, ExcSubtypeFlags::EXC_NOTFOUND);
+            // add img empty exc
         }
         if (_droptype_list.empty())
         {
-            widget_label = "dropTypes";
             push_exception(ERROR, ExcSubtypeFlags::EXC_NOTFOUND);
         }
         return *this;
     }
     const dict report(bool debug = false)
     {
-        dict _report = dict::object();
-        if (_parent_widget == nullptr)
-        {
-            _report["exceptions"] = _exception_list;
-        }
-        _report["dropTypes"] = dict::array();
-        _report["drops"] = dict::array();
+        dict rpt = dict::object();
+        rpt.merge_patch(Widget::report(debug));
 
-        int droptypes_count = _droptype_list.size();
+        rpt["dropTypes"] = dict::array();
+        rpt["drops"] = dict::array();
+
+        int droptypes_count = _droptype_list.size(); // will move in "for" in C++20
         for (int i = 0; i < droptypes_count; i++)
         {
-            _report["dropTypes"].push_back(_droptype_list[i].report(debug));
+            rpt["dropTypes"].push_back(_droptype_list[i].report(debug));
         }
-        int drops_count = _drop_list.size();
+        int drops_count = _drop_list.size(); // will move in "for" in C++20
         for (int i = 0; i < drops_count; i++)
         {
-            _report["drops"].push_back(
+            rpt["drops"].push_back(
                 {{"dropType", Droptype2Str[_drop_list[i].droptype]}});
-            _report["drops"][i].merge_patch(
+            rpt["drops"][i].merge_patch(
                 _drop_list[i].dropitem.report(debug));
         }
-        return _report;
+        return rpt;
     }
 
 private:
@@ -828,13 +821,14 @@ private:
         auto [baseline_h, sp] = _get_separate();
         for (const auto& droptype_range : sp)
         {
-            auto droptypeimg =
-                _img(cv::Range(baseline_h, height), droptype_range);
-            std::string label =
-                "dropTypes." + std::to_string(_droptype_list.size());
+            auto droptypeimg = _img(cv::Range(baseline_h, height), droptype_range);
+            std::string label = "dropTypes." + std::to_string(_droptype_list.size());
             Widget_Droptype droptype {droptypeimg, label, this};
             droptype.analyze();
             _droptype_list.emplace_back(droptype);
+        }
+        for (const auto& droptype : _droptype_list)
+        {
             if (const auto type = droptype.droptype();
                 type == DroptypeFlags::UNDEFINED || type == DroptypeFlags::SANITY ||
                 type == DroptypeFlags::FIRST)
@@ -855,21 +849,20 @@ private:
             else if (templs.templ_list().empty())
             {
                 widget_label = "drops";
-                push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL, report(true));
+                push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL, "Empty templetes");
                 return;
             }
             else
             {
                 int items_count = droptype.items_count();
-                int length =
-                    (droptype_range.end - droptype_range.start) / items_count;
+                int length = (droptype.width) / items_count;
                 for (int i = 0; i < items_count; i++)
                 {
                     std::string label =
                         "drops." + std::to_string(_drop_list.size());
                     auto range =
-                        cv::Range(droptype_range.start + length * i,
-                                  droptype_range.start + length * (i + 1));
+                        cv::Range(droptype.x - x + length * i,
+                                  droptype.x - x + length * (i + 1));
                     auto dropimg = _img(cv::Range(0, baseline_h), range);
                     Widget_Item drop {dropimg, item_diameter, label, this};
                     drop.analyze(templs);
@@ -919,26 +912,26 @@ public:
     // }
     const dict report(bool debug = false)
     {
-        dict _report = dict::object();
+        dict rpt = dict::object();
         if (_parent_widget == nullptr)
         {
-            _report["exceptions"] = _exception_list;
+            rpt["exceptions"] = _exception_list;
         }
         if (!debug)
         {
-            _report["resultLabel"] = _result_label.report()["isResult"];
-            _report["stage"] = _stage.report();
-            _report["stars"] = _stars.report()["count"];
-            _report.merge_patch(_drop_area.report());
+            rpt["resultLabel"] = _result_label.report()["isResult"];
+            rpt["stage"] = _stage.report();
+            rpt["stars"] = _stars.report()["count"];
+            rpt["dropArea"] = _drop_area.report();
         }
         else
         {
-            _report["resultLabel"] = _result_label.report(debug);
-            _report["stage"] = _stage.report(debug);
-            _report["stars"] = _stars.report(debug);
-            _report.merge_patch(_drop_area.report(debug));
+            rpt["resultLabel"] = _result_label.report(debug);
+            rpt["stage"] = _stage.report(debug);
+            rpt["stars"] = _stars.report(debug);
+            rpt["dropArea"] = _drop_area.report(debug);
         }
-        return _report;
+        return rpt;
     }
 
 private:
@@ -950,7 +943,7 @@ private:
 
     void _get_baseline_v()
     {
-        if (_status == StatusFlags::STATUS_HASERROR || _status == StatusFlags::STATUS_ERROR)
+        if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
         {
             return;
         }
@@ -1004,7 +997,7 @@ private:
     }
     void _get_result_label()
     {
-        if (_status == StatusFlags::STATUS_HASERROR || _status == StatusFlags::STATUS_ERROR)
+        if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
         {
             return;
         }
@@ -1017,7 +1010,7 @@ private:
     }
     void _get_stage()
     {
-        if (_status == StatusFlags::STATUS_HASERROR || _status == StatusFlags::STATUS_ERROR)
+        if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
         {
             return;
         }
@@ -1029,7 +1022,7 @@ private:
     }
     void _get_stars()
     {
-        if (_status == StatusFlags::STATUS_HASERROR || _status == StatusFlags::STATUS_ERROR)
+        if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
         {
             return;
         }
@@ -1041,7 +1034,7 @@ private:
     }
     void _get_drop_area()
     {
-        if (_status == StatusFlags::STATUS_HASERROR || _status == StatusFlags::STATUS_ERROR)
+        if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
         {
             return;
         }

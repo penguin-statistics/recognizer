@@ -14,6 +14,7 @@
 #include <opencv2/imgproc.hpp>
 
 #include "core.hpp"
+#include "recognize.hpp"
 #include "depot.hpp"
 #include "result.hpp"
 
@@ -175,20 +176,7 @@ public:
             return cv::Rect(arr[0], arr[1], arr[2], arr[3]);
         };
         cv::Mat img = _img.clone();
-        if (const auto& report = get_report();
-            report.contains("exceptions"))
-        {
-            for (const auto& exp : report["exceptions"])
-            {
-                if (exp["type"] == "ERROR" &&
-                    exp["detail"].contains("rect") &&
-                    exp["detail"]["rect"] != "empty")
-                {
-                    cv::Rect rect = get_rect(exp["detail"]["rect"]);
-                    cv::rectangle(img, rect, cv::Scalar(0, 0, 255));
-                }
-            }
-        }
+        _make_debug_img(img, get_report(true));
         return img;
     }
 #ifdef PENGUIN_RECOGNIZER_WASM_CPP_
@@ -213,6 +201,36 @@ private:
     std::string _md5;
     double _decode_time = 0;
     double _recognize_time = 0;
+
+    static cv::Rect _get_rect(dict arr)
+    {
+        return cv::Rect(arr[0], arr[1], arr[2], arr[3]);
+    }
+
+    static void _make_debug_img(cv::Mat& img, const dict& report)
+    {
+        if (report.empty())
+        {
+            return;
+        }
+        if (report.contains("rect") && report["rect"] != "empty")
+        {
+            cv::Rect rect = _get_rect(report["rect"]);
+            cv::Scalar color = penguin::Status2Color.at(report["status"]);
+            cv::rectangle(img, rect, color);
+        }
+        for (const auto& [key, subreport] : report.items())
+        {
+            if (subreport.is_array() || subreport.is_object())
+            {
+                if (key == "exceptions")
+                {
+                    continue;
+                }
+                _make_debug_img(img, subreport);
+            }
+        }
+    }
 };
 
 #endif // PENGUIN_RECOGNIZER_HPP_

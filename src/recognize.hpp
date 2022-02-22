@@ -17,11 +17,11 @@ namespace penguin
 
 enum class StatusFlags
 {
-    STATUS_NORMAL = 0,
-    STATUS_HASWARNING = 1,
-    STATUS_HASERROR = 2,
-    STATUS_WARNING = 3,
-    STATUS_ERROR = 4
+    NORMAL = 0,
+    HAS_WARNING = 1,
+    HAS_ERROR = 2,
+    WARNING = 3,
+    ERROR = 4
 };
 
 enum ExcTypeFlags
@@ -72,6 +72,20 @@ const std::map<std::string, FontFlags> Server2Font {
     {"US", FontFlags::NUBER_NEXT_DEMIBOLD_CONDENSED},
     {"JP", FontFlags::RODIN_PRO_DB},
     {"KR", FontFlags::SOURCE_HAN_SANS_KR_BOLD}};
+
+const std::map<StatusFlags, std::string> Status2Str {
+    {StatusFlags::NORMAL, "normal"},
+    {StatusFlags::HAS_WARNING, "hasWarning"},
+    {StatusFlags::HAS_ERROR, "hasError"},
+    {StatusFlags::WARNING, "warning"},
+    {StatusFlags::ERROR, "error"}};
+
+const std::map<std::string, cv::Scalar> Status2Color {
+    {"normal", cv::Scalar(0, 153, 51)},
+    {"hasWarning", cv::Scalar(51, 204, 153)},
+    {"hasError", cv::Scalar(0, 204, 255)},
+    {"warning", cv::Scalar(102, 153, 255)},
+    {"error", cv::Scalar(0, 51, 204)}};
 
 class Exception
 {
@@ -223,10 +237,10 @@ public:
     virtual const bool empty() const { return width <= 0 || height <= 0; }
     virtual const dict report(bool debug = false)
     {
-        dict _report = dict::object();
+        dict rpt = dict::object();
         if (_parent_widget == nullptr)
         {
-            _report["exceptions"] = _exception_list;
+            rpt["exceptions"] = _exception_list;
         }
         if (!debug)
         {
@@ -235,14 +249,15 @@ public:
         {
             if (!_img.empty())
             {
-                _report["rect"] = {x, y, width, height};
+                rpt["rect"] = {x, y, width, height};
             }
             else
             {
-                _report["rect"] = "empty";
+                rpt["rect"] = "empty";
             }
+            rpt["status"] = Status2Str.at(_status);
         }
-        return _report;
+        return rpt;
     }
     void push_exception(Exception& exc)
     {
@@ -340,7 +355,7 @@ private:
 protected:
     cv::Mat _img;
     Widget* _parent_widget = nullptr;
-    StatusFlags _status = StatusFlags::STATUS_NORMAL;
+    StatusFlags _status = StatusFlags::NORMAL;
     dict _exception_list = dict::array();
     void _relate(const Widget& widget)
     {
@@ -404,23 +419,22 @@ public:
     }
     const dict report(bool debug = false)
     {
-        dict _report = dict::object();
+        dict rpt = dict::object();
+        rpt.merge_patch(Widget::report(debug));
         if (!debug)
         {
-            _report.merge_patch(Widget::report());
-            _report["char"] = _chr();
+            rpt["char"] = _chr();
         }
         else
         {
-            _report.merge_patch(Widget::report(debug));
-            _report["char"] = _chr();
-            _report["hash"] = _hash;
+            rpt["char"] = _chr();
+            rpt["hash"] = _hash;
             for (const auto& candidate : _candidates)
             {
-                _report["dist"][candidate.chr] = candidate.dist;
+                rpt["dist"][candidate.chr] = candidate.dist;
             }
         }
-        return _report;
+        return rpt;
     }
 
 private:
@@ -518,23 +532,23 @@ public:
     const bool empty() const { return _quantity; }
     const dict report(bool debug = false)
     {
-        dict _report = dict::object();
+        dict rpt = dict::object();
+        rpt.merge_patch(Widget::report(debug));
+
         if (!debug)
         {
-            _report.merge_patch(Widget::report());
-            _report["quantity"] = _quantity;
+            rpt["quantity"] = _quantity;
         }
         else
         {
-            _report.merge_patch(Widget::report(debug));
-            _report["quantity"] = _quantity;
-            _report["font"] = Font2Str.at(Server2Font.at(server));
+            rpt["quantity"] = _quantity;
+            rpt["font"] = Font2Str.at(Server2Font.at(server));
             for (auto& chr : _characters)
             {
-                _report["chars"].push_back(chr.report(debug));
+                rpt["chars"].push_back(chr.report(debug));
             }
         }
-        return _report;
+        return rpt;
     }
 
 private:
@@ -696,24 +710,23 @@ public:
     }
     const dict report(bool debug = false)
     {
-        dict _report = dict::object();
+        dict rpt = dict::object();
+        rpt.merge_patch(Widget::report(debug));
         if (!debug)
         {
-            _report.merge_patch(Widget::report());
-            _report["itemId"] = _itemId;
-            _report["quantity"] = _quantity.report()["quantity"];
+            rpt["itemId"] = _itemId;
+            rpt["quantity"] = _quantity.report()["quantity"];
         }
         else
         {
-            _report.merge_patch(Widget::report(debug));
-            _report["itemId"] = _itemId;
-            _report["quantity"] = _quantity.report(debug);
+            rpt["itemId"] = _itemId;
+            rpt["quantity"] = _quantity.report(debug);
             for (const auto& conf : _confidence_list)
             {
-                _report["confidence"][conf.itemId] = conf.confidence;
+                rpt["confidence"][conf.itemId] = conf.confidence;
             }
         }
-        return _report;
+        return rpt;
     }
 
 private:
