@@ -26,7 +26,7 @@ const double DROP_AREA_HEIGHT_PROP = 0.8;
 const double ITEM_DIAMETER_PROP = 0.524;
 const double W_H_PROP = 7;
 
-enum class DroptypeFlags
+enum DroptypeFlags
 {
     UNDEFINED = 0,
     SANITY = 1,
@@ -94,7 +94,7 @@ public:
         }
         if (!_is_result)
         {
-            push_exception(ERROR, ExcSubtypeFlags::EXC_FALSE, report(true));
+            push_exception(ERROR, ExcSubtypeFlags::EXC_FALSE);
         }
         return *this;
     }
@@ -145,16 +145,16 @@ private:
     }
 };
 
-class Widget_Stage : public Widget
+class Widget_Stage : public WidgetWithCandidate<std::vector<int>, int>
 {
 public:
     const std::string stage_code() const { return _stage_code(); }
     const std::string stageId() const { return _stageId(); }
     Widget_Stage() = default;
     Widget_Stage(Widget* const parent_widget)
-        : Widget("stage", parent_widget) {}
+        : WidgetWithCandidate("stage", parent_widget) {}
     Widget_Stage(const cv::Mat& img, Widget* const parent_widget = nullptr)
-        : Widget("stage", parent_widget)
+        : WidgetWithCandidate("stage", parent_widget)
     {
         set_img(img);
     }
@@ -177,35 +177,32 @@ public:
         }
         if (_stageId().empty())
         {
-            push_exception(ERROR, ExcSubtypeFlags::EXC_NOTFOUND, report(true));
+            push_exception(ERROR, ExcSubtypeFlags::EXC_NOTFOUND);
         }
         else if (const auto& stage_index = resource.get<dict>("stage_index");
                  stage_index[_stage_code()]["existence"] == false)
         {
-            push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL, report(true));
+            push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL);
         }
         return *this;
     }
-    Widget_Stage& _next_candidate()
+    bool _set_candidate(int index)
     {
-        return _set_candidate(_candidate_index + 1);
-    }
-    Widget_Stage& _set_candidate(int index)
-    {
-        if (index < _CANDIDATES_COUNT)
+        if (index < _candidates.size())
         {
             int length = _stage_chrs.size();
             auto candidate = _candidates[index];
             for (int i = 0; i < length; ++i)
             {
-                if (_stage_chrs[i].candidate_index() != candidate[i])
+                if (_stage_chrs[i].candidate_index() != candidate.key[i])
                 {
-                    _stage_chrs[i]._set_candidate(candidate[i]);
+                    _stage_chrs[i]._set_candidate(candidate.key[i]);
                 }
             }
             _candidate_index = index;
+            return true;
         }
-        return *this;
+        return false;
     }
     const dict report(bool debug = false)
     {
@@ -220,9 +217,9 @@ public:
         {
             rpt["stageCode"] = _stage_code();
             rpt["stageId"] = _stageId();
-            for (const auto& candidate : _candidates)
+            for (int i = 0; i < _candidates.size(); ++i)
             {
-                rpt["dist"][_stage_code(candidate)] = _dist(candidate);
+                rpt["dist"][_stage_code(i)] = _measure(i);
             }
             for (auto& chr : _stage_chrs)
             {
@@ -236,30 +233,30 @@ private:
     const int _CANDIDATES_COUNT = 5;
     bool _existance = false;
     std::vector<Widget_Character> _stage_chrs;
-    std::vector<std::vector<int>> _candidates {{0, 0, 0, 0, 0}};
     int _candidate_index = 0;
     const std::string _stage_code() const
     {
-        return _stage_code(_candidates[_candidate_index]);
+        return _stage_code(_candidate_index);
     }
-    const std::string _stage_code(const std::vector<int>& chr_indexs) const
+    const std::string _stage_code(const int index) const
     {
         std::string code;
         int length = _stage_chrs.size();
         for (int i = 0; i < length; ++i)
         {
-            code += _stage_chrs[i].candidates()[chr_indexs[i]].chr;
+            int index_i = _key(index)[i];
+            code += _stage_chrs[i].candidates()[index_i].key;
         }
         return code;
     }
     const std::string _stageId() const
     {
-        auto stageId = _stageId(_candidates[_candidate_index]);
+        auto stageId = _stageId(_candidate_index);
         return stageId;
     }
-    const std::string _stageId(const std::vector<int>& chr_indexs) const
+    const std::string _stageId(const int index) const
     {
-        auto stage_code = _stage_code(chr_indexs);
+        auto stage_code = _stage_code(index);
         if (const auto& stage_index = resource.get<dict>("stage_index");
             stage_index.contains(stage_code))
         {
@@ -269,20 +266,6 @@ private:
         {
             return "";
         }
-    }
-    const int _dist() const
-    {
-        return _dist(_candidates[_candidate_index]);
-    }
-    const int _dist(const std::vector<int>& chr_indexs) const
-    {
-        int dist = 0;
-        int length = _stage_chrs.size();
-        for (int i = 0; i < length; ++i)
-        {
-            dist += _stage_chrs[i].candidates()[chr_indexs[i]].dist;
-        }
-        return dist;
     }
     void _get_stage()
     {
@@ -296,7 +279,7 @@ private:
         _img = _img(stagerect);
         auto stage_img = _img;
         auto sp = separate(stage_img, DirectionFlags::LEFT);
-        for (auto& range : sp)
+        for (const auto& range : sp)
         {
             int length = range.end - range.start;
             auto charimg = stage_img(cv::Rect(range.start, 0, length, height));
@@ -305,6 +288,16 @@ private:
             chr.analyze();
             _stage_chrs.emplace_back(chr);
         }
+
+        std::vector<int> key;
+        int measure = 0;
+        for (const auto& chr : _stage_chrs)
+        {
+            key.emplace_back(chr.candidate_index());
+            measure += chr.dist();
+        }
+        _candidates.emplace_back(key, measure);
+
         if (_stageId().empty())
         {
             _get_candidates();
@@ -346,12 +339,14 @@ private:
             }
             last_pop = q.top();
             q.pop();
-            std::vector<int> chrs_indexs;
+            std::vector<int> key;
+            int measure = 0;
             for (const auto& chr : last_pop)
             {
-                chrs_indexs.emplace_back(chr.candidate_index());
+                key.emplace_back(chr.candidate_index());
+                measure += chr.dist();
             }
-            _candidates.emplace_back(chrs_indexs);
+            _candidates.emplace_back(key, measure);
         }
     }
 };
@@ -385,7 +380,7 @@ public:
         }
         if (_stars != 3)
         {
-            push_exception(ERROR, ExcSubtypeFlags::EXC_FALSE, report(true));
+            push_exception(ERROR, ExcSubtypeFlags::EXC_FALSE);
         }
         return *this;
     }
@@ -439,21 +434,22 @@ private:
     }
 };
 
-class Widget_DroptypeLine : public Widget
+class Widget_DroptypeLine : public WidgetWithCandidate<DroptypeFlags, int>
 {
 public:
-    const DroptypeFlags droptype() const { return _droptype; }
+    const DroptypeFlags droptype() const { return _key(); }
+    const int dist() const { return _measure(); }
     Widget_DroptypeLine() = default;
     Widget_DroptypeLine(Widget* const parent_widget)
-        : Widget(parent_widget) {}
+        : WidgetWithCandidate(parent_widget) {}
     Widget_DroptypeLine(const cv::Mat& img,
                         Widget* const parent_widget = nullptr)
-        : Widget(img, parent_widget) {}
+        : WidgetWithCandidate(img, parent_widget) {}
     Widget_DroptypeLine& analyze()
     {
         if (!_img.empty())
         {
-            _get_droptype();
+            _get_candidates();
         }
         return *this;
     }
@@ -466,29 +462,31 @@ public:
         else
         {
             rpt["hsv"] = {(int)round(_hsv[H]), _hsv[S], _hsv[V]};
-            rpt["dist"] = _dist;
+            for (const auto& candidate : _candidates)
+            {
+                auto type = Droptype2Str[candidate.key];
+                rpt["dist"][type] = candidate.measure;
+            }
         }
         return rpt;
     }
 
 private:
-    DroptypeFlags _droptype = DroptypeFlags::UNDEFINED;
     cv::Vec3f _hsv;
-    int _dist = HSV_DIST_MAX;
-    void _get_droptype()
+    void _get_candidates()
     {
         _get_hsv();
         auto hsv = _hsv;
         if (hsv[S] < 0.1 && hsv[V] <= 0.9)
         {
-            _droptype = DroptypeFlags::NORMAL_DROP;
-            _dist = 0;
+            _candidates.emplace_back(DroptypeFlags::NORMAL_DROP, 0);
+            _candidates.emplace_back(DroptypeFlags::SANITY, 180);
             return;
         }
         else if (hsv[S] < 0.1 && hsv[V] > 0.9)
         {
-            _droptype = DroptypeFlags::SANITY;
-            _dist = 0;
+            _candidates.emplace_back(DroptypeFlags::SANITY, 0);
+            _candidates.emplace_back(DroptypeFlags::NORMAL_DROP, 180);
             return;
         }
         else
@@ -500,12 +498,10 @@ private:
                     continue;
                 }
                 int dist = abs(kh - hsv[H]);
-                if (dist < _dist)
-                {
-                    _dist = dist;
-                    _droptype = vtype;
-                }
+                _candidates.emplace_back(vtype, dist);
             }
+            std::sort(_candidates.begin(), _candidates.end());
+            _candidates = std::vector<Candidate>(_candidates.cbegin(), _candidates.cbegin() + 3);
         }
     }
     void _get_hsv()
@@ -520,7 +516,7 @@ private:
     }
 };
 
-class Widget_DroptypeText : public Widget
+class Widget_DroptypeText : public WidgetWithCandidate<DroptypeFlags, int>
 {
     struct DroptypeDist
     {
@@ -531,18 +527,19 @@ class Widget_DroptypeText : public Widget
     };
 
 public:
-    const DroptypeFlags droptype() const { return _droptype; }
+    const DroptypeFlags droptype() const { return _key(); }
+    const int dist() const { return _measure(); }
     Widget_DroptypeText() = default;
     Widget_DroptypeText(Widget* const parent_widget)
-        : Widget(parent_widget) {}
+        : WidgetWithCandidate(parent_widget) {}
     Widget_DroptypeText(const cv::Mat& img,
                         Widget* const parent_widget = nullptr)
-        : Widget(img, parent_widget) {}
+        : WidgetWithCandidate(img, parent_widget) {}
     Widget_DroptypeText& analyze()
     {
         if (!_img.empty())
         {
-            _get_droptype();
+            _get_candidates();
         }
         return *this;
     }
@@ -555,20 +552,17 @@ public:
         else
         {
             rpt["hash"] = _hash;
-            for (const auto& droptypedist : _dist_list)
+            for (const auto& candidate : _candidates)
             {
-                rpt["dist"][droptypedist.droptype] = droptypedist.dist;
+                rpt["dist"][candidate.key] = candidate.measure;
             }
         }
         return rpt;
     }
 
 private:
-    DroptypeFlags _droptype = DroptypeFlags::UNDEFINED;
     std::string _hash = "";
-    int _dist = int(HammingFlags::HAMMING64) * 4;
-    std::vector<DroptypeDist> _dist_list;
-    void _get_droptype()
+    void _get_candidates()
     {
         _process_img();
         auto droptextimg = _img;
@@ -587,23 +581,10 @@ private:
         const auto& droptype_dict =
             resource.get<dict>("hash_index")["dropType"][server];
         int dist_spe = hamming(_hash, droptype_dict["SPECIAL_DROP"]);
-        _dist_list.emplace_back("SPECIAL_DROP", dist_spe);
+        _candidates.emplace_back(DroptypeFlags::SPECIAL_DROP, dist_spe);
         int dist_fur = hamming(_hash, droptype_dict["FURNITURE"]);
-        _dist_list.emplace_back("FURNITURE", dist_fur);
-        if (dist_spe < dist_fur)
-        {
-            _dist = dist_spe;
-            _droptype = DroptypeFlags::SPECIAL_DROP;
-        }
-        else if (dist_fur < dist_spe)
-        {
-            _dist = dist_fur;
-            _droptype = DroptypeFlags::FURNITURE;
-        }
-        else
-        {
-            _droptype = DroptypeFlags::UNDEFINED;
-        }
+        _candidates.emplace_back(DroptypeFlags::FURNITURE, dist_fur);
+        std::sort(_candidates.begin(), _candidates.end());
     }
     void _process_img()
     {
@@ -641,24 +622,27 @@ private:
     }
 };
 
-class Widget_Droptype : public Widget
+class Widget_Droptype : public WidgetWithCandidate<DroptypeFlags, int>
 {
 public:
-    const DroptypeFlags droptype() const { return _droptype; }
+    const DroptypeFlags droptype() const { return _key(); }
+    const int dist() const { return _measure(); }
     const int items_count() const { return _items_count; }
     Widget_Droptype() = default;
     Widget_Droptype(const cv::Mat& img, const std::string& label, Widget* const parent_widget = nullptr)
-        : Widget(img, label, parent_widget) {}
+        : WidgetWithCandidate(img, label, parent_widget) {}
     Widget_Droptype& analyze()
     {
         if (!_img.empty())
         {
-            _get_droptype();
+            _get_candidates();
         }
-        if (_droptype == DroptypeFlags::UNDEFINED || _droptype == DroptypeFlags::SANITY ||
-            _droptype == DroptypeFlags::FIRST)
+        if (const auto type = droptype();
+            type == DroptypeFlags::UNDEFINED ||
+            type == DroptypeFlags::SANITY ||
+            type == DroptypeFlags::FIRST)
         {
-            push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL, report(true));
+            push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL);
         }
         return *this;
     }
@@ -668,12 +652,12 @@ public:
         rpt.merge_patch(Widget::report(debug));
         if (!debug)
         {
-            rpt["dropType"] = Droptype2Str[_droptype];
+            rpt["dropType"] = Droptype2Str[droptype()];
             rpt["itemCount"] = _items_count;
         }
         else
         {
-            rpt["dropType"] = Droptype2Str[_droptype];
+            rpt["dropType"] = Droptype2Str[droptype()];
             rpt["itemCount"] = _items_count;
             rpt.merge_patch(_line.report(debug));
             if (!_text.empty())
@@ -685,23 +669,23 @@ public:
     }
 
 private:
-    DroptypeFlags _droptype = DroptypeFlags::UNDEFINED;
     int _items_count = round(width / (height * W_H_PROP));
     Widget_DroptypeLine _line {this};
     Widget_DroptypeText _text {this};
-    void _get_droptype()
+    void _get_candidates()
     {
         auto lineimg = _img(cv::Rect(0, 0, width, 1));
         _line.set_img(lineimg);
         _line.analyze();
-        _droptype = _line.droptype();
-        if (_droptype == DroptypeFlags::SPECIAL_DROP ||
-            _droptype == DroptypeFlags::FURNITURE)
+        _candidates = _line.candidates();
+        if (const auto type = droptype();
+            type == DroptypeFlags::SPECIAL_DROP ||
+            type == DroptypeFlags::FURNITURE)
         {
             auto textimg = _img(cv::Rect(0, 1, width, height - 1));
             _text.set_img(textimg);
             _text.analyze();
-            _droptype = _text.droptype();
+            _candidates = _text.candidates();
         }
     }
 };
@@ -726,6 +710,23 @@ public:
     {
         if (!_img.empty())
         {
+            _get_droptypes();
+            for (int i = 0; i < 2; i++)
+            {
+                if (_droptype_validation())
+                {
+                    break;
+                }
+                else
+                {
+                    _next_droptype_candidate();
+                }
+            }
+            if (!_droptype_validation())
+            {
+                widget_label = "droptypes";
+                push_exception(ERROR, ExcSubtypeFlags::EXC_ILLEGAL);
+            }
             _get_drops(stage);
         }
         else
@@ -734,7 +735,7 @@ public:
         }
         if (_droptype_list.empty())
         {
-            push_exception(ERROR, ExcSubtypeFlags::EXC_NOTFOUND);
+            push_exception(ERROR, ExcSubtypeFlags::EXC_NOTFOUND, "No droptype found");
         }
         return *this;
     }
@@ -814,10 +815,8 @@ private:
         sp.front().start = 0;
         return std::tuple(baseline_h, sp);
     }
-    void _get_drops(std::string stage)
+    void _get_droptypes()
     {
-        int item_diameter = height / DROP_AREA_HEIGHT_PROP * ITEM_DIAMETER_PROP;
-        ItemTemplates templs {stage};
         auto [baseline_h, sp] = _get_separate();
         for (const auto& droptype_range : sp)
         {
@@ -827,6 +826,60 @@ private:
             droptype.analyze();
             _droptype_list.emplace_back(droptype);
         }
+    }
+    bool _droptype_validation()
+    {
+        int last_type = 0;
+        for (const auto& droptype : _droptype_list)
+        {
+            int current_type = droptype.droptype();
+            if (current_type <= last_type)
+            {
+                return false;
+            }
+            last_type = current_type;
+        }
+        return true;
+    }
+    void _next_droptype_candidate()
+    {
+        auto comp = [](std::vector<Widget_Droptype> a,
+                       std::vector<Widget_Droptype> b) {
+            int dist_a = 0, dist_b = 0;
+            for (const auto& type : a)
+            {
+                dist_a += type.dist();
+            }
+            for (const auto& type : b)
+            {
+                dist_b += type.dist();
+            }
+            return dist_a > dist_b;
+        };
+        std::priority_queue<
+            std::vector<Widget_Droptype>,
+            std::vector<std::vector<Widget_Droptype>>,
+            decltype(comp)>
+            q(comp);
+        auto last_pop = _droptype_list;
+        int length = _droptype_list.size();
+        for (int i = 0; i < length; ++i)
+        {
+            auto child = last_pop;
+            child[i]._next_candidate();
+            q.push(child);
+        }
+        _droptype_list = q.top();
+    }
+
+    void _get_drops(std::string stage)
+    {
+        if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
+        {
+            return;
+        }
+        int item_diameter = height / DROP_AREA_HEIGHT_PROP * ITEM_DIAMETER_PROP;
+        ItemTemplates templs {stage};
         for (const auto& droptype : _droptype_list)
         {
             if (const auto type = droptype.droptype();
@@ -863,7 +916,7 @@ private:
                     auto range =
                         cv::Range(droptype.x - x + length * i,
                                   droptype.x - x + length * (i + 1));
-                    auto dropimg = _img(cv::Range(0, baseline_h), range);
+                    auto dropimg = _img(cv::Range(0, droptype.y - y), range);
                     Widget_Item drop {dropimg, item_diameter, label, this};
                     drop.analyze(templs);
                     _drop_list.emplace_back(drop, type);
@@ -992,7 +1045,7 @@ private:
         if (_baseline_v.empty() || _baseline_v.height < BASELINE_V_HEIGHT_MIN ||
             _baseline_v.x <= _baseline_v.height)
         {
-            _result_label.push_exception(ERROR, ExcSubtypeFlags::EXC_FALSE, report(true));
+            _result_label.push_exception(ERROR, ExcSubtypeFlags::EXC_FALSE);
         }
     }
     void _get_result_label()

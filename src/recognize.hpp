@@ -3,6 +3,7 @@
 
 #include <limits>
 #include <optional>
+#include <queue>
 
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
@@ -205,18 +206,34 @@ public:
           _parent_widget(widget._parent_widget),
           _status(std::move(widget._status)),
           _exception_list(std::move(widget._exception_list)) {}
-    Widget(const cv::Mat& img, const std::string& label, Widget* const parent_widget = nullptr)
+    Widget(const cv::Mat& img, const std::string& label)
     {
         widget_label = label;
-        _parent_widget = parent_widget;
+        set_parent(nullptr);
         set_img(img);
     }
-    Widget(const cv::Mat& img, Widget* const parent_widget = nullptr)
+    Widget(const cv::Mat& img, const std::string& label, Widget* const parent_widget)
     {
-        _parent_widget = parent_widget;
+        widget_label = label;
+        set_parent(parent_widget);
         set_img(img);
     }
-    Widget(const std::string& label, Widget* const parent_widget = nullptr)
+    Widget(const cv::Mat& img)
+    {
+        set_parent(nullptr);
+        set_img(img);
+    }
+    Widget(const cv::Mat& img, Widget* const parent_widget)
+    {
+        set_parent(parent_widget);
+        set_img(img);
+    }
+    Widget(const std::string& label)
+    {
+        widget_label = label;
+        set_parent(nullptr);
+    }
+    Widget(const std::string& label, Widget* const parent_widget)
     {
         widget_label = label;
         set_parent(parent_widget);
@@ -300,8 +317,13 @@ public:
             parent.push_exception(exc);
         }
     }
-    void push_exception(ExcTypeFlags type, ExcSubtypeFlags what, const dict& detail = dict::object())
+    void push_exception(ExcTypeFlags type, ExcSubtypeFlags what, dict detail = dict::object())
     {
+        _status = static_cast<StatusFlags>(type + 2);
+        if (detail.empty())
+        {
+            detail = report(true);
+        }
         Exception exc = {type, what, detail};
         push_exception(exc);
     }
@@ -371,49 +393,85 @@ protected:
     }
 };
 
-class Widget_Character : public Widget
+template <typename keyType, typename measurement>
+class WidgetWithCandidate : public Widget
 {
+protected:
     struct Candidate
     {
-        std::string chr;
-        int dist;
-        Candidate(const std::string& chr_, int dist_)
-            : chr(chr_), dist(dist_) {}
+        keyType key;
+        measurement measure;
+        Candidate(const keyType& key_, measurement measure_)
+            : key(key_), measure(measure_) {}
+        bool operator<(Candidate other)
+        {
+            return this->measure < other.measure;
+        }
     };
 
 public:
-    const std::string chr() const { return _chr(); }
-    const int dist() const { return _dist(); }
     const int candidate_index() const { return _candidate_index; }
-    const std::vector<Candidate> candidates() const { return _candidates; }
+    const std::vector<Candidate>& candidates() const { return _candidates; }
+    using Widget::Widget;
+    virtual bool _next_candidate()
+    {
+        return _set_candidate(_candidate_index + 1);
+    }
+    virtual bool _set_candidate(int index)
+    {
+        if (index < _candidates.size())
+        {
+            _candidate_index = index;
+            return true;
+        }
+        return false;
+    }
+
+protected:
+    int _candidate_index = 0;
+    std::vector<Candidate> _candidates;
+    const keyType& _key() const
+    {
+        return _key(_candidate_index);
+    }
+    const keyType& _key(const int index) const
+    {
+        return _candidates[index].key;
+    }
+    const measurement _measure() const
+    {
+        return _measure(_candidate_index);
+    }
+    const measurement _measure(const int index) const
+    {
+        return _candidates[index].measure;
+    }
+    virtual void _get_candidates() = 0;
+};
+
+class Widget_Character : public WidgetWithCandidate<std::string, int>
+{
+public:
+    const std::string& chr() const { return _key(); }
+    const int dist() const { return _measure(); }
+    const int candidate_index() const { return _candidate_index; }
+    const std::vector<Candidate>& candidates() const { return _candidates; }
     Widget_Character() = default;
     Widget_Character(const cv::Mat& img_bin, FontFlags flag, const std::string& label, Widget* const parent_widget = nullptr)
-        : Widget(img_bin, label, parent_widget), font(flag) {}
+        : WidgetWithCandidate(img_bin, label, parent_widget), font(flag) {}
     Widget_Character& analyze(const bool without_exception = false)
     {
         if (!_img.empty())
         {
-            _get_char();
-            if (_dist() > 64 && without_exception == false)
+            _get_candidates();
+            if (dist() > 64 && without_exception == false)
             {
-                push_exception(WARNING, ExcSubtypeFlags::EXC_LOWCONF, report(true));
+                push_exception(WARNING, ExcSubtypeFlags::EXC_LOWCONF);
             }
         }
         else
         {
             // add exception empty
-        }
-        return *this;
-    }
-    Widget_Character& _next_candidate()
-    {
-        return _set_candidate(_candidate_index + 1);
-    }
-    Widget_Character& _set_candidate(int index)
-    {
-        if (index < _candidates.size())
-        {
-            _candidate_index = index;
         }
         return *this;
     }
@@ -423,15 +481,15 @@ public:
         rpt.merge_patch(Widget::report(debug));
         if (!debug)
         {
-            rpt["char"] = _chr();
+            rpt["char"] = chr();
         }
         else
         {
-            rpt["char"] = _chr();
+            rpt["char"] = chr();
             rpt["hash"] = _hash;
             for (const auto& candidate : _candidates)
             {
-                rpt["dist"][candidate.chr] = candidate.dist;
+                rpt["dist"][candidate.key] = candidate.measure;
             }
         }
         return rpt;
@@ -439,26 +497,8 @@ public:
 
 private:
     std::string _hash;
-    int _candidate_index = 0;
     FontFlags font = FontFlags::UNDEFINED;
-    std::vector<Candidate> _candidates;
-    const std::string& _chr() const
-    {
-        return _chr(_candidate_index);
-    }
-    const std::string& _chr(int index) const
-    {
-        return _candidates[index].chr;
-    }
-    const int _dist() const
-    {
-        return _dist(_candidate_index);
-    }
-    const int _dist(int index) const
-    {
-        return _candidates[index].dist;
-    }
-    void _get_char()
+    void _get_candidates()
     {
         auto& self = *this;
         auto charrect = cv::boundingRect(_img);
@@ -484,10 +524,8 @@ private:
             _candidates.emplace_back(kchar, dist);
         }
 
-        std::sort(_candidates.begin(), _candidates.end(),
-                  [](const Candidate& val1, const Candidate& val2) {
-                      return val1.dist < val2.dist;
-                  });
+        std::sort(_candidates.begin(), _candidates.end());
+        _candidates = std::vector<Candidate>(_candidates.cbegin(), _candidates.cbegin() + 5);
     }
 };
 
@@ -515,7 +553,7 @@ public:
         }
         if (_quantity == 0)
         {
-            push_exception(ERROR, ExcSubtypeFlags::EXC_NOTFOUND, report(true));
+            push_exception(ERROR, ExcSubtypeFlags::EXC_NOTFOUND);
         }
         return *this;
     }
@@ -698,7 +736,7 @@ public:
             if (_confidence < _CONFIDENCE_THRESHOLD &&
                 without_exception == false)
             {
-                push_exception(ERROR, ExcSubtypeFlags::EXC_LOWCONF, report(true));
+                push_exception(ERROR, ExcSubtypeFlags::EXC_LOWCONF);
             }
         }
         else
