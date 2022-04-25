@@ -1,12 +1,12 @@
-name: Build Docker Image (Release)
+name: Build Docker Image (Builder)
 
 on:
   push:
-    # trigger on `v3` branch push, except for `Dockerfile.builder`
+    # trigger only on `Dockerfile.builder` changed in `v3` branch
+    paths:
+      - Dockerfile.builder
     branches:
       - v3
-    paths-ignore:
-      - Dockerfile.builder
 concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
@@ -20,8 +20,10 @@ jobs:
       - name: Build and Publish to Registry
         uses: elgohr/Publish-Docker-Github-Action@3.04
         with:
-          name: penguin-statistics/backend-next
+          name: penguin-statistics/recognizer-builder
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
           registry: ghcr.io
+          dockerfile: Dockerfile.builder
+          tags: "latest,v3"
           no_push: true
