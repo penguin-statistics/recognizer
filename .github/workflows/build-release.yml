@@ -15,9 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build Dockerfile
-        uses: actions/docker@v2
+      - name: Build and Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@3.04
         with:
-          dockerfile-dir: .
-          image: ${{ github.repo }}:v3
-          context: ${{ github.workflow.source }}
+          name: penguin-statistics/backend-next
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+          no_push: true
