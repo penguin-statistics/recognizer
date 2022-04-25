@@ -1,6 +1,6 @@
 FROM ghcr.io/penguin-statistics/recognizer-builder:v3
 
-WORKDIR /build
+WORKDIR /build/recognizer
 
 COPY . .
 
