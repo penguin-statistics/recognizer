@@ -5,3 +5,6 @@ examples
 *.ilk
 test*.*
 .history
+resources/icon/items/
+font/
+new/

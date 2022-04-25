@@ -98,7 +98,7 @@ class Extractor:
                             self.itemimg_list[itemId] = bkg_img
 
         if "randomMaterial_1" in self.itemimg_list:
-            self.itemimg_list["randomMaterial_5"] = self.itemimg_list["randomMaterial_1"]
+            self.itemimg_list["randomMaterial_6"] = self.itemimg_list["randomMaterial_1"]
 
 
 if __name__ == "__main__":

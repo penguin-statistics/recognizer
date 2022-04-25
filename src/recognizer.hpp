@@ -18,7 +18,7 @@
 #include "depot.hpp"
 #include "result.hpp"
 
-static const std::string version = "3.4.1";
+static const std::string version = "3.5.0";
 static const std::string opencv_version = CV_VERSION;
 
 cv::Mat decode(std::string JSarrayBuffer)
@@ -121,13 +121,22 @@ public:
 
     void recognize()
     {
-        if (_mode == "RESULT")
+        if (_mode == "RESULT" && penguin::server != "CN")
         {
             int64 start = cv::getTickCount();
             _result.set_img(_img);
             _result.analyze();
             int64 end = cv::getTickCount();
             _md5 = _result.get_md5();
+            _recognize_time = (end - start) / cv::getTickFrequency() * 1000;
+        }
+        else if (_mode == "RESULT" && penguin::server == "CN")
+        {
+            int64 start = cv::getTickCount();
+            _result_new.set_img(_img);
+            _result_new.analyze();
+            int64 end = cv::getTickCount();
+            _md5 = _result_new.get_md5();
             _recognize_time = (end - start) / cv::getTickFrequency() * 1000;
         }
     }
@@ -196,6 +205,7 @@ private:
     std::string _mode;
     cv::Mat _img;
     penguin::Result _result;
+    penguin::Result_New _result_new;
     penguin::Depot _depot;
     dict _report;
     std::string _md5;

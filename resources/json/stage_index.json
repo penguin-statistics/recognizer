@@ -10,7 +10,9 @@
             "30061",
             "3003",
             "2001",
-            "30041"
+            "30041",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -25,7 +27,9 @@
             "30051",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -40,7 +44,9 @@
             "30051",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -55,7 +61,9 @@
             "30061",
             "3003",
             "2001",
-            "30051"
+            "30051",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -70,7 +78,9 @@
             "30051",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -85,7 +95,9 @@
             "30051",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -100,7 +112,9 @@
             "30051",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -115,7 +129,9 @@
             "30051",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -130,7 +146,9 @@
             "30051",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -145,7 +163,9 @@
             "30051",
             "30061",
             "2001",
-            "3003"
+            "3003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -160,7 +180,9 @@
             "30061",
             "3003",
             "2001",
-            "30051"
+            "30051",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -174,7 +196,9 @@
             "30051",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -194,7 +218,9 @@
             "30061",
             "3003",
             "2001",
-            "30051"
+            "30051",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -208,7 +234,9 @@
             "30061",
             "3003",
             "2001",
-            "30031"
+            "30031",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -223,7 +251,9 @@
             "30061",
             "30021",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -238,7 +268,9 @@
             "30061",
             "3003",
             "2001",
-            "30051"
+            "30051",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -253,7 +285,9 @@
             "30041",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -268,7 +302,9 @@
             "30051",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -283,7 +319,9 @@
             "30041",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -298,7 +336,9 @@
             "30061",
             "30051",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -318,7 +358,9 @@
             "30051",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -333,7 +375,9 @@
             "30051",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -348,7 +392,9 @@
             "30041",
             "3003",
             "2001",
-            "30061"
+            "30061",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -363,7 +409,9 @@
             "30012",
             "30062",
             "2001",
-            "30032"
+            "30032",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -378,7 +426,9 @@
             "3003",
             "30062",
             "2001",
-            "30032"
+            "30032",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -393,7 +443,9 @@
             "30022",
             "30052",
             "30042",
-            "2002"
+            "2002",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -408,7 +460,9 @@
             "30012",
             "30032",
             "30062",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -422,7 +476,9 @@
             "30022",
             "30042",
             "30052",
-            "2002"
+            "2002",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -437,7 +493,9 @@
             "30042",
             "30052",
             "2002",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -452,7 +510,9 @@
             "30032",
             "30062",
             "30061",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -467,7 +527,9 @@
             "2001",
             "30042",
             "2002",
-            "30052"
+            "30052",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -481,8 +543,10 @@
             "30041",
             "30051",
             "3003",
+            "30061",
             "2001",
-            "30061"
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -496,7 +560,9 @@
             "30061",
             "3003",
             "2001",
-            "30051"
+            "30051",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -511,7 +577,9 @@
             "30051",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -525,7 +593,9 @@
             "30051",
             "30061",
             "3003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -540,7 +610,9 @@
             "30032",
             "30062",
             "2001",
-            "30031"
+            "30031",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -555,7 +627,9 @@
             "30022",
             "30042",
             "2002",
-            "30052"
+            "30052",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -570,7 +644,9 @@
             "30012",
             "30032",
             "30062",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -585,7 +661,9 @@
             "2001",
             "30042",
             "2002",
-            "30052"
+            "30052",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -600,7 +678,9 @@
             "30022",
             "30042",
             "30052",
-            "2002"
+            "2002",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -615,7 +695,9 @@
             "30032",
             "30062",
             "2001",
-            "30031"
+            "30031",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -629,7 +711,9 @@
             "30022",
             "30042",
             "30052",
-            "2002"
+            "2002",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -643,7 +727,9 @@
             "3003",
             "30032",
             "30062",
-            "30012"
+            "30012",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -658,7 +744,9 @@
             "30022",
             "30042",
             "30052",
-            "2002"
+            "2002",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -672,7 +760,9 @@
             "3003",
             "30012",
             "30032",
-            "30062"
+            "30062",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -686,7 +776,9 @@
             "30012",
             "3003",
             "30032",
-            "30062"
+            "30062",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -700,7 +792,9 @@
             "3003",
             "30012",
             "30032",
-            "30062"
+            "30062",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -714,7 +808,9 @@
             "3003",
             "30012",
             "30032",
-            "30062"
+            "30062",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -728,7 +824,9 @@
             "2001",
             "30042",
             "30052",
-            "2002"
+            "2002",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -743,7 +841,9 @@
             "30022",
             "30042",
             "2002",
-            "30052"
+            "30052",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -761,7 +861,9 @@
             "30103",
             "30031",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -776,7 +878,9 @@
             "30022",
             "30042",
             "30052",
-            "2002"
+            "2002",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -790,7 +894,9 @@
             "3003",
             "30012",
             "30062",
-            "30032"
+            "30032",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -805,7 +911,9 @@
             "30042",
             "30052",
             "30022",
-            "2002"
+            "2002",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -819,7 +927,9 @@
             "30012",
             "3003",
             "30032",
-            "30062"
+            "30062",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -833,7 +943,9 @@
             "30022",
             "30052",
             "30042",
-            "2002"
+            "2002",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -849,7 +961,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -868,7 +982,9 @@
             "30083",
             "31023",
             "2003",
-            "30024"
+            "30024",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -885,7 +1001,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -903,7 +1021,9 @@
             "31013",
             "3003",
             "30073",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -921,7 +1041,9 @@
             "30053",
             "30103",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -939,7 +1061,9 @@
             "31013",
             "30073",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -957,7 +1081,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -976,7 +1102,9 @@
             "30103",
             "31033",
             "31043",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -995,7 +1123,9 @@
             "30103",
             "31033",
             "31043",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1012,7 +1142,9 @@
             "30073",
             "31013",
             "3003",
-            "30061"
+            "30061",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1031,7 +1163,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1047,7 +1181,9 @@
             "30093",
             "30103",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1064,7 +1200,9 @@
             "30043",
             "31023",
             "30083",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1081,7 +1219,9 @@
             "30083",
             "31023",
             "2003",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1097,7 +1237,9 @@
             "30103",
             "30053",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1114,7 +1256,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1131,7 +1275,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1147,7 +1293,9 @@
             "30103",
             "30053",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1165,14 +1313,15 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "GT-1": {
         "stageId": "a001_01_perm",
         "drops": [
-            "30012",
             "30011",
             "30021",
             "30031",
@@ -1180,6 +1329,7 @@
             "30051",
             "30061",
             "3003",
+            "30012",
             "2001"
         ],
         "existence": true
@@ -1221,11 +1371,11 @@
             "30021",
             "30041",
             "30051",
-            "2001",
             "30022",
             "30042",
             "30052",
-            "2002"
+            "2002",
+            "2001"
         ],
         "existence": true
     },
@@ -1250,25 +1400,29 @@
             "30021",
             "30041",
             "30051",
-            "2001",
             "30022",
             "30042",
             "30052",
-            "2002"
+            "2002",
+            "2001"
         ],
         "existence": true
     },
     "SK-1": {
         "stageId": "wk_armor_1",
         "drops": [
-            "3112"
+            "3112",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "SK-2": {
         "stageId": "wk_armor_2",
         "drops": [
-            "3112"
+            "3112",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1276,7 +1430,9 @@
         "stageId": "wk_armor_3",
         "drops": [
             "3112",
-            "3113"
+            "3113",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1284,7 +1440,9 @@
         "stageId": "wk_armor_4",
         "drops": [
             "3114",
-            "3113"
+            "3113",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1292,21 +1450,27 @@
         "stageId": "wk_armor_5",
         "drops": [
             "3114",
-            "3113"
+            "3113",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "CA-1": {
         "stageId": "wk_fly_1",
         "drops": [
-            "3301"
+            "3301",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "CA-2": {
         "stageId": "wk_fly_2",
         "drops": [
-            "3301"
+            "3301",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1314,7 +1478,9 @@
         "stageId": "wk_fly_3",
         "drops": [
             "3302",
-            "3301"
+            "3301",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1323,7 +1489,9 @@
         "drops": [
             "3303",
             "3302",
-            "3301"
+            "3301",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1332,7 +1500,9 @@
         "drops": [
             "3303",
             "3301",
-            "3302"
+            "3302",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1349,7 +1519,9 @@
             "30063",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1367,7 +1539,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1375,7 +1549,9 @@
         "stageId": "main_05-03",
         "drops": [
             "30033",
-            "30022"
+            "30022",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1392,7 +1568,9 @@
             "30103",
             "30053",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1410,7 +1588,9 @@
             "31013",
             "3003",
             "30063",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1428,7 +1608,9 @@
             "30043",
             "30083",
             "2003",
-            "31023"
+            "31023",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1436,7 +1618,9 @@
         "stageId": "main_05-07",
         "drops": [
             "30093",
-            "30042"
+            "30042",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1454,7 +1638,9 @@
             "30093",
             "30103",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1471,7 +1657,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1479,7 +1667,9 @@
         "stageId": "main_05-10",
         "drops": [
             "30063",
-            "30012"
+            "30012",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1487,7 +1677,9 @@
         "stageId": "sub_05-1-1",
         "drops": [
             "2003",
-            "30012"
+            "30012",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1504,14 +1696,18 @@
             "30043",
             "31023",
             "2003",
-            "30083"
+            "30083",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "S5-3": {
         "stageId": "sub_05-2-1",
         "drops": [
-            "30032"
+            "30032",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1519,14 +1715,18 @@
         "stageId": "sub_05-2-2",
         "drops": [
             "2003",
-            "30022"
+            "30022",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "S5-5": {
         "stageId": "sub_05-3-1",
         "drops": [
-            "30062"
+            "30062",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1544,7 +1744,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1639,7 +1841,6 @@
             "30084",
             "30021",
             "30041",
-            "2001",
             "30022",
             "30042",
             "2002",
@@ -1647,7 +1848,8 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "2001"
         ],
         "existence": true
     },
@@ -1734,7 +1936,9 @@
     "6-1": {
         "stageId": "main_06-01",
         "drops": [
-            "30042"
+            "30042",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1752,7 +1956,9 @@
             "30093",
             "30103",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1769,7 +1975,9 @@
             "30012",
             "3003",
             "31013",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1787,7 +1995,9 @@
             "30103",
             "30052",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1795,7 +2005,9 @@
         "stageId": "main_06-05",
         "drops": [
             "30013",
-            "30032"
+            "30032",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1818,7 +2030,9 @@
             "30083",
             "31023",
             "2003",
-            "30043"
+            "30043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1826,7 +2040,9 @@
         "stageId": "main_06-08",
         "drops": [
             "30032",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1843,15 +2059,19 @@
             "30093",
             "30103",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "6-11": {
         "stageId": "main_06-10",
         "drops": [
+            "30073",
             "30062",
-            "30073"
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1870,7 +2090,9 @@
             "30083",
             "31023",
             "2003",
-            "30023"
+            "30023",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1887,7 +2109,9 @@
             "30063",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1905,7 +2129,9 @@
             "30103",
             "30033",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1913,7 +2139,9 @@
         "stageId": "main_06-14",
         "drops": [
             "30063",
-            "30052"
+            "30052",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1932,7 +2160,9 @@
             "3003",
             "30012",
             "30032",
-            "30062"
+            "30062",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1949,7 +2179,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1967,7 +2199,9 @@
             "30093",
             "30103",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -1985,7 +2219,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2002,14 +2238,18 @@
             "30103",
             "30093",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "S6-2": {
         "stageId": "sub_06-1-2",
         "drops": [
-            "30012"
+            "30012",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2017,7 +2257,9 @@
         "stageId": "sub_06-2-1",
         "drops": [
             "30052",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2033,7 +2275,9 @@
             "30103",
             "30053",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2139,32 +2383,49 @@
     },
     "CE-1": {
         "stageId": "wk_melee_1",
-        "drops": [],
+        "drops": [
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
         "existence": true
     },
     "CE-2": {
         "stageId": "wk_melee_2",
-        "drops": [],
+        "drops": [
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
         "existence": true
     },
     "CE-3": {
         "stageId": "wk_melee_3",
-        "drops": [],
+        "drops": [
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
         "existence": true
     },
     "CE-4": {
         "stageId": "wk_melee_4",
-        "drops": [],
+        "drops": [
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
         "existence": true
     },
     "CE-5": {
         "stageId": "wk_melee_5",
-        "drops": [],
+        "drops": [
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
         "existence": true
     },
     "AP-1": {
         "stageId": "wk_toxic_1",
         "drops": [
+            "ap_supply_lt_010",
+            "randomMaterial_6",
             "4006"
         ],
         "existence": true
@@ -2172,6 +2433,8 @@
     "AP-2": {
         "stageId": "wk_toxic_2",
         "drops": [
+            "ap_supply_lt_010",
+            "randomMaterial_6",
             "4006"
         ],
         "existence": true
@@ -2179,6 +2442,8 @@
     "AP-3": {
         "stageId": "wk_toxic_3",
         "drops": [
+            "ap_supply_lt_010",
+            "randomMaterial_6",
             "4006"
         ],
         "existence": true
@@ -2186,6 +2451,8 @@
     "AP-4": {
         "stageId": "wk_toxic_4",
         "drops": [
+            "ap_supply_lt_010",
+            "randomMaterial_6",
             "4006"
         ],
         "existence": true
@@ -2193,6 +2460,8 @@
     "AP-5": {
         "stageId": "wk_toxic_5",
         "drops": [
+            "ap_supply_lt_010",
+            "randomMaterial_6",
             "4006"
         ],
         "existence": true
@@ -2297,25 +2566,25 @@
             "30021",
             "30041",
             "30051",
-            "2001",
             "30022",
             "30042",
             "30052",
-            "2002"
+            "2002",
+            "2001"
         ],
         "existence": true
     },
     "DM-5": {
         "stageId": "act9d0_05_perm",
         "drops": [
-            "30012",
             "30011",
             "30031",
             "30061",
             "3003",
             "30012",
             "30032",
-            "30062"
+            "30062",
+            "30012"
         ],
         "existence": true
     },
@@ -2326,11 +2595,11 @@
             "30021",
             "30041",
             "30051",
-            "2001",
             "30022",
             "30042",
             "30052",
-            "2002"
+            "2002",
+            "2001"
         ],
         "existence": true
     },
@@ -2384,14 +2653,18 @@
             "30093",
             "30103",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "7-3": {
         "stageId": "main_07-02",
         "drops": [
-            "30022"
+            "30022",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2409,7 +2682,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2427,7 +2702,9 @@
             "30053",
             "30103",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2435,7 +2712,9 @@
         "stageId": "main_07-05",
         "drops": [
             "30013",
-            "30022"
+            "30022",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2454,7 +2733,9 @@
             "30083",
             "30041",
             "2003",
-            "31023"
+            "31023",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2473,7 +2754,9 @@
             "30103",
             "31033",
             "31043",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2490,7 +2773,9 @@
             "30093",
             "30103",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2498,7 +2783,9 @@
         "stageId": "main_07-09",
         "drops": [
             "30042",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2506,7 +2793,9 @@
         "stageId": "main_07-10",
         "drops": [
             "30023",
-            "30052"
+            "30052",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2523,7 +2812,9 @@
             "31013",
             "30073",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2540,7 +2831,9 @@
             "30053",
             "30103",
             "31033",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2558,15 +2851,19 @@
             "30043",
             "31023",
             "30083",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "7-16": {
         "stageId": "main_07-14",
         "drops": [
+            "30083",
             "30012",
-            "30083"
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2585,7 +2882,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2593,7 +2892,9 @@
         "stageId": "main_07-16",
         "drops": [
             "30043",
-            "30052"
+            "30052",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2609,14 +2910,18 @@
             "31013",
             "3003",
             "30061",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "S7-2": {
         "stageId": "sub_07-1-2",
         "drops": [
-            "30052"
+            "30052",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2648,7 +2953,9 @@
         "stageId": "pro_a_1",
         "drops": [
             "3231",
-            "3261"
+            "3261",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2656,7 +2963,9 @@
         "stageId": "pro_a_2",
         "drops": [
             "3232",
-            "3262"
+            "3262",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2664,7 +2973,9 @@
         "stageId": "pro_b_1",
         "drops": [
             "3241",
-            "3251"
+            "3251",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2672,7 +2983,9 @@
         "stageId": "pro_b_2",
         "drops": [
             "3242",
-            "3252"
+            "3252",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2680,7 +2993,9 @@
         "stageId": "pro_c_1",
         "drops": [
             "3211",
-            "3271"
+            "3271",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2688,7 +3003,9 @@
         "stageId": "pro_c_2",
         "drops": [
             "3212",
-            "3272"
+            "3272",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2696,7 +3013,9 @@
         "stageId": "pro_d_1",
         "drops": [
             "3221",
-            "3281"
+            "3281",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2704,7 +3023,9 @@
         "stageId": "pro_d_2",
         "drops": [
             "3222",
-            "3282"
+            "3282",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2712,7 +3033,9 @@
         "stageId": "wk_kc_1",
         "drops": [
             "2002",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2720,7 +3043,9 @@
         "stageId": "wk_kc_2",
         "drops": [
             "2002",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2729,7 +3054,9 @@
         "drops": [
             "2003",
             "2002",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2739,7 +3066,9 @@
             "2004",
             "2003",
             "2002",
-            "2001"
+            "2001",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2748,7 +3077,9 @@
         "drops": [
             "2004",
             "2003",
-            "2002"
+            "2002",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -2878,28 +3209,28 @@
     "TW-1": {
         "stageId": "act11d0_01_perm",
         "drops": [
-            "30012",
             "30011",
             "30021",
             "30031",
             "30041",
             "30051",
             "30061",
-            "3003"
+            "3003",
+            "30012"
         ],
         "existence": true
     },
     "TW-2": {
         "stageId": "act11d0_02_perm",
         "drops": [
-            "30042",
             "30011",
             "30021",
             "30031",
             "30041",
             "30051",
             "30061",
-            "3003"
+            "3003",
+            "30042"
         ],
         "existence": true
     },
@@ -2921,7 +3252,6 @@
     "TW-4": {
         "stageId": "act11d0_04_perm",
         "drops": [
-            "4001",
             "30011",
             "30031",
             "30061",
@@ -2936,13 +3266,13 @@
     "TW-5": {
         "stageId": "act11d0_05_perm",
         "drops": [
-            "30062",
             "30011",
             "30031",
             "30061",
             "3003",
             "30012",
             "30032",
+            "30062",
             "30062"
         ],
         "existence": true
@@ -3066,25 +3396,25 @@
             "30021",
             "30041",
             "30051",
-            "2001",
             "30022",
             "30042",
             "30052",
-            "2002"
+            "2002",
+            "2001"
         ],
         "existence": true
     },
     "RI-5": {
         "stageId": "act12d0_05_perm",
         "drops": [
-            "30042",
             "30011",
             "30031",
             "30061",
             "3003",
             "30012",
             "30032",
-            "30062"
+            "30062",
+            "30042"
         ],
         "existence": true
     },
@@ -3241,14 +3571,14 @@
     "MN-5": {
         "stageId": "act13d5_05_perm",
         "drops": [
-            "30052",
             "30011",
             "30031",
             "30061",
             "3003",
             "30012",
             "30032",
-            "30062"
+            "30062",
+            "30052"
         ],
         "existence": true
     },
@@ -3319,7 +3649,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3327,7 +3659,9 @@
         "stageId": "sub_03-3-2",
         "drops": [
             "31033",
-            "30012"
+            "30012",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3343,7 +3677,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3362,7 +3698,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3380,22 +3718,28 @@
             "30093",
             "31033",
             "30103",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "R8-4": {
         "stageId": "main_08-04",
         "drops": [
-            "30032"
+            "30032",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "R8-5": {
         "stageId": "main_08-05",
         "drops": [
+            "2003",
             "30022",
-            "2003"
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3412,7 +3756,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3431,7 +3777,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3439,15 +3787,19 @@
         "stageId": "main_08-08",
         "drops": [
             "31013",
-            "30052"
+            "30052",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "M8-6": {
         "stageId": "main_08-09",
         "drops": [
+            "2003",
             "30062",
-            "2003"
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3464,7 +3816,9 @@
             "30093",
             "31033",
             "30103",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3482,7 +3836,9 @@
             "30093",
             "31033",
             "30103",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3490,7 +3846,9 @@
         "stageId": "main_08-12",
         "drops": [
             "30023",
-            "30042"
+            "30042",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3507,7 +3865,9 @@
             "30063",
             "30073",
             "31013",
-            "3003"
+            "3003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3524,7 +3884,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3548,7 +3910,9 @@
             "31033",
             "30103",
             "31043",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3566,7 +3930,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -3616,28 +3982,28 @@
     "MB-1": {
         "stageId": "act15d0_01_perm",
         "drops": [
-            "30042",
             "30011",
             "30021",
             "30031",
             "30041",
             "30051",
             "30061",
-            "3003"
+            "3003",
+            "30042"
         ],
         "existence": true
     },
     "MB-2": {
         "stageId": "act15d0_02_perm",
         "drops": [
-            "30022",
             "30011",
             "30021",
             "30031",
             "30041",
             "30051",
             "30061",
-            "3003"
+            "3003",
+            "30022"
         ],
         "existence": true
     },
@@ -3673,14 +4039,14 @@
     "MB-5": {
         "stageId": "act15d0_05_perm",
         "drops": [
-            "30052",
             "30011",
             "30031",
             "30061",
             "3003",
             "30012",
             "30032",
-            "30062"
+            "30062",
+            "30052"
         ],
         "existence": true
     },
@@ -3794,53 +4160,150 @@
         "existence": true
     },
     "WR-1": {
-        "stageId": "act16d5_01_rep",
-        "drops": [],
+        "stageId": "act16d5_01_perm",
+        "drops": [
+            "30032",
+            "30011",
+            "30021",
+            "30031",
+            "30041",
+            "30051",
+            "30061",
+            "3003"
+        ],
         "existence": true
     },
     "WR-2": {
-        "stageId": "act16d5_02_rep",
-        "drops": [],
+        "stageId": "act16d5_02_perm",
+        "drops": [
+            "30052",
+            "30011",
+            "30021",
+            "30031",
+            "30041",
+            "30051",
+            "30061",
+            "3003"
+        ],
         "existence": true
     },
     "WR-3": {
-        "stageId": "act16d5_03_rep",
-        "drops": [],
+        "stageId": "act16d5_03_perm",
+        "drops": [
+            "2002",
+            "30011",
+            "30031",
+            "30061",
+            "3003",
+            "30012",
+            "30032",
+            "30062"
+        ],
         "existence": true
     },
     "WR-4": {
-        "stageId": "act16d5_04_rep",
-        "drops": [],
+        "stageId": "act16d5_04_perm",
+        "drops": [
+            "30021",
+            "30041",
+            "30051",
+            "2001",
+            "30022",
+            "30042",
+            "30052",
+            "2002"
+        ],
         "existence": true
     },
     "WR-5": {
-        "stageId": "act16d5_05_rep",
-        "drops": [],
+        "stageId": "act16d5_05_perm",
+        "drops": [
+            "30021",
+            "30011",
+            "30031",
+            "30061",
+            "3003",
+            "30012",
+            "30032",
+            "30062"
+        ],
         "existence": true
     },
     "WR-6": {
-        "stageId": "act16d5_06_rep",
-        "drops": [],
+        "stageId": "act16d5_06_perm",
+        "drops": [
+            "30031",
+            "30021",
+            "30041",
+            "30051",
+            "2001",
+            "30022",
+            "30042",
+            "30052",
+            "2002"
+        ],
         "existence": true
     },
     "WR-7": {
-        "stageId": "act16d5_07_rep",
-        "drops": [],
+        "stageId": "act16d5_07_perm",
+        "drops": [
+            "30041",
+            "30011",
+            "30031",
+            "30061",
+            "3003",
+            "30012",
+            "30032",
+            "30062"
+        ],
         "existence": true
     },
     "WR-8": {
-        "stageId": "act16d5_08_rep",
-        "drops": [],
+        "stageId": "act16d5_08_perm",
+        "drops": [
+            "31023",
+            "30011",
+            "30031",
+            "30061",
+            "3003",
+            "30012",
+            "30032",
+            "30062"
+        ],
         "existence": true
     },
     "WR-9": {
-        "stageId": "act16d5_09_rep",
-        "drops": [],
+        "stageId": "act16d5_09_perm",
+        "drops": [
+            "30033",
+            "30034",
+            "30031",
+            "30051",
+            "30032",
+            "30052",
+            "30033",
+            "30053",
+            "30093",
+            "31033",
+            "30103"
+        ],
         "existence": true
     },
     "WR-10": {
-        "stageId": "act16d5_10_rep",
-        "drops": [],
+        "stageId": "act16d5_10_perm",
+        "drops": [
+            "30013",
+            "30014",
+            "30011",
+            "30061",
+            "30012",
+            "30062",
+            "30013",
+            "30063",
+            "30073",
+            "31013",
+            "3003"
+        ],
         "existence": true
     },
     "OD-1": {
@@ -3884,124 +4347,43 @@
         "existence": true
     },
     "WD-1": {
-        "stageId": "act18d0_01_perm",
-        "drops": [
-            "30041",
-            "30011",
-            "30031",
-            "30061",
-            "3003",
-            "30012",
-            "30032",
-            "30062",
-            "2001"
-        ],
+        "stageId": "act18d0_01_rep",
+        "drops": [],
         "existence": true
     },
     "WD-2": {
-        "stageId": "act18d0_02_perm",
-        "drops": [
-            "30051",
-            "30021",
-            "30041",
-            "30051",
-            "2001",
-            "30022",
-            "30042",
-            "30052",
-            "2002"
-        ],
+        "stageId": "act18d0_02_rep",
+        "drops": [],
         "existence": true
     },
     "WD-3": {
-        "stageId": "act18d0_03_perm",
-        "drops": [
-            "30061",
-            "30011",
-            "30031",
-            "30061",
-            "3003",
-            "30012",
-            "30032",
-            "30062",
-            "2001"
-        ],
+        "stageId": "act18d0_03_rep",
+        "drops": [],
         "existence": true
     },
     "WD-4": {
-        "stageId": "act18d0_04_perm",
-        "drops": [
-            "2002",
-            "30021",
-            "30041",
-            "30051",
-            "2001",
-            "30022",
-            "30042",
-            "30052",
-            "2002"
-        ],
+        "stageId": "act18d0_04_rep",
+        "drops": [],
         "existence": true
     },
     "WD-5": {
-        "stageId": "act18d0_05_perm",
-        "drops": [
-            "30011",
-            "30031",
-            "30061",
-            "3003",
-            "30012",
-            "30032",
-            "30062",
-            "2001"
-        ],
+        "stageId": "act18d0_05_rep",
+        "drops": [],
         "existence": true
     },
     "WD-6": {
-        "stageId": "act18d0_06_perm",
-        "drops": [
-            "30033",
-            "30011",
-            "30031",
-            "30061",
-            "3003",
-            "30012",
-            "30032",
-            "30062"
-        ],
+        "stageId": "act18d0_06_rep",
+        "drops": [],
         "existence": true
     },
     "WD-7": {
-        "stageId": "act18d0_07_perm",
-        "drops": [
-            "30053",
-            "30054",
-            "30031",
-            "30051",
-            "30032",
-            "30052",
-            "30033",
-            "30053",
-            "30093",
-            "31033",
-            "30103"
-        ],
+        "stageId": "act18d0_07_rep",
+        "drops": [],
         "existence": true
     },
     "WD-8": {
-        "stageId": "act18d0_08_perm",
-        "drops": [
-            "30103",
-            "30011",
-            "30061",
-            "30012",
-            "30062",
-            "30013",
-            "30063",
-            "30073",
-            "31013",
-            "3003"
-        ],
+        "stageId": "act18d0_08_rep",
+        "drops": [],
         "existence": true
     },
     "SV-8": {
@@ -4211,14 +4593,18 @@
             "30093",
             "31033",
             "30103",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
     "9-3": {
         "stageId": "main_09-02",
         "drops": [
-            "30062"
+            "30062",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4236,7 +4622,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4255,7 +4643,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4273,7 +4663,9 @@
             "30093",
             "31033",
             "30103",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4291,7 +4683,9 @@
             "30093",
             "31033",
             "30103",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4309,7 +4703,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4327,7 +4723,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4344,7 +4742,9 @@
             "30093",
             "31033",
             "30103",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4362,7 +4762,9 @@
             "30093",
             "31033",
             "30103",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4380,7 +4782,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4396,7 +4800,9 @@
             "30063",
             "30073",
             "31013",
-            "3003"
+            "3003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4414,7 +4820,9 @@
             "30093",
             "31033",
             "30103",
-            "31053"
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4422,7 +4830,9 @@
         "stageId": "main_09-14",
         "drops": [
             "30093",
-            "30042"
+            "30042",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4440,7 +4850,9 @@
             "30073",
             "31013",
             "3003",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4459,7 +4871,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4477,7 +4891,9 @@
             "31033",
             "30103",
             "31053",
-            "31043"
+            "31043",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4496,7 +4912,9 @@
             "30043",
             "30083",
             "31023",
-            "2003"
+            "2003",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
         ],
         "existence": true
     },
@@ -4670,89 +5088,460 @@
     },
     "IW-1": {
         "stageId": "act15side_01",
-        "drops": [
-            "30031",
-            "30061",
-            "30041",
-            "30051",
-            "30021",
-            "30011",
-            "act15side_token_tea"
-        ],
+        "drops": [],
         "existence": true
     },
     "IW-2": {
         "stageId": "act15side_02",
-        "drops": [
-            "30031",
-            "30061",
-            "30041",
-            "30051",
-            "30021",
-            "30011",
-            "act15side_token_tea"
-        ],
+        "drops": [],
         "existence": true
     },
     "IW-3": {
         "stageId": "act15side_03",
-        "drops": [
-            "30031",
-            "30061",
-            "30041",
-            "30051",
-            "30021",
-            "30011",
-            "act15side_token_tea"
-        ],
+        "drops": [],
         "existence": true
     },
     "IW-4": {
         "stageId": "act15side_04",
-        "drops": [
-            "30052",
-            "30012",
-            "act15side_token_tea"
-        ],
+        "drops": [],
         "existence": true
     },
     "IW-5": {
         "stageId": "act15side_05",
-        "drops": [
-            "30032",
-            "30022",
-            "act15side_token_tea"
-        ],
+        "drops": [],
         "existence": true
     },
     "IW-6": {
         "stageId": "act15side_06",
-        "drops": [
-            "30063",
-            "act15side_token_tea"
-        ],
+        "drops": [],
         "existence": true
     },
     "IW-7": {
         "stageId": "act15side_07",
-        "drops": [
-            "30013",
-            "act15side_token_tea"
-        ],
+        "drops": [],
         "existence": true
     },
     "IW-8": {
         "stageId": "act15side_08",
-        "drops": [
-            "30103",
-            "act15side_token_tea"
-        ],
+        "drops": [],
         "existence": true
     },
     "IW-9": {
         "stageId": "act15side_09",
+        "drops": [],
+        "existence": true
+    },
+    "TB-1": {
+        "stageId": "act10mini_01",
+        "drops": [],
+        "existence": true
+    },
+    "TB-2": {
+        "stageId": "act10mini_02",
+        "drops": [],
+        "existence": true
+    },
+    "TB-3": {
+        "stageId": "act10mini_03",
+        "drops": [],
+        "existence": true
+    },
+    "TB-4": {
+        "stageId": "act10mini_04",
+        "drops": [],
+        "existence": true
+    },
+    "TB-5": {
+        "stageId": "act10mini_05",
+        "drops": [],
+        "existence": true
+    },
+    "TB-6": {
+        "stageId": "act10mini_06",
+        "drops": [],
+        "existence": true
+    },
+    "TB-7": {
+        "stageId": "act10mini_07",
+        "drops": [],
+        "existence": true
+    },
+    "TB-8": {
+        "stageId": "act10mini_08",
+        "drops": [],
+        "existence": true
+    },
+    "TB-9": {
+        "stageId": "act10mini_09",
+        "drops": [],
+        "existence": true
+    },
+    "TB-10": {
+        "stageId": "act10mini_10",
+        "drops": [],
+        "existence": true
+    },
+    "寻昼行动物资补给": {
+        "stageId": "randomMaterialRune_8",
         "drops": [
-            "act15side_token_tea"
+            "30013",
+            "30023",
+            "30033",
+            "30043",
+            "30053",
+            "30063",
+            "30073",
+            "30083",
+            "30093",
+            "30103",
+            "31013",
+            "31023",
+            "31033",
+            "31043",
+            "31053"
+        ],
+        "existence": true
+    },
+    "GA-1": {
+        "stageId": "act16side_01",
+        "drops": [],
+        "existence": true
+    },
+    "GA-2": {
+        "stageId": "act16side_02",
+        "drops": [],
+        "existence": true
+    },
+    "GA-3": {
+        "stageId": "act16side_03",
+        "drops": [],
+        "existence": true
+    },
+    "GA-4": {
+        "stageId": "act16side_04",
+        "drops": [],
+        "existence": true
+    },
+    "GA-5": {
+        "stageId": "act16side_05",
+        "drops": [],
+        "existence": true
+    },
+    "GA-6": {
+        "stageId": "act16side_06",
+        "drops": [],
+        "existence": true
+    },
+    "GA-7": {
+        "stageId": "act16side_07",
+        "drops": [],
+        "existence": true
+    },
+    "GA-8": {
+        "stageId": "act16side_08",
+        "drops": [],
+        "existence": true
+    },
+    "10-2": {
+        "stageId": "main_10-01",
+        "drops": [
+            "2003",
+            "3003",
+            "30011",
+            "30012",
+            "30013",
+            "30061",
+            "30062",
+            "30063",
+            "30073",
+            "31013",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
+        "existence": true
+    },
+    "10-3": {
+        "stageId": "main_10-02",
+        "drops": [
+            "31013",
+            "31014",
+            "2001",
+            "2002",
+            "2003",
+            "30021",
+            "30022",
+            "30023",
+            "30041",
+            "30042",
+            "30043",
+            "30083",
+            "31023",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
+        "existence": true
+    },
+    "10-4": {
+        "stageId": "main_10-03",
+        "drops": [
+            "30062",
+            "30053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
+        "existence": true
+    },
+    "10-5": {
+        "stageId": "tough_10-04",
+        "drops": [
+            "30103",
+            "30104",
+            "30031",
+            "30032",
+            "30033",
+            "30051",
+            "30052",
+            "30053",
+            "30093",
+            "30103",
+            "31033",
+            "31043",
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
+        "existence": true
+    },
+    "10-6": {
+        "stageId": "main_10-05",
+        "drops": [
+            "30013",
+            "3003",
+            "30011",
+            "30012",
+            "30013",
+            "30061",
+            "30062",
+            "30063",
+            "30073",
+            "31013",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
+        "existence": true
+    },
+    "10-7": {
+        "stageId": "tough_10-06",
+        "drops": [
+            "30083",
+            "30084",
+            "3003",
+            "30011",
+            "30012",
+            "30013",
+            "30061",
+            "30062",
+            "30063",
+            "30073",
+            "31013",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
+        "existence": true
+    },
+    "10-8": {
+        "stageId": "main_10-07",
+        "drops": [
+            "2001",
+            "2002",
+            "2003",
+            "30021",
+            "30022",
+            "30023",
+            "30041",
+            "30042",
+            "30043",
+            "30083",
+            "31023",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
+        "existence": true
+    },
+    "10-9": {
+        "stageId": "tough_10-08",
+        "drops": [
+            "30052",
+            "30031",
+            "30032",
+            "30033",
+            "30051",
+            "30052",
+            "30053",
+            "30093",
+            "30103",
+            "31033",
+            "31043",
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
+        "existence": true
+    },
+    "10-10": {
+        "stageId": "main_10-09",
+        "drops": [
+            "30023",
+            "30024",
+            "3003",
+            "30011",
+            "30012",
+            "30013",
+            "30061",
+            "30062",
+            "30063",
+            "30073",
+            "31013",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
+        "existence": true
+    },
+    "10-11": {
+        "stageId": "main_10-10",
+        "drops": [
+            "30043",
+            "30044",
+            "2002",
+            "2003",
+            "30021",
+            "30022",
+            "30023",
+            "30041",
+            "30042",
+            "30043",
+            "30083",
+            "31023",
+            "ap_supply_lt_010",
+            "randomMaterial_6",
+            "2001"
+        ],
+        "existence": true
+    },
+    "10-12": {
+        "stageId": "tough_10-11",
+        "drops": [
+            "30093",
+            "2002",
+            "30021",
+            "30022",
+            "30023",
+            "30041",
+            "30042",
+            "30043",
+            "30083",
+            "31023",
+            "ap_supply_lt_010",
+            "randomMaterial_6",
+            "2001",
+            "2003"
+        ],
+        "existence": true
+    },
+    "10-14": {
+        "stageId": "tough_10-12",
+        "drops": [
+            "31023",
+            "31024",
+            "30031",
+            "30032",
+            "30033",
+            "30051",
+            "30052",
+            "30053",
+            "30093",
+            "30103",
+            "31033",
+            "31043",
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
+        "existence": true
+    },
+    "10-15": {
+        "stageId": "tough_10-13",
+        "drops": [
+            "30073",
+            "30074",
+            "30031",
+            "30032",
+            "30033",
+            "30051",
+            "30052",
+            "30053",
+            "30093",
+            "30103",
+            "31033",
+            "31043",
+            "31053",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
+        "existence": true
+    },
+    "10-16": {
+        "stageId": "main_10-14",
+        "drops": [
+            "30032",
+            "30083",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
+        "existence": true
+    },
+    "10-17": {
+        "stageId": "tough_10-15",
+        "drops": [
+            "31053",
+            "3003",
+            "30011",
+            "30012",
+            "30013",
+            "30061",
+            "30062",
+            "30063",
+            "30073",
+            "31013",
+            "ap_supply_lt_010",
+            "randomMaterial_6"
+        ],
+        "existence": true
+    },
+    "罗德岛物资补给III": {
+        "stageId": "randomMaterial_6",
+        "drops": [
+            "30012",
+            "30022",
+            "30032",
+            "30042",
+            "30052",
+            "30062",
+            "30013",
+            "30023",
+            "30033",
+            "30043",
+            "30053",
+            "30063",
+            "30073",
+            "30083",
+            "30093",
+            "30103",
+            "31013",
+            "31023",
+            "31033",
+            "31043",
+            "31053"
         ],
         "existence": true
     }

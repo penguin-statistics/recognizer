@@ -42,12 +42,13 @@ enum class ExcSubtypeFlags
 
 enum class FontFlags
 {
-    UNDEFINED = 0,
-    NOVECENTO_WIDEBOLD = 1,
-    SOURCE_HAN_SANS_CN_MEDIUM = 2,
-    NUBER_NEXT_DEMIBOLD_CONDENSED = 3,
-    RODIN_PRO_DB = 4,
-    SOURCE_HAN_SANS_KR_BOLD = 5
+    UNDEFINED,
+    NOVECENTO_WIDEBOLD,
+    NOVECENTO_WIDEMEDIUM,
+    SOURCE_HAN_SANS_CN_MEDIUM,
+    NUBER_NEXT_DEMIBOLD_CONDENSED,
+    RODIN_PRO_DB,
+    SOURCE_HAN_SANS_KR_BOLD
 };
 
 enum FurniFlags
@@ -62,7 +63,8 @@ enum WithoutExceptionFlags
 };
 
 const std::map<FontFlags, std::string> Font2Str {
-    {FontFlags::NOVECENTO_WIDEBOLD, "Novecento Widebold"},
+    {FontFlags::NOVECENTO_WIDEBOLD, "Novecento Wide Bold"},
+    {FontFlags::NOVECENTO_WIDEMEDIUM, "Novecento Wide Medium"},
     {FontFlags::SOURCE_HAN_SANS_CN_MEDIUM, "Source Han Sans CN Medium"},
     {FontFlags::NUBER_NEXT_DEMIBOLD_CONDENSED, "Nuber Next Demibold Condensed"},
     {FontFlags::RODIN_PRO_DB, "Rodin Pro DB"},
@@ -515,7 +517,13 @@ private:
         dict char_dict;
         if (const auto& hash_index = resource.get<dict>("hash_index");
             font == FontFlags::NOVECENTO_WIDEBOLD)
+        {
             char_dict = hash_index["stage"];
+        }
+        else if (font == FontFlags::NOVECENTO_WIDEMEDIUM)
+        {
+            char_dict = hash_index["stage_new"];
+        }
         else
             char_dict = hash_index["item"][server];
         for (const auto& [kchar, vhash] : char_dict.items())
@@ -598,10 +606,13 @@ private:
         auto qtyimg = _img;
         std::string quantity_str;
         auto sp = separate(qtyimg, DirectionFlags::RIGHT);
-        sp.remove_if([&](const cv::Range& range) {
-            int length = range.end - range.start;
-            return length > height * 0.7 || length < height * 0.1;
-        });
+        sp.erase(
+            std::remove_if(sp.begin(), sp.end(),
+                           [&](const cv::Range& range) {
+                               int length = range.end - range.start;
+                               return length > height * 0.7 || length < height * 0.1;
+                           }),
+            sp.end());
         for (auto it = sp.cbegin(); it != sp.end();)
         {
             const auto& range = *it;

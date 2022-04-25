@@ -133,9 +133,9 @@ const bool env_check()
     return pass;
 }
 
-std::list<cv::Range> separate(const cv::Mat& src_bin, DirectionFlags direc, int n = 0)
+std::vector<cv::Range> separate(const cv::Mat& src_bin, DirectionFlags direc, int n = 0)
 {
-    std::list<cv::Range> sp;
+    std::vector<cv::Range> sp;
     bool isodd = false;
     int begin;
     if (direc == DirectionFlags::TOP)
