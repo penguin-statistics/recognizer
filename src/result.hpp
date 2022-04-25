@@ -15,8 +15,6 @@
 
 using dict = nlohmann::ordered_json;
 
-extern void show_img(cv::Mat src);
-
 namespace penguin
 { // result
 const int BASELINE_V_HEIGHT_MIN = 10;
@@ -85,7 +83,7 @@ public:
         if (_img.channels() == 3)
         {
             cv::cvtColor(_img, _img, cv::COLOR_BGR2GRAY);
-            cv::threshold(_img, _img, 127, 255, cv::THRESH_BINARY);
+            cv::threshold(_img, _img, 200, 255, cv::THRESH_BINARY);
         }
     }
     Widget_ResultLabel& analyze()
