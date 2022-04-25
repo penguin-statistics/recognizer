@@ -122,9 +122,6 @@ public:
 
     cv::Mat get_debug_img()
     {
-        auto get_rect = [](dict arr) {
-            return cv::Rect(arr[0], arr[1], arr[2], arr[3]);
-        };
         cv::Mat img = _img.clone();
         _make_debug_img(img, _get_report(true));
         return img;
@@ -160,12 +157,17 @@ private:
 
     void _set_img(cv::Mat img) // local
     {
+        if (img.channels() == 4)
+        {
+            cv::cvtColor(img, img, cv::COLOR_BGRA2BGR);
+        }
         _img = img;
     }
     void _wset_img(std::string JSarrayBuffer) // wasm
     {
         int64 start = cv::getTickCount();
-        _img = decode(JSarrayBuffer);
+        auto img = decode(JSarrayBuffer);
+        _set_img(img);
         int64 end = cv::getTickCount();
         _decode_time = (end - start) / cv::getTickFrequency() * 1000;
     }
