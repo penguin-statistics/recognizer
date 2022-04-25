@@ -1205,10 +1205,11 @@ private:
         const auto& bv = _baseline_v;
         auto result_img = _img(cv::Rect(bv.x + bv.width, bv.y,
                                         1.6 * bv.height, bv.height));
-        cv::cvtColor(result_img, result_img, cv::COLOR_BGR2GRAY);
-        cv::threshold(result_img, result_img, 200, 255, cv::THRESH_BINARY);
-        result_img = result_img(separate(result_img, DirectionFlags::TOP, 1)[0],
-                                cv::Range(0, result_img.cols));
+        cv::Mat img_bin;
+        cv::cvtColor(result_img, img_bin, cv::COLOR_BGR2GRAY);
+        cv::threshold(img_bin, img_bin, 200, 255, cv::THRESH_BINARY);
+        result_img = result_img(separate(img_bin, DirectionFlags::TOP, 1)[0],
+                                cv::Range(0, img_bin.cols));
         _result_label.set_img(result_img);
         _result_label.analyze();
     }
@@ -1221,10 +1222,11 @@ private:
         const auto& bv = _baseline_v;
         auto star_img = _img(cv::Rect(bv.x + bv.width, bv.y,
                                       1.2 * bv.height, bv.height));
-        cv::cvtColor(star_img, star_img, cv::COLOR_BGR2GRAY);
-        cv::threshold(star_img, star_img, 127, 255, cv::THRESH_BINARY);
-        star_img = star_img(separate(star_img, DirectionFlags::BOTTOM, 1)[0],
-                            cv::Range(0, star_img.cols));
+        cv::Mat img_bin;
+        cv::cvtColor(star_img, img_bin, cv::COLOR_BGR2GRAY);
+        cv::threshold(img_bin, img_bin, 127, 255, cv::THRESH_BINARY);
+        star_img = star_img(separate(img_bin, DirectionFlags::BOTTOM, 1)[0],
+                            cv::Range(0, img_bin.cols));
         _stars.set_img(star_img);
         _stars.analyze();
     }
@@ -1237,10 +1239,11 @@ private:
         const auto& bv = _baseline_v;
         auto stage_img = _img(cv::Rect(bv.x + bv.width + 0.43 * bv.height, 0,
                                        1.6 * bv.height, bv.y));
-        cv::cvtColor(stage_img, stage_img, cv::COLOR_BGR2GRAY);
-        cv::threshold(stage_img, stage_img, 200, 255, cv::THRESH_BINARY);
-        stage_img = stage_img(separate(stage_img, DirectionFlags::TOP, 1)[0],
-                              cv::Range(0, stage_img.cols));
+        cv::Mat img_bin;
+        cv::cvtColor(stage_img, img_bin, cv::COLOR_BGR2GRAY);
+        cv::threshold(img_bin, img_bin, 200, 255, cv::THRESH_BINARY);
+        stage_img = stage_img(separate(img_bin, DirectionFlags::TOP, 1)[0],
+                              cv::Range(0, img_bin.cols));
         _stage.set_img(stage_img);
         _stage.analyze();
     }

@@ -4,6 +4,19 @@
 #include <opencv2/highgui.hpp>
 #include "recognizer.hpp"
 
+void show_img(cv::Mat src)
+{
+    if (src.rows > 600)
+    {
+        double fx = 600.0 / src.rows;
+        cv::resize(src, src, cv::Size(), fx, fx, cv::INTER_AREA);
+    }
+    cv::namedWindow("Display window", cv::WINDOW_AUTOSIZE);
+    cv::imshow("Display window", src);
+    cv::waitKey(0);
+    cv::destroyWindow("Display window");
+}
+
 int main(int argc, char const* argv[])
 {
     std::filesystem::path p = std::filesystem::path(argv[0]).parent_path();
@@ -13,7 +26,7 @@ int main(int argc, char const* argv[])
     load_hash_index();
     load_templs();
 
-    std::string dir = "../test_images";
+    std::string dir = "../new";
     if (std::filesystem::is_directory(dir))
     {
         for (const auto& f : std::filesystem::directory_iterator(dir))
@@ -31,8 +44,7 @@ int main(int argc, char const* argv[])
             }
             std::cout << std::endl;
             auto debug_img = recognizer.get_debug_img();
-            cv::imshow("", debug_img);
-            cv::waitKey();
+            show_img(debug_img);
         }
     }
     return 0;

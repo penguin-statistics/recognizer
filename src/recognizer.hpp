@@ -148,7 +148,7 @@ public:
     dict get_report(bool detail = false)
     {
         dict report;
-        if (_mode == "RESULT")
+        if (_mode == "RESULT" && penguin::server != "CN")
         {
             if (detail)
             {
@@ -157,6 +157,23 @@ public:
             else
             {
                 report.merge_patch(_result.report());
+            }
+            report["md5"] = _md5;
+            if (const auto& decode_time = _decode_time; decode_time)
+            {
+                report["cost"]["decode"] = decode_time;
+            }
+            report["cost"]["recognize"] = _recognize_time;
+        }
+        else if (_mode == "RESULT" && penguin::server == "CN")
+        {
+            if (detail)
+            {
+                report.merge_patch(_result_new.report(true));
+            }
+            else
+            {
+                report.merge_patch(_result_new.report());
             }
             report["md5"] = _md5;
             if (const auto& decode_time = _decode_time; decode_time)
