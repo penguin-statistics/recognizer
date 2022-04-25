@@ -1,0 +1,23 @@
+name: Build Docker Image (Release)
+
+on:
+  push:
+    # trigger on `v3` branch push
+    branches:
+      - v3
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Dockerfile
+        uses: actions/docker@v2
+        with:
+          dockerfile-dir: .
+          image: ${{ github.repo }}:v3
+          context: ${{ github.workflow.source }}
