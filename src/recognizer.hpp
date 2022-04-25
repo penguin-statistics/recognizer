@@ -244,7 +244,7 @@ private:
         {
             cv::Rect rect = _get_rect(report["rect"]);
             cv::Scalar color = penguin::Status2Color.at(report["status"]);
-            cv::rectangle(img, rect, color);
+            cv::rectangle(img, rect, color, 2);
         }
         for (const auto& [key, subreport] : report.items())
         {
