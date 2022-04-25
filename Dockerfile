@@ -6,4 +6,6 @@ COPY . .
 
 RUN cd build && \
     emcmake cmake .. && \
-    emmake make
+    emmake make && \
+    mkdir dist && \
+    mv penguin-recognizer* dist/

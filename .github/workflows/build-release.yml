@@ -28,7 +28,7 @@ jobs:
         id: extract
         with:
           image: recognizer-intermediate-artifacts:latest
-          path: /build/recognizer/build/penguin-recognizer*
+          path: /build/recognizer/build/dist/.
 
       - name: Upload Dist
         uses: actions/upload-artifact@v2
