@@ -28,7 +28,7 @@ EMSCRIPTEN_BINDINGS(recognizer)
     function("env_check", &env_check);
     class_<Recognizer>("Recognizer")
         .constructor<std::string>()
-        .function("recognize", &Recognizer::wrecognize)
+        .function("recognize", &Recognizer::wrecognize);
 }
 #endif // __EMSCRIPTEN__
 #endif // PENGUIN_RECOGNIZER_WASM_CPP_
