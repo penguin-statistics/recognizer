@@ -53,24 +53,24 @@
     };
 
     function recognize() {
-        var recognizer = new Module.Recognizer("RESULT");
+        recognizer = new Module.Recognizer("RESULT");
         const xmlhttp = new XMLHttpRequest();
-        xmlhttp.open("GET", `/test_images/test.jpg`, true);
+        xmlhttp.open("GET", `/test_images/new.png`, true);
         xmlhttp.responseType = "arraybuffer";
         xmlhttp.onload = function () {
-            recognizer.set_image(xmlhttp.response);
+            recognizer.set_img(xmlhttp.response);
             try { recognizer.recognize(); }
             catch (e) {
                 console.error(Module.getExceptionMessage(e));
             }
             finally {
-                console.log(recognizer.get_report());
+                console.log(recognizer.get_report(false, true)); // get_report([detail], [pretty_print])
             }
         };
         xmlhttp.send();
     }
 
-    Module.onRuntimeInitialized = async _ => {
+    Module.onRuntimeInitialized = _ => {
         console.log(`version: ${Module.version}`);
         console.log(`opencv_version: ${Module.opencv_version}`);
         Module.load_server("CN");
