@@ -14,6 +14,7 @@
 #include "recognize.hpp"
 
 using dict = nlohmann::ordered_json;
+extern void show_img(cv::Mat src);
 
 namespace penguin
 { // result
@@ -412,7 +413,8 @@ private:
     {
         auto& self = *this;
         auto star_img = _img;
-        auto laststar_range = separate(star_img, DirectionFlags::RIGHT, 1).back();
+        auto sp_ = separate(star_img, DirectionFlags::RIGHT, 1);
+        auto laststar_range = separate(star_img, DirectionFlags::RIGHT, 1)[0];
         auto laststar = star_img(cv::Range(0, height), laststar_range);
         auto starrect = cv::boundingRect(laststar);
         if (starrect.empty())
@@ -1170,26 +1172,117 @@ private:
         {
             return;
         }
-        cv::Mat img_bin = _img(cv::Rect(0, 0, 0.2 * width, 0.6 * height));
+        cv::Mat img_bin = _img(cv::Rect(0, 0.2 * height, 0.2 * width, 0.4 * height));
         cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
         cv::threshold(img_bin, img_bin, 120, 255, cv::THRESH_BINARY);
 
-        auto sp = separate(img_bin, DirectionFlags::TOP, 2);
-        auto img_temp = img_bin(cv::Rect(0, 0, 0.2 * width, sp[1].end));
-        int left_margin = separate(img_temp, DirectionFlags::LEFT, 1)[0].start;
-        img_temp = img_bin(cv::Rect(0, 0, left_margin, 0.6 * height));
-        sp = separate(img_temp, DirectionFlags::TOP, 1);
-        img_temp = img_temp(cv::Rect(0, 0, left_margin, sp[0].end));
-        auto rect_temp = cv::boundingRect(img_temp);
-        img_temp = img_bin(cv::Range(rect_temp.y, 0.6 * height),
-                           cv::Range(rect_temp.x, rect_temp.x + rect_temp.width));
-        auto baseline_v_img = img_temp(cv::boundingRect(img_temp));
-
-        if (!baseline_v_img.empty())
+        auto sp = separate(img_bin, DirectionFlags::LEFT);
+        cv::Rect baseline_v_rect;
+        for (const auto& range : sp)
         {
-            baseline_v_img = baseline_v_img(cv::boundingRect(baseline_v_img));
+            cv::Mat img_temp = img_bin(cv::Range(0, img_bin.rows), range);
+            auto sp2 = separate(img_temp, DirectionFlags::TOP);
+            int first_height = sp2.front().end - sp2.front().start;
+            int last_height = sp2.back().end - sp2.back().start;
+            if (abs(img_temp.cols - first_height) <= 1 &&
+                abs(img_temp.cols - last_height) <= 1 &&
+                abs(first_height - last_height) <= 1)
+            {
+                baseline_v_rect = cv::Rect(range.start, sp2.front().start + 0.2 * height,
+                                           img_temp.cols, sp2.back().end - sp2.front().start);
+                break;
+            }
+        }
+
+        cv::Mat baseline_v_img;
+        if (!baseline_v_rect.empty())
+        {
+            baseline_v_img = _img(baseline_v_rect);
         }
         _baseline_v.set_img(baseline_v_img);
+
+        if (_baseline_v.empty() || _baseline_v.height < 0.25 * height ||
+            _baseline_v.x > 0.2 * width)
+        {
+            _get_baseline_v_fallback();
+        }
+    }
+    void _get_baseline_v_fallback()
+    {
+        struct ConnectedComponent
+        {
+            int x, y, width, height, area;
+            ConnectedComponent(int x_, int y_, int width_, int height_, int area_)
+                : x(x_), y(y_), width(width_), height(height_), area(area_) {}
+        };
+
+        cv::Mat img_bin = _img(cv::Rect(0, 0.2 * height, 0.2 * width, 0.4 * height));
+        cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
+        cv::threshold(img_bin, img_bin, 120, 255, cv::THRESH_BINARY);
+        cv::Mat _;
+        cv::Mat1i stats;
+        cv::Mat1d centroids;
+        int ccomp_count = cv::connectedComponentsWithStats(img_bin, _, stats, centroids);
+
+        std::vector<ConnectedComponent> ccomps;
+        for (int i = 1; i < ccomp_count; ++i)
+        {
+            int ccx = stats(i, cv::CC_STAT_LEFT);
+            int ccy = stats(i, cv::CC_STAT_TOP);
+            int ccwidth = stats(i, cv::CC_STAT_WIDTH);
+            int ccheight = stats(i, cv::CC_STAT_HEIGHT);
+            int ccarea = stats(i, cv::CC_STAT_AREA);
+            if (ccwidth > 0.01 * height &&
+                ccheight > 0.01 * height &&
+                (double)ccarea / (ccwidth * ccheight) > 0.95 &&
+                abs(ccwidth - ccheight) <= 1)
+            {
+                ccomps.emplace_back(ccx, ccy, ccwidth, ccheight, ccarea);
+            }
+        }
+        std::sort(ccomps.begin(), ccomps.end(),
+                  [](const ConnectedComponent& val1, ConnectedComponent& val2) {
+                      if (val1.x == val2.x)
+                      {
+                          return val1.y < val2.y;
+                      }
+                      else
+                      {
+                          return val1.x < val2.x;
+                      }
+                  });
+
+        cv::Rect baseline_v_rect;
+        if (ccomps.size() == 2)
+        {
+            if (ccomps[0].x == ccomps[1].x)
+            {
+                baseline_v_rect = cv::Rect(ccomps[0].x,
+                                           ccomps[0].y + 0.2 * height,
+                                           ccomps[0].width,
+                                           ccomps[1].y - ccomps[0].y + ccomps[1].height);
+            }
+        }
+        else if (const auto ccsize = ccomps.size();
+                 ccsize > 2)
+        {
+            for (int i = 0; i < ccsize - 1; ++i)
+            {
+                if (ccomps[i].x == ccomps[i + 1].x)
+                    baseline_v_rect = cv::Rect(ccomps[i].x,
+                                               ccomps[i].y + 0.2 * height,
+                                               ccomps[i].width,
+                                               ccomps[i + 1].y - ccomps[i].y + ccomps[i + 1].height);
+            }
+        }
+
+        cv::Mat baseline_v_img;
+        if (!baseline_v_rect.empty())
+        {
+            baseline_v_img = _img(baseline_v_rect);
+        }
+        _baseline_v.set_img(baseline_v_img);
+
         if (_baseline_v.empty() || _baseline_v.height < 0.25 * height ||
             _baseline_v.x > 0.2 * width)
         {
