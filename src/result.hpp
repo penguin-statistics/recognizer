@@ -233,7 +233,6 @@ private:
     const int _CANDIDATES_COUNT = 5;
     bool _existance = false;
     std::vector<Widget_Character> _stage_chrs;
-    int _candidate_index = 0;
     const std::string _stage_code() const
     {
         return _stage_code(_candidate_index);
@@ -307,9 +306,12 @@ private:
         {
             _get_candidates();
         }
-        while (_stageId().empty() && _candidate_index < _CANDIDATES_COUNT)
+        while (_stageId().empty())
         {
-            _next_candidate();
+            if (_next_candidate())
+            {
+                break;
+            }
         }
     }
     void _get_candidates()
