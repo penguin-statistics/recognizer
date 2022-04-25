@@ -20,6 +20,7 @@ jobs:
       - name: Build Docker Image
         uses: docker/build-push-action@v1
         with:
+          push: false
           repository: recognizer-intermediate-artifacts
           tags: latest
           
