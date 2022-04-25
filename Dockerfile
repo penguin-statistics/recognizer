@@ -4,6 +4,5 @@ WORKDIR /build
 
 COPY . .
 
-RUN mkdir build && cd build && \
-    emcmake cmake .. && \
+RUN emcmake cmake .. && \
     emmake make
