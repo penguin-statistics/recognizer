@@ -18,7 +18,7 @@
 #include "depot.hpp"
 #include "result.hpp"
 
-static const std::string version = "4.0.0";
+static const std::string version = "4.1.0";
 static const std::string opencv_version = CV_VERSION;
 std::vector<uint8_t> buf;
 
@@ -157,17 +157,12 @@ private:
 
     void _set_img(cv::Mat img) // local
     {
-        if (img.channels() == 4)
-        {
-            cv::cvtColor(img, img, cv::COLOR_BGRA2BGR);
-        }
         _img = img;
     }
     void _wset_img(std::string JSarrayBuffer) // wasm
     {
         int64 start = cv::getTickCount();
-        auto img = decode(JSarrayBuffer);
-        _set_img(img);
+        _img = decode(JSarrayBuffer);
         int64 end = cv::getTickCount();
         _decode_time = (end - start) / cv::getTickFrequency() * 1000;
     }
