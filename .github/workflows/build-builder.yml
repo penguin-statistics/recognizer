@@ -26,4 +26,3 @@ jobs:
           registry: ghcr.io
           dockerfile: Dockerfile.builder
           tags: "latest,v3"
-          no_push: true

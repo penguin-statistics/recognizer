@@ -50,3 +50,4 @@ RUN cd opencv/sources/platforms/js/ && \
 RUN [ -f /build/opencv/build_wasm/lib/libopencv_imgcodecs.a ] && \
     [ -f /build/opencv/build_wasm/3rdparty/lib/liblibjpeg-turbo.a ] && \
     [ -f /build/opencv/build_wasm/3rdparty/lib/liblibpng.a ] || exit 1
+
