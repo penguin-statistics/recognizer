@@ -227,7 +227,7 @@ std::vector<cv::Range> separate(const cv::Mat& src_bin, DirectionFlags direc, in
                 int end = co;
                 sp.emplace_back(cv::Range(begin, end));
                 isodd = !isodd;
-                if (sp.size() == 2 * n)
+                if (sp.size() == n)
                     break;
             }
         }
@@ -260,7 +260,7 @@ std::vector<cv::Range> separate(const cv::Mat& src_bin, DirectionFlags direc, in
                 int end = co + 1;
                 sp.emplace_back(cv::Range(end, begin));
                 isodd = !isodd;
-                if (sp.size() == 2 * n)
+                if (sp.size() == n)
                     break;
             }
         }
