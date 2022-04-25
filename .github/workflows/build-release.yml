@@ -17,11 +17,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build and Publish to Registry
-        uses: elgohr/Publish-Docker-Github-Action@3.04
+      - name: Build Docker Image
+        uses: docker/build-push-action@v1
         with:
-          name: penguin-statistics/backend-next
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-          registry: ghcr.io
-          no_push: true
+          repository: recognizer-intermediate-artifacts
+          tags: latest
+          
+      - uses: shrink/actions-docker-extract@v1
+        id: extract
+        with:
+          image: recognizer-intermediate-artifacts:latest
+          path: /build/recognizer/build/.
+
+      - name: Upload Dist
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ steps.extract.outputs.destination }}
+          name: artifacts
