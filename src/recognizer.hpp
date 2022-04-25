@@ -20,6 +20,7 @@
 
 static const std::string version = "4.0.0";
 static const std::string opencv_version = CV_VERSION;
+std::vector<uint8_t> buf;
 
 cv::Mat decode(std::string JSarrayBuffer)
 {
@@ -132,7 +133,6 @@ public:
     emscripten::val wget_debug_img()
     {
         cv::Mat img = get_debug_img();
-        std::vector<uint8_t> buf;
         cv::imencode(".png", img, buf);
         return emscripten::val(
             emscripten::typed_memory_view(buf.size(), buf.data()));
