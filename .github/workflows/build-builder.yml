@@ -1,0 +1,28 @@
+name: Build Docker Image (Builder)
+
+on:
+  push:
+    # trigger only on `Dockerfile.builder` changed in `v4` branch
+    paths:
+      - Dockerfile.builder
+    branches:
+      - v4
+concurrency:
+  group: builder-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build and Publish to Registry
+        uses: elgohr/Publish-Docker-Github-Action@3.04
+        with:
+          name: penguin-statistics/recognizer-builder
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          registry: ghcr.io
+          dockerfile: Dockerfile.builder
+          tags: "latest,v4"

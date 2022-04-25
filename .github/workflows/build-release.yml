@@ -1,0 +1,37 @@
+name: Build Docker Image (Release)
+
+on:
+  push:
+    # trigger on `v4` branch push, except for `Dockerfile.builder`
+    branches:
+      - v4
+    paths-ignore:
+      - Dockerfile.builder
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build Docker Image
+        uses: docker/build-push-action@v1
+        with:
+          push: false
+          repository: recognizer-intermediate-artifacts
+          tags: latest
+          
+      - uses: shrink/actions-docker-extract@v1
+        id: extract
+        with:
+          image: recognizer-intermediate-artifacts:latest
+          path: /build/recognizer/build/dist/.
+
+      - name: Upload Dist
+        uses: actions/upload-artifact@v2
+        with:
+          path: ${{ steps.extract.outputs.destination }}
+          name: penguin-recognizer-wasm
