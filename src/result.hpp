@@ -507,7 +507,10 @@ private:
                 int dist = abs(kh - hsv[H]);
                 _candidates.emplace_back(vtype, dist);
             }
-            std::sort(_candidates.begin(), _candidates.end());
+            std::sort(_candidates.begin(), _candidates.end(),
+                      [](const Candidate& val1, const Candidate& val2) {
+                          return val1.measure < val2.measure;
+                      });
             _candidates = std::vector<Candidate>(_candidates.cbegin(), _candidates.cbegin() + 3);
         }
     }
@@ -591,7 +594,10 @@ private:
         _candidates.emplace_back(DroptypeFlags::SPECIAL_DROP, dist_spe);
         int dist_fur = hamming(_hash, droptype_dict["FURNITURE"]);
         _candidates.emplace_back(DroptypeFlags::FURNITURE, dist_fur);
-        std::sort(_candidates.begin(), _candidates.end());
+        std::sort(_candidates.begin(), _candidates.end(),
+                  [](const Candidate& val1, const Candidate& val2) {
+                      return val1.measure < val2.measure;
+                  });
     }
     void _process_img()
     {

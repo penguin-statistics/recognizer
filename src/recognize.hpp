@@ -405,10 +405,6 @@ protected:
         measurement measure;
         Candidate(const keyType& key_, measurement measure_)
             : key(key_), measure(measure_) {}
-        bool operator<(Candidate other)
-        {
-            return this->measure < other.measure;
-        }
     };
 
 public:
@@ -532,7 +528,10 @@ private:
             _candidates.emplace_back(kchar, dist);
         }
 
-        std::sort(_candidates.begin(), _candidates.end());
+        std::sort(_candidates.begin(), _candidates.end(),
+                  [](const Candidate& val1, const Candidate& val2) {
+                      return val1.measure < val2.measure;
+                  });
         _candidates = std::vector<Candidate>(_candidates.cbegin(), _candidates.cbegin() + 5);
     }
 };
