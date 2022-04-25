@@ -18,7 +18,7 @@
 #include "depot.hpp"
 #include "result.hpp"
 
-static const std::string version = "3.5.0";
+static const std::string version = "4.0.0";
 static const std::string opencv_version = CV_VERSION;
 
 cv::Mat decode(std::string JSarrayBuffer)
@@ -107,11 +107,62 @@ public:
         _mode = mode;
     }
 
-    void set_img(cv::Mat img) // local
+    dict recognize(cv::Mat img, bool detail = false)
+    {
+        _set_img(img);
+        _recognize();
+        return _get_report(detail);
+    }
+    std::string wrecognize(std::string JSarrayBuffer, bool detail, bool pretty_print)
+    {
+        _wset_img(JSarrayBuffer);
+        _recognize();
+        return _wget_report(detail, pretty_print);
+    }
+
+    cv::Mat get_debug_img()
+    {
+        auto get_rect = [](dict arr) {
+            return cv::Rect(arr[0], arr[1], arr[2], arr[3]);
+        };
+        cv::Mat img = _img.clone();
+        _make_debug_img(img, _get_report(true));
+        return img;
+    }
+#ifdef PENGUIN_RECOGNIZER_WASM_CPP_
+#include <emscripten.h>
+#include <emscripten/val.h>
+    emscripten::val wget_debug_img()
+    {
+        cv::Mat img = get_debug_img();
+        std::vector<uint8_t> buf;
+        cv::imencode(".png", img, buf);
+        return emscripten::val(
+            emscripten::typed_memory_view(buf.size(), buf.data()));
+    }
+#endif // PENGUIN_RECOGNIZER_WASM_CPP_
+
+private:
+    std::string _mode;
+    cv::Mat _img;
+    penguin::Result _result;
+    penguin::Result_New _result_new;
+    penguin::Depot _depot;
+    dict _report;
+    std::string _md5;
+    double _decode_time = 0;
+    double _recognize_time = 0;
+
+    static cv::Rect _get_rect(dict arr)
+    {
+        return cv::Rect(arr[0], arr[1], arr[2], arr[3]);
+    }
+
+    void _set_img(cv::Mat img) // local
     {
         _img = img;
     }
-    void wset_img(std::string JSarrayBuffer) // wasm
+    void _wset_img(std::string JSarrayBuffer) // wasm
     {
         int64 start = cv::getTickCount();
         _img = decode(JSarrayBuffer);
@@ -119,7 +170,7 @@ public:
         _decode_time = (end - start) / cv::getTickFrequency() * 1000;
     }
 
-    void recognize()
+    void _recognize()
     {
         if (_mode == "RESULT" && penguin::server != "CN")
         {
@@ -140,12 +191,8 @@ public:
             _recognize_time = (end - start) / cv::getTickFrequency() * 1000;
         }
     }
-    void wrecognize()
-    {
-        recognize();
-    }
 
-    dict get_report(bool detail = false)
+    dict _get_report(bool detail = false)
     {
         dict report;
         if (_mode == "RESULT" && penguin::server != "CN")
@@ -184,54 +231,16 @@ public:
         }
         return report;
     }
-    std::string wget_report(bool detail = false, bool pretty_print = false)
+    std::string _wget_report(bool detail, bool pretty_print)
     {
         if (pretty_print)
         {
-            return get_report(detail).dump(4);
+            return _get_report(detail).dump(4);
         }
         else
         {
-            return get_report(detail).dump();
+            return _get_report(detail).dump();
         }
-    }
-
-    cv::Mat get_debug_img()
-    {
-        auto get_rect = [](dict arr) {
-            return cv::Rect(arr[0], arr[1], arr[2], arr[3]);
-        };
-        cv::Mat img = _img.clone();
-        _make_debug_img(img, get_report(true));
-        return img;
-    }
-#ifdef PENGUIN_RECOGNIZER_WASM_CPP_
-#include <emscripten.h>
-#include <emscripten/val.h>
-    emscripten::val wget_debug_img()
-    {
-        cv::Mat img = get_debug_img();
-        std::vector<uint8_t> buf;
-        cv::imencode(".png", img, buf);
-        return emscripten::val(
-            emscripten::typed_memory_view(buf.size(), buf.data()));
-    }
-#endif // PENGUIN_RECOGNIZER_WASM_CPP_
-
-private:
-    std::string _mode;
-    cv::Mat _img;
-    penguin::Result _result;
-    penguin::Result_New _result_new;
-    penguin::Depot _depot;
-    dict _report;
-    std::string _md5;
-    double _decode_time = 0;
-    double _recognize_time = 0;
-
-    static cv::Rect _get_rect(dict arr)
-    {
-        return cv::Rect(arr[0], arr[1], arr[2], arr[3]);
     }
 
     static void _make_debug_img(cv::Mat& img, const dict& report)

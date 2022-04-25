@@ -58,13 +58,13 @@
         xmlhttp.open("GET", `/test_images/new.png`, true);
         xmlhttp.responseType = "arraybuffer";
         xmlhttp.onload = function () {
-            recognizer.set_img(xmlhttp.response);
-            try { recognizer.recognize(); }
+            // recognize(JSArrayBuffer img, bool detail, bool pretty_print)
+            try { report = recognizer.recognize(xmlhttp.response, true, true); }
             catch (e) {
                 console.error(Module.getExceptionMessage(e));
             }
             finally {
-                console.log(recognizer.get_report(false, true)); // get_report([detail], [pretty_print])
+                console.log(report);
             }
         };
         xmlhttp.send();

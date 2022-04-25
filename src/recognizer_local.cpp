@@ -35,9 +35,8 @@ int main(int argc, char const* argv[])
 
             cv::Mat img = cv::imread(f.path().u8string());
             std::cout << "File name: " << f.path().filename() << std::endl;
-            recognizer.set_img(img);
-            recognizer.recognize();
-            std::cout << recognizer.get_report(true).dump(4) << std::endl;
+            auto report = recognizer.recognize(img);
+            std::cout << report.dump(4) << std::endl;
             for (int i = 0; i < 100; i++)
             {
                 std::cout << "_";
