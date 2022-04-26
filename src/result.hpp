@@ -14,6 +14,7 @@
 #include "recognize.hpp"
 
 using dict = nlohmann::ordered_json;
+// extern void show_img(cv::Mat src);
 
 namespace penguin
 { // result
@@ -1200,8 +1201,7 @@ private:
         }
         _baseline_v.set_img(baseline_v_img);
 
-        if (_baseline_v.empty() || _baseline_v.height < 0.25 * height ||
-            _baseline_v.x > 0.2 * width)
+        if (_baseline_v.empty())
         {
             _get_baseline_v_fallback();
         }
@@ -1282,8 +1282,7 @@ private:
         }
         _baseline_v.set_img(baseline_v_img);
 
-        if (_baseline_v.empty() || _baseline_v.height < 0.25 * height ||
-            _baseline_v.x > 0.2 * width)
+        if (_baseline_v.empty())
         {
             _result_label.push_exception(ERROR, ExcSubtypeFlags::EXC_FALSE);
         }
