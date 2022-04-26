@@ -18,7 +18,7 @@
 #include "depot.hpp"
 #include "result.hpp"
 
-static const std::string version = "4.1.0";
+static const std::string version = "4.1.1";
 static const std::string opencv_version = CV_VERSION;
 std::vector<uint8_t> buf;
 

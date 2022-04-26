@@ -125,7 +125,7 @@ public:
             msg = "NotFound";
             break;
         case ExcSubtypeFlags::EXC_ILLEGAL:
-            msg = "illegal";
+            msg = "Illegal";
             break;
         case ExcSubtypeFlags::EXC_LOWCONF:
             msg = "LowConfidence";
