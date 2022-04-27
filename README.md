@@ -198,15 +198,15 @@ penguin-recognizer/build/penguin-recognizer.js
 penguin-recognizer/build/penguin-recognizer.wasm
 ```
 
-## Known issues & Todo
+# Known issues & Todo
 
-### Known issues
+## Known issues
 
 ~~1. In some situations, get wrong result of stage recognition. (e.g. WR-10 -> WR-1O)~~  
 ~~2. In some situations, get wrong result of drop type recognition. (e.g. LMB`yellow` -> EXTRA_DROP`green`)~~  
 3. In some situations, get wrong result of drop number recognition.
 
-### Todo
+## Todo
 
 + [x] add automatic fallback to fix `Known issues 1.`
 + [x] add droptype order check to fix `Known issues 2.`
