@@ -4,7 +4,7 @@
 
 # Penguin Statistics - Recognizer
 
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/penguin-statistics/recognizer)
+[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/penguin-statistics/recognizer)](https://github.com/penguin-statistics/recognizer/releases)
 [![Last Commit](https://img.shields.io/github/last-commit/penguin-statistics/recognizer)](https://github.com/penguin-statistics/recognizer/commits/v4)
 [![GitHub Actions Status](https://github.com/penguin-statistics/recognizer/actions/workflows/build-release.yml/badge.svg)](https://github.com/penguin-statistics/recognizer/actions/workflows/build-release.yml)
 ![GitHub](https://img.shields.io/github/license/penguin-statistics/recognizer)
