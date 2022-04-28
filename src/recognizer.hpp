@@ -20,11 +20,11 @@
 
 static const std::string version = "4.1.1";
 static const std::string opencv_version = CV_VERSION;
-std::vector<uint8_t> buf;
 
 cv::Mat decode(std::string JSarrayBuffer)
 {
-    std::vector<uint8_t> buf(JSarrayBuffer.cbegin(), JSarrayBuffer.cend());
+    std::vector buf(std::make_move_iterator(JSarrayBuffer.begin()),
+                    std::make_move_iterator(JSarrayBuffer.end()));
     return cv::imdecode(buf, cv::IMREAD_COLOR);
 }
 
@@ -36,37 +36,37 @@ cv::Mat decode(uint8_t* buffer, size_t size)
 
 void load_server(std::string server)
 {
-    penguin::server = server;
+    penguin::server = std::move(server);
 }
 
 void load_stage_index() // local
 {
-    std::ifstream f;
     dict stage_index;
-    f.open("../resources/json/stage_index.json");
+    std::ifstream f("../resources/json/stage_index.json");
     f >> stage_index;
-    penguin::resource.add("stage_index", stage_index);
+    f.close();
+    penguin::resource.add("stage_index", std::move(stage_index));
 }
 
 void wload_stage_index(std::string stage_index) // wasm
 {
     auto& resource = penguin::resource;
-    resource.add("stage_index", dict::parse(stage_index));
+    resource.add("stage_index", dict::parse(std::move(stage_index)));
 }
 
 void load_hash_index() // local
 {
-    std::ifstream f;
     dict hash_index;
-    f.open("../resources/json/hash_index.json");
+    std::ifstream f("../resources/json/hash_index.json");
     f >> hash_index;
-    penguin::resource.add("hash_index", hash_index);
+    f.close();
+    penguin::resource.add("hash_index", std::move(hash_index));
 }
 
 void wload_hash_index(std::string hash_index) // wasm
 {
     auto& resource = penguin::resource;
-    resource.add("hash_index", dict::parse(hash_index));
+    resource.add("hash_index", dict::parse(std::move(hash_index)));
 }
 
 void load_templs() // local
@@ -77,14 +77,13 @@ void load_templs() // local
     {
         std::string itemId = templ.path().stem().string();
         cv::Mat templimg = cv::imread(templ.path().string());
-        item_templs[itemId] = templimg;
+        item_templs[std::move(itemId)] = templimg;   // cv::Mat is a shallow copy
     }
-    penguin::resource.add("item_templs", item_templs);
+    penguin::resource.add("item_templs", std::move(item_templs));
 }
 
 void wload_templs(std::string itemId, std::string JSarrayBuffer) // wasm
 {
-    cv::Mat templimg = decode(JSarrayBuffer);
     auto& resource = penguin::resource;
     if (!resource.contains<std::map<std::string, cv::Mat>>("item_templs"))
     {
@@ -92,7 +91,7 @@ void wload_templs(std::string itemId, std::string JSarrayBuffer) // wasm
     }
     auto& item_templs =
         resource.get<std::map<std::string, cv::Mat>>("item_templs");
-    item_templs[itemId] = templimg;
+    item_templs[std::move(itemId)] = decode(std::move(JSarrayBuffer));
 }
 
 const bool env_check()
@@ -104,8 +103,8 @@ class Recognizer
 {
 public:
     Recognizer(std::string mode)
+        : _mode(std::move(mode))
     {
-        _mode = mode;
     }
 
     dict recognize(cv::Mat img, bool detail = false)
@@ -116,7 +115,7 @@ public:
     }
     std::string wrecognize(std::string JSarrayBuffer, bool detail, bool pretty_print)
     {
-        _wset_img(JSarrayBuffer);
+        _wset_img(std::move(JSarrayBuffer));
         _recognize();
         return _wget_report(detail, pretty_print);
     }
@@ -133,6 +132,7 @@ public:
     emscripten::val wget_debug_img()
     {
         cv::Mat img = get_debug_img();
+        static std::vector<uint8_t> buf;
         cv::imencode(".png", img, buf);
         return emscripten::val(
             emscripten::typed_memory_view(buf.size(), buf.data()));
@@ -162,7 +162,7 @@ private:
     void _wset_img(std::string JSarrayBuffer) // wasm
     {
         int64 start = cv::getTickCount();
-        _img = decode(JSarrayBuffer);
+        _img = decode(std::move(JSarrayBuffer));
         int64 end = cv::getTickCount();
         _decode_time = (end - start) / cv::getTickFrequency() * 1000;
     }
