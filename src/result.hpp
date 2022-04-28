@@ -191,9 +191,9 @@ public:
     {
         if (index < _candidates.size())
         {
-            int length = _stage_chrs.size();
+            size_t length = _stage_chrs.size();
             auto candidate = _candidates[index];
-            for (int i = 0; i < length; ++i)
+            for (size_t i = 0; i < length; ++i)
             {
                 if (_stage_chrs[i].candidate_index() != candidate.key[i])
                 {
@@ -241,8 +241,8 @@ private:
     const std::string _stage_code(const int index) const
     {
         std::string code;
-        int length = _stage_chrs.size();
-        for (int i = 0; i < length; ++i)
+        size_t length = _stage_chrs.size();
+        for (size_t i = 0; i < length; ++i)
         {
             int index_i = _key(index)[i];
             code += _stage_chrs[i].candidates()[index_i].key;
@@ -336,10 +336,10 @@ private:
             decltype(comp)>
             q(comp);
         auto last_pop = _stage_chrs;
-        int length = _stage_chrs.size();
+        size_t length = _stage_chrs.size();
         while (_candidates.size() < _CANDIDATES_COUNT)
         {
-            for (int i = 0; i < length; ++i)
+            for (size_t i = 0; i < length; ++i)
             {
                 auto child = last_pop;
                 child[i]._next_candidate();
@@ -762,13 +762,13 @@ public:
         rpt["dropTypes"] = dict::array();
         rpt["drops"] = dict::array();
 
-        int droptypes_count = _droptype_list.size(); // will move in "for" in C++20
-        for (int i = 0; i < droptypes_count; i++)
+        size_t droptypes_count = _droptype_list.size(); // will move in "for" in C++20
+        for (size_t i = 0; i < droptypes_count; i++)
         {
             rpt["dropTypes"].push_back(_droptype_list[i].report(debug));
         }
-        int drops_count = _drop_list.size(); // will move in "for" in C++20
-        for (int i = 0; i < drops_count; i++)
+        size_t drops_count = _drop_list.size(); // will move in "for" in C++20
+        for (size_t i = 0; i < drops_count; i++)
         {
             rpt["drops"].push_back(
                 {{"dropType", Droptype2Str[_drop_list[i].droptype]}});
@@ -877,8 +877,8 @@ private:
             decltype(comp)>
             q(comp);
         auto last_pop = _droptype_list;
-        int length = _droptype_list.size();
-        for (int i = 0; i < length; ++i)
+        size_t length = _droptype_list.size();
+        for (size_t i = 0; i < length; ++i)
         {
             auto child = last_pop;
             child[i]._next_candidate();
@@ -1358,7 +1358,6 @@ private:
         _drop_area.analyze(_stage.stage_code());
     }
 };
-
 } // namespace penguin
 
 #endif // PENGUIN_RESULT_HPP_
