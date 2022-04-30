@@ -439,7 +439,7 @@ private:
         starrect.width = sp.back().end - starrect.x;
         _img = star_img = star_img(starrect);
         self._relate(starrect.tl());
-        _stars = sp.size();
+        _stars = static_cast<int>(sp.size());
     }
 };
 
@@ -506,7 +506,7 @@ private:
                 {
                     continue;
                 }
-                int dist = abs(kh - hsv[H]);
+                int dist = static_cast<int>(abs(kh - hsv[H]));
                 _candidates.emplace_back(vtype, dist);
             }
             std::sort(_candidates.begin(), _candidates.end(),
@@ -616,7 +616,7 @@ private:
         while (droptextimg.rows > 0)
         {
             cv::Mat topline = droptextimg.row(0);
-            int meanval = cv::mean(topline)[0];
+            int meanval = static_cast<int>(cv::mean(topline)[0]);
             if (meanval < 127)
             {
                 break;
@@ -684,7 +684,7 @@ public:
     }
 
 private:
-    int _items_count = round(width / (height * W_H_PROP));
+    int _items_count = static_cast<int>(round(width / (height * W_H_PROP)));
     Widget_DroptypeLine _line {this};
     Widget_DroptypeText _text {this};
     void _get_candidates()
@@ -785,7 +785,7 @@ private:
     auto _get_separate()
     {
         cv::Mat img_bin = _img;
-        int offset = round(height * 0.75);
+        int offset = static_cast<int>(round(height * 0.75));
         img_bin.adjustROI(-offset, 0, 0, 0);
         cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
         cv::adaptiveThreshold(img_bin, img_bin, 255, cv::ADAPTIVE_THRESH_MEAN_C,
@@ -814,7 +814,7 @@ private:
         }
         int baseline_h = row + offset;
         auto sp = separate(img_bin(cv::Rect(0, row, width, 1)), DirectionFlags::LEFT);
-        int item_diameter = height / DROP_AREA_HEIGHT_PROP * ITEM_DIAMETER_PROP;
+        int item_diameter = static_cast<int>(height / DROP_AREA_HEIGHT_PROP * ITEM_DIAMETER_PROP);
         for (auto it = sp.cbegin(); it != sp.cend();)
         {
             const auto& range = *it;
@@ -893,7 +893,7 @@ private:
         {
             return;
         }
-        int item_diameter = height / DROP_AREA_HEIGHT_PROP * ITEM_DIAMETER_PROP;
+        int item_diameter = static_cast<int>(height / DROP_AREA_HEIGHT_PROP * ITEM_DIAMETER_PROP);
         ItemTemplates templs {stage};
         for (const auto& droptype : _droptype_list)
         {
@@ -1108,8 +1108,8 @@ private:
         }
         const auto& bv = _baseline_v;
         auto drop_area_img = _img(
-            cv::Range(bv.y + bv.height * DROP_AREA_Y_PROP, bv.y + bv.height),
-            cv::Range(bv.x + bv.height * DROP_AREA_X_PROP, width));
+            cv::Range(static_cast<int>(bv.y + bv.height * DROP_AREA_Y_PROP), bv.y + bv.height),
+            cv::Range(static_cast<int>(bv.x + bv.height * DROP_AREA_X_PROP), width));
         _drop_area.set_img(drop_area_img);
         _drop_area.analyze(_stage.stage_code());
     }
@@ -1172,7 +1172,11 @@ private:
         {
             return;
         }
-        cv::Mat img_bin = _img(cv::Rect(0, 0.2 * height, 0.2 * width, 0.4 * height));
+        cv::Mat img_bin = _img(cv::Rect(
+            0,
+            static_cast<int>(0.2 * height),
+            static_cast<int>(0.2 * width),
+            static_cast<int>(0.4 * height)));
         cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
         cv::threshold(img_bin, img_bin, 120, 255, cv::THRESH_BINARY);
 
@@ -1188,7 +1192,7 @@ private:
                 abs(img_temp.cols - last_height) <= 1 &&
                 abs(first_height - last_height) <= 1)
             {
-                baseline_v_rect = cv::Rect(range.start, sp2.front().start + 0.2 * height,
+                baseline_v_rect = cv::Rect(range.start, sp2.front().start + static_cast<int>(0.2 * height),
                                            img_temp.cols, sp2.back().end - sp2.front().start);
                 break;
             }
@@ -1215,7 +1219,11 @@ private:
                 : x(x_), y(y_), width(width_), height(height_), area(area_) {}
         };
 
-        cv::Mat img_bin = _img(cv::Rect(0, 0.2 * height, 0.2 * width, 0.4 * height));
+        cv::Mat img_bin = _img(cv::Rect(
+            0,
+            static_cast<int>(0.2 * height),
+            static_cast<int>(0.2 * width),
+            static_cast<int>(0.4 * height)));
         cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
         cv::threshold(img_bin, img_bin, 120, 255, cv::THRESH_BINARY);
         cv::Mat _;
@@ -1257,7 +1265,7 @@ private:
             if (ccomps[0].x == ccomps[1].x)
             {
                 baseline_v_rect = cv::Rect(ccomps[0].x,
-                                           ccomps[0].y + 0.2 * height,
+                                           ccomps[0].y + static_cast<int>(0.2 * height),
                                            ccomps[0].width,
                                            ccomps[1].y - ccomps[0].y + ccomps[1].height);
             }
@@ -1269,7 +1277,7 @@ private:
             {
                 if (ccomps[i].x == ccomps[i + 1].x)
                     baseline_v_rect = cv::Rect(ccomps[i].x,
-                                               ccomps[i].y + 0.2 * height,
+                                               ccomps[i].y + static_cast<int>(0.2 * height),
                                                ccomps[i].width,
                                                ccomps[i + 1].y - ccomps[i].y + ccomps[i + 1].height);
             }
@@ -1295,7 +1303,7 @@ private:
         }
         const auto& bv = _baseline_v;
         auto result_img = _img(cv::Rect(bv.x + bv.width, bv.y,
-                                        1.6 * bv.height, bv.height));
+                                        static_cast<int>(1.6 * bv.height), bv.height));
         cv::Mat img_bin;
         cv::cvtColor(result_img, img_bin, cv::COLOR_BGR2GRAY);
         cv::threshold(img_bin, img_bin, 200, 255, cv::THRESH_BINARY);
@@ -1312,7 +1320,7 @@ private:
         }
         const auto& bv = _baseline_v;
         auto star_img = _img(cv::Rect(bv.x + bv.width, bv.y,
-                                      1.2 * bv.height, bv.height));
+                                      static_cast<int>(1.2 * bv.height), bv.height));
         cv::Mat img_bin;
         cv::cvtColor(star_img, img_bin, cv::COLOR_BGR2GRAY);
         cv::threshold(img_bin, img_bin, 127, 255, cv::THRESH_BINARY);
@@ -1328,8 +1336,11 @@ private:
             return;
         }
         const auto& bv = _baseline_v;
-        auto stage_img = _img(cv::Rect(bv.x + bv.width + 0.43 * bv.height, 0,
-                                       1.6 * bv.height, bv.y));
+        auto stage_img = _img(cv::Rect(
+            static_cast<int>(bv.x + bv.width + 0.43 * bv.height),
+            0,
+            static_cast<int>(1.6 * bv.height),
+            bv.y));
         cv::Mat img_bin;
         cv::cvtColor(stage_img, img_bin, cv::COLOR_BGR2GRAY);
         cv::threshold(img_bin, img_bin, 200, 255, cv::THRESH_BINARY);
@@ -1346,13 +1357,13 @@ private:
         }
         const auto& bv = _baseline_v;
         cv::Mat img_bin = _img(cv::Range(bv.y + bv.height, height),
-                               cv::Range(bv.x + bv.width, 0.2 * width));
+                               cv::Range(bv.x + bv.width, static_cast<int>(0.2 * width)));
         cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
         cv::threshold(img_bin, img_bin, 127, 255, cv::THRESH_BINARY);
         auto sp = separate(img_bin, DirectionFlags::TOP, 2);
         int top_margin = bv.y + bv.height + sp[1].start;
         auto drop_area_img = _img(
-            cv::Range(top_margin + bv.height * DROP_AREA_Y_PROP, top_margin + bv.height),
+            cv::Range(top_margin + static_cast<int>(bv.height * DROP_AREA_Y_PROP), top_margin + bv.height),
             cv::Range(bv.x + bv.width, width));
         _drop_area.set_img(drop_area_img);
         _drop_area.analyze(_stage.stage_code());
