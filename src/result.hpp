@@ -1024,13 +1024,13 @@ private:
                 int length = (droptype.width) / items_count;
                 for (int i = 0; i < items_count; i++)
                 {
-                    std::string label =
+                    std::string cur_label =
                         "drops." + std::to_string(_drop_list.size());
                     auto range =
                         cv::Range(droptype.x - x + length * i,
                                   droptype.x - x + length * (i + 1));
                     auto dropimg = _img(cv::Range(0, droptype.y - y), range);
-                    Widget_Item drop {dropimg, item_diameter, label, this};
+                    Widget_Item drop {dropimg, item_diameter, cur_label, this};
                     drop.analyze(templs);
                     _drop_list.emplace_back(drop, type);
                     _drops_data.push_back({{"dropType", Droptype2Str[type]},
