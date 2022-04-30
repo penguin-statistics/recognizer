@@ -77,7 +77,7 @@ void load_templs() // local
     {
         std::string itemId = templ.path().stem().string();
         cv::Mat templimg = cv::imread(templ.path().string());
-        item_templs[std::move(itemId)] = templimg;   // cv::Mat is a shallow copy
+        item_templs.insert_or_assign(std::move(itemId), templimg);   // cv::Mat is a shallow copy
     }
     penguin::resource.add("item_templs", std::move(item_templs));
 }
@@ -91,7 +91,7 @@ void wload_templs(std::string itemId, std::string JSarrayBuffer) // wasm
     }
     auto& item_templs =
         resource.get<std::map<std::string, cv::Mat>>("item_templs");
-    item_templs[std::move(itemId)] = decode(std::move(JSarrayBuffer));
+    item_templs.insert_or_assign(std::move(itemId), decode(std::move(JSarrayBuffer)));
 }
 
 const bool env_check()
