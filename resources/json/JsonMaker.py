@@ -27,6 +27,10 @@ class Maker():
         for stage in stage_table:
             code = stage["code"]
             stageId = stage["stageId"]
+            if stageId[:5] == "tough":
+                difficulty = "TOUGH"
+            else:
+                difficulty = "NORMAL"
             drops = []
             if "dropInfos" in stage:
                 for item in stage["dropInfos"]:
@@ -36,7 +40,9 @@ class Maker():
             if "recognitionOnly" in stage:
                 for itemId in stage["recognitionOnly"]:
                     drops.append(itemId)
-            self.stage_index[code] = {
+            if not (code in self.stage_index):
+                self.stage_index[code] = {}
+            self.stage_index[code][difficulty] = {
                 "stageId": stageId,
                 "drops": drops,
                 "existence": True
