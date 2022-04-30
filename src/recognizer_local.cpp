@@ -19,6 +19,10 @@ void show_img(cv::Mat src)
 
 int main(int argc, char const* argv[])
 {
+    if (!argc)
+    {
+        return -1;
+    }
     std::filesystem::path p = std::filesystem::path(argv[0]).parent_path();
     std::filesystem::current_path(p);
     load_server("CN");

@@ -36,7 +36,7 @@ public:
         _get_item_list();
         return *this;
     }
-    const dict report(bool debug = false)
+    const dict report([[maybe_unused]] bool debug = false)
     {
         dict _report = dict::object();
         return _report;
