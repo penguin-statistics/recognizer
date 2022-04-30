@@ -19,6 +19,10 @@ void show_img(cv::Mat src)
 
 int main(int argc, char const* argv[])
 {
+    if (!argc)
+    {
+        return -1;
+    }
     std::filesystem::path p = std::filesystem::path(argv[0]).parent_path();
     std::filesystem::current_path(p);
     load_server("CN");
@@ -26,7 +30,7 @@ int main(int argc, char const* argv[])
     load_hash_index();
     load_templs();
 
-    std::string dir = "../new";
+    std::string dir = "../aaa";
     if (std::filesystem::is_directory(dir))
     {
         for (const auto& f : std::filesystem::directory_iterator(dir))
@@ -35,7 +39,7 @@ int main(int argc, char const* argv[])
 
             cv::Mat img = cv::imread(f.path().u8string());
             std::cout << "File name: " << f.path().filename() << std::endl;
-            auto report = recognizer.recognize(img);
+            auto report = recognizer.recognize(img, true);
             std::cout << report.dump(4) << std::endl;
             for (int i = 0; i < 100; i++)
             {

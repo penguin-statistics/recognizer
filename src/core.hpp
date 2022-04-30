@@ -65,7 +65,7 @@ public:
     {
         if (!key.empty())
         {
-            _resource[key] = src;
+            _resource.insert_or_assign(key, src);
         }
     }
     template <typename ResourceType>
@@ -137,7 +137,7 @@ std::vector<cv::Range> separate(const cv::Mat& src_bin, DirectionFlags direc, in
 {
     std::vector<cv::Range> sp;
     bool isodd = false;
-    int begin;
+    int begin = 0;
     if (direc == DirectionFlags::TOP)
     {
         for (int ro = 0; ro < src_bin.rows; ro++)
