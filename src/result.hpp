@@ -14,7 +14,7 @@
 #include "recognize.hpp"
 
 using dict = nlohmann::ordered_json;
-// extern void show_img(cv::Mat src);
+extern void show_img(cv::Mat src);
 
 namespace penguin
 { // result
@@ -508,16 +508,21 @@ private:
         auto& self = *this;
         self._relate(diff_rect.tl());
 
-        img_bin = _img;
-        cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
-        cv::threshold(img_bin, img_bin, 200, 255, cv::THRESH_BINARY);
-        int inspction_line = cv::boundingRect(img_bin).y - 1;
+        int diff_count = 0;
 
-        img_bin = _img;
-        cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
-        cv::threshold(img_bin, img_bin, 64, 255, cv::THRESH_BINARY);
-        auto diff_img = img_bin(cv::Rect(0, inspction_line, width, 1));
-        int diff_count = separate(diff_img, DirectionFlags::LEFT).size();
+        if (!(height < width / 4))
+        {
+            img_bin = _img;
+            cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
+            cv::threshold(img_bin, img_bin, 200, 255, cv::THRESH_BINARY);
+            int inspction_line = 0.8 * cv::boundingRect(img_bin).y;
+
+            img_bin = _img;
+            cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
+            cv::threshold(img_bin, img_bin, 64, 255, cv::THRESH_BINARY);
+            auto diff_img = img_bin(cv::Rect(0, inspction_line, width, 1));
+            diff_count = separate(diff_img, DirectionFlags::LEFT).size();
+        }
 
         switch (diff_count)
         {
