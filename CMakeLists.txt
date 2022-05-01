@@ -43,7 +43,7 @@ file(GLOB 3rdparty_include_modules "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/*/inclu
 include_directories(${3rdparty_include_modules})
 
 # Recognize executable
-add_executable(penguin-recognizer "${CMAKE_CURRENT_SOURCE_DIR}/src/recognizer_wasm_new.cpp")
+add_executable(penguin-recognizer "${CMAKE_CURRENT_SOURCE_DIR}/src/recognizer_wasm.cpp")
 
 # Link to opencv.js precompiled libraries
 file(GLOB opencv_libs "${OPENCV_DIR}/build_wasm/lib/*.a")
