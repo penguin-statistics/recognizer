@@ -14,7 +14,7 @@
 #include "recognize.hpp"
 
 using dict = nlohmann::ordered_json;
-extern void show_img(cv::Mat src);
+// extern void show_img(cv::Mat src);
 
 namespace penguin
 { // result
@@ -498,7 +498,7 @@ private:
     {
         auto img_bin = _img;
         cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
-        cv::threshold(img_bin, img_bin, 25, 255, cv::THRESH_BINARY);
+        cv::threshold(img_bin, img_bin, 64, 255, cv::THRESH_BINARY);
         auto diff_rect = cv::boundingRect(img_bin);
         if (diff_rect.empty())
         {
@@ -510,18 +510,22 @@ private:
 
         size_t diff_count = 0;
 
-        if (!(height < width / 4))
+        if (!(height < width / 6))
         {
             img_bin = _img;
             cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
             cv::threshold(img_bin, img_bin, 200, 255, cv::THRESH_BINARY);
             int inspction_line = static_cast<int>(0.8 * cv::boundingRect(img_bin).y);
+            int offset = img_bin.rows;
 
             img_bin = _img;
             cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
             cv::threshold(img_bin, img_bin, 64, 255, cv::THRESH_BINARY);
             auto diff_img = img_bin(cv::Rect(0, inspction_line, width, 1));
             diff_count = separate(diff_img, DirectionFlags::LEFT).size();
+
+            _img.adjustROI(1.2 * offset, 1.2 * offset, 0, 0);
+            y = y - 1.2 * offset;
         }
 
         switch (diff_count)
@@ -1289,6 +1293,10 @@ private:
         {
             cv::Mat img_temp = img_bin(cv::Range(0, img_bin.rows), range);
             auto sp2 = separate(img_temp, DirectionFlags::TOP);
+            if (sp2.size() < 2)
+            {
+                break;
+            }
             int first_height = sp2.front().end - sp2.front().start;
             int last_height = sp2.back().end - sp2.back().start;
             if (abs(img_temp.cols - first_height) <= 1 &&
@@ -1465,7 +1473,7 @@ private:
                              cv::Range(left_margin, static_cast<int>(left_margin + 0.43 * bv.height)));
         cv::Mat img_bin;
         cv::cvtColor(diff_img, img_bin, cv::COLOR_BGR2GRAY);
-        cv::threshold(img_bin, img_bin, 25, 255, cv::THRESH_BINARY);
+        cv::threshold(img_bin, img_bin, 64, 255, cv::THRESH_BINARY);
         diff_img = diff_img(separate(img_bin, DirectionFlags::TOP, 1)[0],
                             cv::Range(0, img_bin.cols));
         _difficutly.set_img(diff_img);
