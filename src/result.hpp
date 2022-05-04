@@ -524,8 +524,8 @@ private:
             auto diff_img = img_bin(cv::Rect(0, inspction_line, width, 1));
             diff_count = separate(diff_img, DirectionFlags::LEFT).size();
 
-            _img.adjustROI(1.2 * offset, 1.2 * offset, 0, 0);
-            y = y - 1.2 * offset;
+            _img.adjustROI(static_cast<int>(1.2 * offset), static_cast<int>(1.2 * offset), 0, 0);
+            y = y - static_cast<int>(1.2 * offset);
         }
 
         switch (diff_count)
@@ -989,7 +989,7 @@ private:
         _droptype_list = q.top();
     }
 
-    void _get_drops(const std::string& stage, const std::string& difficulty)
+    void _get_drops(const std::string& stage, [[maybe_unused]] const std::string& difficulty)
     {
         if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
         {
