@@ -25,7 +25,7 @@ const double DROP_AREA_X_PROP = 0.21;
 const double DROP_AREA_Y_PROP = 0.2;
 const double DROP_AREA_HEIGHT_PROP = 0.8;
 const double ITEM_DIAMETER_PROP = 0.524;
-const double W_H_PROP = 7;
+const double W_H_PROP = 6.5;
 
 enum DroptypeFlags
 {
@@ -745,11 +745,23 @@ public:
     const int items_count() const { return _items_count; }
     Widget_Droptype() = default;
     Widget_Droptype(const cv::Mat& img, const std::string& label, Widget* const parent_widget = nullptr)
-        : WidgetWithCandidate(img, label, parent_widget) {}
+        : WidgetWithCandidate(label, parent_widget)
+    {
+        set_img(img);
+    }
+    void set_img(const cv::Mat& img)
+    {
+        cv::Mat img_bin = img;
+        cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
+        cv::threshold(img_bin, img_bin, 127, 255, cv::THRESH_BINARY);
+        int bottom = separate(img_bin, DirectionFlags::BOTTOM, 1)[0].end;
+        Widget::set_img(img(cv::Rect(0, 0, img.cols, bottom)));
+    }
     Widget_Droptype& analyze()
     {
         if (!_img.empty())
         {
+            _get_items_count();
             _get_candidates();
         }
         if (const auto type = droptype();
@@ -784,7 +796,7 @@ public:
     }
 
 private:
-    int _items_count = static_cast<int>(round(width / (height * W_H_PROP)));
+    int _items_count = 0;
     Widget_DroptypeLine _line {this};
     Widget_DroptypeText _text {this};
     void _get_candidates()
@@ -802,6 +814,10 @@ private:
             _text.analyze();
             _candidates = _text.candidates();
         }
+    }
+    void _get_items_count()
+    {
+        _items_count = static_cast<int>(round(width / (height * W_H_PROP)));
     }
 };
 

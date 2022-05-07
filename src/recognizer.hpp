@@ -18,7 +18,7 @@
 #include "depot.hpp"
 #include "result.hpp"
 
-static const std::string version = "4.2.4";
+static const std::string version = "4.3.0";
 static const std::string opencv_version = CV_VERSION;
 
 cv::Mat decode(std::string JSarrayBuffer)
