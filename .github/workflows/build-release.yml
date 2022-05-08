@@ -20,6 +20,11 @@ jobs:
         run: |
           echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
       
+      - name: Checkout to v4 Branch
+        id: checkout_v4
+        run: |
+          git checkout v4
+      
       - name: Modify Version Variable Value
         id: modify_version
         run: |
