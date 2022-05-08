@@ -23,8 +23,7 @@ jobs:
       - name: Modify Version Variable Value
         id: modify_version
         run: |
-          echo $(pwd) && \
-          sed -E -i '' 's/^(static const std::string version = ").*(";)/\1${{ env.VERSION }}\2/g' src/recognizer.hpp
+          sed -E -i 's/^(static const std::string version = ").*(";)/\1${{ env.VERSION }}\2/g' src/recognizer.hpp
 
       - name: Push to GitHub
         id: push_to_github
