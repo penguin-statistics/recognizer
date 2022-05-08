@@ -35,16 +35,15 @@ jobs:
       
       # zip files under /build/recognizer/build/dist/ to /build/recognizer/build/dist/${VERSION}.zip
       - name: Zip Files
-        uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -j -r ${{ env.GITHUB_WORKSPACE }}/${{ env.VERSION }}.zip ${{ steps.extract.outputs.destination }}/*
+        run: apt install -y zip && \
+             zip -qq -j -r ${{ env.GITHUB_WORKSPACE }}/${{ env.VERSION }}.zip ${{ steps.extract.outputs.destination }}/*
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            /build/recognizer/build/dist/${{ env.VERSION }}.zip
+            ${{ env.GITHUB_WORKSPACE }}/${{ env.VERSION }}.zip
 
       # - name: Upload Dist
       #   uses: actions/upload-artifact@v2
