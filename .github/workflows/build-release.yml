@@ -34,7 +34,6 @@ jobs:
         with:
           default_author: github_actions
           message: "chore: Update Version Literal for Release ${{ env.VERSION }}"
-          pull: '--rebase --autostash v4'
 
       - name: Build Docker Image
         uses: docker/build-push-action@v1
