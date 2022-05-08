@@ -14,16 +14,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          ref: 'refs/heads/v4'
 
       - name: Get Tag Version
         id: get_version
         run: |
           echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
-      
-      - name: Checkout to v4 Branch
-        id: checkout_v4
-        run: |
-          git checkout v4
       
       - name: Modify Version Variable Value
         id: modify_version
@@ -36,6 +33,7 @@ jobs:
         with:
           default_author: github_actions
           message: "chore: Update Version Literal for Release ${{ env.VERSION }}"
+          pull: '--rebase --autostash refs/heads/v4'
 
       - name: Build Docker Image
         uses: docker/build-push-action@v1
