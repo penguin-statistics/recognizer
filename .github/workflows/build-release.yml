@@ -35,7 +35,7 @@ jobs:
       
       # zip files under /build/recognizer/build/dist/ to /build/recognizer/build/dist/${VERSION}.zip
       - name: Zip Files
-        run: apt install -y zip && \
+        run: sudo apt install -y zip && \
              zip -qq -j -r ${{ env.GITHUB_WORKSPACE }}/${{ env.VERSION }}.zip ${{ steps.extract.outputs.destination }}/*
 
       - uses: "marvinpinto/action-automatic-releases@latest"
