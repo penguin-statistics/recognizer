@@ -37,14 +37,14 @@ jobs:
       - name: Zip Files
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -j -r ${GITHUB_WORKSPACE}/${VERSION}.zip /build/recognizer/build/dist/
+          args: zip -qq -j -r /build/recognizer/build/dist/${{ env.VERSION }}.zip /build/recognizer/build/dist/
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            ${GITHUB_WORKSPACE}/${VERSION}.zip
+            /build/recognizer/build/dist/${{ env.VERSION }}.zip
 
       # - name: Upload Dist
       #   uses: actions/upload-artifact@v2
