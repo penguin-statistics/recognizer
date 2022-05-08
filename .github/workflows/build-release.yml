@@ -13,6 +13,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Install zip
+        uses: montudor/action-zip@v1
+
       - uses: actions/checkout@v2
 
       - name: Build Docker Image
@@ -35,9 +38,8 @@ jobs:
       
       # zip files under /build/recognizer/build/dist/ to /build/recognizer/build/dist/${VERSION}.zip
       - name: Zip Files
-        uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -j -r /build/recognizer/build/dist/${{ env.VERSION }}.zip /build/recognizer/build/dist/
+        run: zip -qq -j -r /build/recognizer/build/dist/${{ env.VERSION }}.zip /build/recognizer/build/dist/*
+        working-directory: /build/recognizer/build/dist/
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
