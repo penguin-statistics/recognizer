@@ -21,19 +21,30 @@ jobs:
           push: false
           repository: recognizer-intermediate-artifacts
           tags: latest
+
+      - name: Get Tag Version
+        id: get_version
+        run: |
+          echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
           
       - uses: shrink/actions-docker-extract@v1
         id: extract
         with:
           image: recognizer-intermediate-artifacts:latest
           path: /build/recognizer/build/dist/.
+      
+      # zip files under /build/recognizer/build/dist/ to /build/recognizer/build/dist/${VERSION}.zip
+      - name: Zip Files
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -j -r ${GITHUB_WORKSPACE}/${VERSION}.zip /build/recognizer/build/dist/
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            ${{ steps.extract.outputs.destination }}/*
+            ${GITHUB_WORKSPACE}/${VERSION}.zip
 
       # - name: Upload Dist
       #   uses: actions/upload-artifact@v2
