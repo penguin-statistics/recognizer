@@ -35,15 +35,14 @@ jobs:
       
       # zip files under /build/recognizer/build/dist/ to /build/recognizer/build/dist/${VERSION}.zip
       - name: Zip Files
-        run: sudo apt install -y zip && \
-             zip -qq -j -r ${{ env.GITHUB_WORKSPACE }}/${{ env.VERSION }}.zip ${{ steps.extract.outputs.destination }}/*
+        run: zip -q -j -r ${{ env.VERSION }}.zip ${{ steps.extract.outputs.destination }}/*
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            ${{ env.GITHUB_WORKSPACE }}/${{ env.VERSION }}.zip
+            ${{ env.VERSION }}.zip
 
       # - name: Upload Dist
       #   uses: actions/upload-artifact@v2
