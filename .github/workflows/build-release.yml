@@ -15,17 +15,18 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Get Tag Version
+        id: get_version
+        run: |
+          echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+
       - name: Build Docker Image
         uses: docker/build-push-action@v1
         with:
           push: false
           repository: recognizer-intermediate-artifacts
           tags: latest
-
-      - name: Get Tag Version
-        id: get_version
-        run: |
-          echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+          build_args: VERSION=${{ env.VERSION }}
           
       - uses: shrink/actions-docker-extract@v1
         id: extract
