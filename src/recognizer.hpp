@@ -18,13 +18,12 @@
 #include "depot.hpp"
 #include "result.hpp"
 
-#ifdef PENGUIN_RECOGNIZER_RELEASE_VERSION
-#define PENGUIN_RECOGNIZER_VERSION_STRING PENGUIN_RECOGNIZER_RELEASE_VERSION
-#else
-#define PENGUIN_RECOGNIZER_VERSION_STRING "v0.0.0"
-#endif
+// DO NOT MODIFY THE SIGNATURE BELOW: the `static const std::string version` signature 
+// is used by the automated version modifying script located in GitHub Actions.
+// It is not intended to be modified by the user, but instead triggered by git tag pushes.
+static const std::string version = "v0.0.0";
+// DO NOT MODIFY THE SIGNATURE ABOVE
 
-static const std::string version = PENGUIN_RECOGNIZER_VERSION_STRING;
 static const std::string opencv_version = CV_VERSION;
 
 cv::Mat decode(std::string JSarrayBuffer)

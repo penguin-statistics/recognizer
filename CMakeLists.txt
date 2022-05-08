@@ -42,9 +42,6 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src")
 file(GLOB 3rdparty_include_modules "${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/*/include")
 include_directories(${3rdparty_include_modules})
 
-# Inject version from environment variable VERSION
-add_definitions(-DPENGUIN_RECOGNIZER_RELEASE_VERSION="$ENV{VERSION}")
-
 # Recognize executable
 add_executable(penguin-recognizer "${CMAKE_CURRENT_SOURCE_DIR}/src/recognizer_wasm.cpp")
 

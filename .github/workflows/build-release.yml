@@ -19,6 +19,19 @@ jobs:
         id: get_version
         run: |
           echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+      
+      - name: Modify Version Variable Value
+        id: modify_version
+        run: |
+          sed -E -i '' 's/^(static const std::string version = ").*(";)/\1${{ env.VERSION }}\2/g' src/recognizer.hpp
+
+      - name: Push to GitHub
+        id: push_to_github
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actions
+          pull: '--rebase --autostash'
+          message: "chore: Update Version Literal for Release ${{ env.VERSION }}"
 
       - name: Build Docker Image
         uses: docker/build-push-action@v1
