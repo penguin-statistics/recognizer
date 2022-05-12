@@ -855,10 +855,6 @@ private:
             _candidates = _text.candidates();
         }
     }
-    void _get_items_count()
-    {
-        _items_count = static_cast<int>(round(width / (height * W_H_PROP)));
-    }
 };
 
 class Widget_DropArea : public Widget
