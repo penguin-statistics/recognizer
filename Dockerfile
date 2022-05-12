@@ -1,5 +1,9 @@
 FROM ghcr.io/penguin-statistics/recognizer-builder:v4
 
+ARG VERSION
+
+ENV VERSION=$VERSION
+
 WORKDIR /build/recognizer
 
 COPY . .

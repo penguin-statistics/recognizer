@@ -14,6 +14,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          fetch_depth: 0
+          ref: 'v4'
+
+      - name: Get Tag Version
+        id: get_version
+        run: |
+          echo "VERSION=${GITHUB_REF/refs\/tags\//}" >> $GITHUB_ENV
+      
+      - name: Modify Version Variable Value
+        id: modify_version
+        run: |
+          sed -E -i 's/^(static const std::string version = ").*(";)/\1${{ env.VERSION }}\2/g' src/recognizer.hpp
+
+      - name: Push to GitHub
+        id: push_to_github
+        uses: EndBug/add-and-commit@v9
+        with:
+          default_author: github_actions
+          message: "chore: Update Version Literal for Release ${{ env.VERSION }}"
 
       - name: Build Docker Image
         uses: docker/build-push-action@v1
@@ -21,19 +41,24 @@ jobs:
           push: false
           repository: recognizer-intermediate-artifacts
           tags: latest
+          build_args: VERSION=${{ env.VERSION }}
           
       - uses: shrink/actions-docker-extract@v1
         id: extract
         with:
           image: recognizer-intermediate-artifacts:latest
           path: /build/recognizer/build/dist/.
+      
+      # zip files under /build/recognizer/build/dist/ to /build/recognizer/build/dist/${VERSION}.zip
+      - name: Zip Files
+        run: zip -q -j -r ${{ env.VERSION }}.zip ${{ steps.extract.outputs.destination }}/*
 
       - uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: false
           files: |
-            ${{ steps.extract.outputs.destination }}/*
+            ${{ env.VERSION }}.zip
 
       # - name: Upload Dist
       #   uses: actions/upload-artifact@v2
