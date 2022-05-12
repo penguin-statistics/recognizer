@@ -14,7 +14,7 @@
 #include "recognize.hpp"
 
 using dict = nlohmann::ordered_json;
-// extern void show_img(cv::Mat src);
+extern void show_img(cv::Mat src);
 
 namespace penguin
 { // result
@@ -72,19 +72,38 @@ public:
     Widget_ResultLabel() = default;
     Widget_ResultLabel(Widget* const parent_widget)
         : Widget("result", parent_widget) {}
-    Widget_ResultLabel(const cv::Mat& img,
-                       Widget* const parent_widget = nullptr)
+    Widget_ResultLabel(const cv::Mat& img, Widget* const parent_widget = nullptr)
         : Widget("result", parent_widget)
     {
         set_img(img);
     }
-    void set_img(const cv::Mat& img)
+    void set_img(cv::Mat img)
     {
-        Widget::set_img(img);
-        if (_img.channels() == 3)
+        if (!img.empty() && img.channels() == 3)
         {
-            cv::cvtColor(_img, _img, cv::COLOR_BGR2GRAY);
-            cv::threshold(_img, _img, 200, 255, cv::THRESH_BINARY);
+            cv::cvtColor(img, _img_bin, cv::COLOR_BGR2GRAY);
+            cv::threshold(_img_bin, _img_bin, 200, 255, cv::THRESH_BINARY);
+            cv::Rect img_rect = cv::boundingRect(_img_bin);
+            if (!img_rect.empty())
+            {
+                _img = img(img_rect);
+                _img_bin = _img_bin(img_rect);
+                _get_abs_pos();
+            }
+        }
+    }
+    void set_img(cv::Mat img, cv::Mat img_bin)
+    {
+        if (!img.empty() && img.channels() == 3 &&
+            !img_bin.empty() && img_bin.channels() == 1)
+        {
+            cv::Rect img_rect = cv::boundingRect(img_bin);
+            if (!img_rect.empty())
+            {
+                _img = img(img_rect);
+                _img_bin = img_bin(img_rect);
+                _get_abs_pos();
+            }
         }
     }
     Widget_ResultLabel& analyze()
@@ -122,16 +141,8 @@ private:
     int _dist = int(HammingFlags::HAMMING64) * 4;
     void _get_is_result()
     {
-        auto& self = *this;
-        auto result_rect = cv::boundingRect(_img);
-        self._relate(result_rect.tl());
-        if (result_rect.empty())
-        {
-            return;
-        }
-        _img = _img(result_rect);
-        auto result_img = _img;
-        _hash = shash(result_img, ResizeFlags::RESIZE_W32_H8);
+        auto result_img_bin = _img_bin;
+        _hash = shash(result_img_bin, ResizeFlags::RESIZE_W32_H8);
         std::string hash_std =
             resource.get<dict>("hash_index")["result"][server];
         _dist = hamming(_hash, hash_std);
@@ -139,16 +150,13 @@ private:
         {
             _is_result = true;
         }
-        else
-        {
-            _is_result = false;
-        }
     }
 };
 
 class Widget_Stars : public Widget
 {
 public:
+    using Widget::set_img;
     const bool is_3stars() const { return _stars == 3; }
     Widget_Stars() = default;
     Widget_Stars(Widget* const parent_widget)
@@ -158,13 +166,14 @@ public:
     {
         set_img(img);
     }
-    void set_img(const cv::Mat& img)
+    void set_img(cv::Mat img)
     {
-        Widget::set_img(img);
-        if (_img.channels() == 3)
+        if (!img.empty() && img.channels() == 3)
         {
-            cv::cvtColor(_img, _img, cv::COLOR_BGR2GRAY);
-            cv::threshold(_img, _img, 127, 255, cv::THRESH_BINARY);
+            _img = img;
+            cv::cvtColor(img, _img_bin, cv::COLOR_BGR2GRAY);
+            cv::threshold(_img_bin, _img_bin, 127, 255, cv::THRESH_BINARY);
+            _get_abs_pos();
         }
     }
     Widget_Stars& analyze()
@@ -198,17 +207,16 @@ private:
     int _stars = 0;
     void _get_is_3stars()
     {
-        auto& self = *this;
-        auto star_img = _img;
-        auto sp_ = separate(star_img, DirectionFlags::RIGHT, 1);
-        auto laststar_range = separate(star_img, DirectionFlags::RIGHT, 1)[0];
-        auto laststar = star_img(cv::Range(0, height), laststar_range);
-        auto star_rect = cv::boundingRect(laststar);
+        cv::Mat star_img_bin = _img_bin;
+        auto sp_ = separate(star_img_bin, DirectionFlags::RIGHT, 1);
+        cv::Range laststar_range = separate(star_img_bin, DirectionFlags::RIGHT, 1)[0];
+        cv::Mat laststar = star_img_bin(cv::Range(0, height), laststar_range);
+        cv::Rect star_rect = cv::boundingRect(laststar);
         if (star_rect.empty())
         {
             return;
         }
-        auto sp = separate(star_img(cv::Rect(0, 0, width, height / 2)), DirectionFlags::LEFT);
+        auto sp = separate(star_img_bin(cv::Rect(0, 0, width, height / 2)), DirectionFlags::LEFT);
         for (auto it = sp.cbegin(); it != sp.cend();)
         {
             const auto& range = *it;
@@ -224,8 +232,8 @@ private:
         }
         star_rect.x = sp.front().start;
         star_rect.width = sp.back().end - star_rect.x;
-        _img = star_img = star_img(star_rect);
-        self._relate(star_rect.tl());
+        _img = _img(star_rect);
+        _get_abs_pos();
         _stars = static_cast<int>(sp.size());
     }
 };
@@ -243,15 +251,35 @@ public:
     {
         set_img(img);
     }
-    void set_img(const cv::Mat& img)
+    void set_img(cv::Mat img)
     {
-        Widget::set_img(img);
-        if (_img.channels() == 3)
+        if (!img.empty() && img.channels() == 3)
         {
-            cv::cvtColor(_img, _img, cv::COLOR_BGR2GRAY);
+            cv::cvtColor(img, _img_bin, cv::COLOR_BGR2GRAY);
             double maxval;
-            cv::minMaxIdx(_img, nullptr, &maxval);
-            cv::threshold(_img, _img, maxval * 0.9, 255, cv::THRESH_BINARY);
+            cv::minMaxIdx(_img_bin, nullptr, &maxval);
+            cv::threshold(_img_bin, _img_bin, maxval * 0.9, 255, cv::THRESH_BINARY);
+            cv::Rect img_rect = cv::boundingRect(_img_bin);
+            if (!img_rect.empty())
+            {
+                _img = img(img_rect);
+                _img_bin = _img_bin(img_rect);
+                _get_abs_pos();
+            }
+        }
+    }
+    void set_img(cv::Mat img, cv::Mat img_bin)
+    {
+        if (!img.empty() && img.channels() == 3 &&
+            !img_bin.empty() && img_bin.channels() == 1)
+        {
+            cv::Rect img_rect = cv::boundingRect(img_bin);
+            if (!img_rect.empty())
+            {
+                _img = img(img_rect);
+                _img_bin = img_bin(img_rect);
+                _get_abs_pos();
+            }
         }
     }
     Widget_Stage& analyze()
@@ -359,27 +387,23 @@ private:
     }
     void _get_stage()
     {
-        auto& self = *this;
-        auto stagerect = cv::boundingRect(_img);
-        self._relate(stagerect.tl());
-        if (stagerect.empty())
-        {
-            return;
-        }
-        _img = _img(stagerect);
-        auto stage_img = _img;
-        auto sp = separate(stage_img, DirectionFlags::LEFT);
+        cv::Mat stage_img = _img;
+        cv::Mat stage_img_bin = _img_bin;
+        auto sp = separate(stage_img_bin, DirectionFlags::LEFT);
         for (const auto& range : sp)
         {
             int length = range.end - range.start;
-            auto charimg = stage_img(cv::Rect(range.start, 0, length, height));
+            cv::Rect char_rect = cv::Rect(range.start, 0, length, height);
+            cv::Mat char_img = stage_img(char_rect);
+            cv::Mat char_img_bin = stage_img_bin(char_rect);
             std::string label = "char." + std::to_string(_stage_chrs.size());
             auto font = FontFlags::NOVECENTO_WIDEBOLD;
             if (server == "CN")
             {
                 font = FontFlags::NOVECENTO_WIDEMEDIUM;
             }
-            Widget_Character chr {charimg, font, label, this};
+            Widget_Character chr {font, label, this};
+            chr.set_img(char_img, char_img_bin);
             chr.analyze();
             _stage_chrs.emplace_back(chr);
         }
@@ -461,10 +485,36 @@ public:
     {
         set_img(img);
     }
-    void set_img(const cv::Mat& img)
+    void set_img(cv::Mat img)
     {
-        Widget::set_img(img);
+        if (!img.empty() && img.channels() == 3)
+        {
+            cv::cvtColor(img, _img_bin, cv::COLOR_BGR2GRAY);
+            cv::threshold(_img_bin, _img_bin, 64, 255, cv::THRESH_BINARY);
+            cv::Rect img_rect = cv::boundingRect(_img_bin);
+            if (!img_rect.empty())
+            {
+                _img = img(img_rect);
+                _img_bin = _img_bin(img_rect);
+                _get_abs_pos();
+            }
+        }
     }
+    void set_img(cv::Mat img, cv::Mat img_bin)
+    {
+        if (!img.empty() && img.channels() == 3 &&
+            !img_bin.empty() && img_bin.channels() == 1)
+        {
+            cv::Rect img_rect = cv::boundingRect(img_bin);
+            if (!img_rect.empty())
+            {
+                _img = img(img_rect);
+                _img_bin = img_bin(img_rect);
+                _get_abs_pos();
+            }
+        }
+    }
+
     Widget_Difficulty& analyze()
     {
         if (!_img.empty())
@@ -496,36 +546,21 @@ private:
     std::string _difficulty;
     void _get_difficulty()
     {
-        auto img_bin = _img;
-        cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
-        cv::threshold(img_bin, img_bin, 64, 255, cv::THRESH_BINARY);
-        auto diff_rect = cv::boundingRect(img_bin);
-        if (diff_rect.empty())
-        {
-            return;
-        }
-        _img = _img(diff_rect);
-        auto& self = *this;
-        self._relate(diff_rect.tl());
-
         size_t diff_count = 0;
 
         if (!(height < width / 6))
         {
-            img_bin = _img;
-            cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
-            cv::threshold(img_bin, img_bin, 200, 255, cv::THRESH_BINARY);
-            int inspction_line = static_cast<int>(0.8 * cv::boundingRect(img_bin).y);
-            int offset = img_bin.rows;
+            cv::Mat diff_img_bin200;
+            cv::cvtColor(_img, diff_img_bin200, cv::COLOR_BGR2GRAY);
+            cv::threshold(diff_img_bin200, diff_img_bin200, 200, 255, cv::THRESH_BINARY);
+            int inspction_line = static_cast<int>(0.8 * cv::boundingRect(diff_img_bin200).y);
+            int offset = diff_img_bin200.rows;
 
-            img_bin = _img;
-            cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
-            cv::threshold(img_bin, img_bin, 64, 255, cv::THRESH_BINARY);
-            auto diff_img = img_bin(cv::Rect(0, inspction_line, width, 1));
+            cv::Mat diff_img = _img_bin(cv::Rect(0, inspction_line, width, 1));
             diff_count = separate(diff_img, DirectionFlags::LEFT).size();
 
             _img.adjustROI(static_cast<int>(1.2 * offset), static_cast<int>(1.2 * offset), 0, 0);
-            y = y - static_cast<int>(1.2 * offset);
+            _get_abs_pos();
         }
 
         switch (diff_count)
@@ -551,8 +586,7 @@ public:
     Widget_DroptypeLine() = default;
     Widget_DroptypeLine(Widget* const parent_widget)
         : WidgetWithCandidate(parent_widget) {}
-    Widget_DroptypeLine(const cv::Mat& img,
-                        Widget* const parent_widget = nullptr)
+    Widget_DroptypeLine(const cv::Mat& img, Widget* const parent_widget = nullptr)
         : WidgetWithCandidate(img, parent_widget) {}
     Widget_DroptypeLine& analyze()
     {
@@ -644,9 +678,41 @@ public:
     Widget_DroptypeText() = default;
     Widget_DroptypeText(Widget* const parent_widget)
         : WidgetWithCandidate(parent_widget) {}
-    Widget_DroptypeText(const cv::Mat& img,
-                        Widget* const parent_widget = nullptr)
-        : WidgetWithCandidate(img, parent_widget) {}
+    Widget_DroptypeText(const cv::Mat& img, Widget* const parent_widget = nullptr)
+        : WidgetWithCandidate(parent_widget)
+    {
+        set_img(img);
+    }
+    void set_img(cv::Mat img)
+    {
+        if (!img.empty() && img.channels() == 3)
+        {
+            cv::cvtColor(img, _img_bin, cv::COLOR_BGR2GRAY);
+            double maxval;
+            cv::minMaxIdx(img, nullptr, &maxval);
+            cv::threshold(_img_bin, _img_bin, maxval / 2, 255, cv::THRESH_BINARY);
+            while (_img_bin.rows > 0)
+            {
+                cv::Mat topline = _img_bin.row(0);
+                int meanval = static_cast<int>(cv::mean(topline)[0]);
+                if (meanval < 127)
+                {
+                    break;
+                }
+                else
+                {
+                    _img_bin.adjustROI(-1, 0, 0, 0);
+                }
+            }
+            cv::Rect img_rect = cv::boundingRect(_img_bin);
+            if (!img_rect.empty())
+            {
+                _img = img(img_rect);
+                _img_bin = _img_bin(img_rect);
+                _get_abs_pos();
+            }
+        }
+    }
     Widget_DroptypeText& analyze()
     {
         if (!_img.empty())
@@ -676,19 +742,18 @@ private:
     std::string _hash = "";
     void _get_candidates()
     {
-        _process_img();
-        auto droptextimg = _img;
+        cv::Mat droptext_img = _img_bin;
         if (server == "CN" || server == "KR")
         {
-            droptextimg.adjustROI(0, 0, 0, -width / 2);
+            droptext_img.adjustROI(0, 0, 0, -width / 2);
         }
         if (server == "US")
         {
-            _hash = shash(droptextimg, ResizeFlags::RESIZE_W32_H8);
+            _hash = shash(droptext_img, ResizeFlags::RESIZE_W32_H8);
         }
         else
         {
-            _hash = shash(droptextimg);
+            _hash = shash(droptext_img);
         }
         const auto& droptype_dict =
             resource.get<dict>("hash_index")["dropType"][server];
@@ -700,40 +765,6 @@ private:
                   [](const Candidate& val1, const Candidate& val2) {
                       return val1.measure < val2.measure;
                   });
-    }
-    void _process_img()
-    {
-        auto& self = *this;
-        auto& droptextimg = _img;
-        if (droptextimg.channels() == 3)
-        {
-            cv::cvtColor(droptextimg, droptextimg, cv::COLOR_BGR2GRAY);
-        }
-        double maxval;
-        cv::minMaxIdx(droptextimg, nullptr, &maxval);
-        cv::threshold(droptextimg, droptextimg, maxval / 2, 255,
-                      cv::THRESH_BINARY);
-        while (droptextimg.rows > 0)
-        {
-            cv::Mat topline = droptextimg.row(0);
-            int meanval = static_cast<int>(cv::mean(topline)[0]);
-            if (meanval < 127)
-            {
-                break;
-            }
-            else
-            {
-                droptextimg.adjustROI(-1, 0, 0, 0);
-                self.y++;
-            }
-        }
-        auto droptext_rect = cv::boundingRect(droptextimg);
-        if (droptext_rect.empty())
-        {
-            return;
-        }
-        droptextimg = droptextimg(droptext_rect);
-        self._relate(droptext_rect.tl());
     }
 };
 
@@ -749,13 +780,18 @@ public:
     {
         set_img(img);
     }
-    void set_img(const cv::Mat& img)
+    void set_img(cv::Mat img)
     {
-        cv::Mat img_bin = img;
-        cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
-        cv::threshold(img_bin, img_bin, 127, 255, cv::THRESH_BINARY);
-        int bottom = separate(img_bin, DirectionFlags::BOTTOM, 1)[0].end;
-        Widget::set_img(img(cv::Rect(0, 0, img.cols, bottom)));
+        cv::cvtColor(img, _img_bin, cv::COLOR_BGR2GRAY);
+        cv::threshold(_img_bin, _img_bin, 127, 255, cv::THRESH_BINARY);
+        auto sp = separate(_img_bin, DirectionFlags::BOTTOM, 1);
+        if (!sp.empty())
+        {
+            cv::Rect img_rect = cv::Rect(0, 0, img.cols, sp[0].end);
+            _img = img(img_rect);
+            _img_bin = _img_bin(img_rect);
+            _get_abs_pos();
+        }
     }
     Widget_Droptype& analyze()
     {
@@ -799,10 +835,14 @@ private:
     int _items_count = 0;
     Widget_DroptypeLine _line {this};
     Widget_DroptypeText _text {this};
+    void _get_items_count()
+    {
+        _items_count = static_cast<int>(round(width / (height * W_H_PROP)));
+    }
     void _get_candidates()
     {
-        auto lineimg = _img(cv::Rect(0, 0, width, 1));
-        _line.set_img(lineimg);
+        cv::Mat line_img = _img.row(0);
+        _line.set_img(line_img);
         _line.analyze();
         _candidates = _line.candidates();
         if (const auto type = droptype();
@@ -950,11 +990,13 @@ private:
     void _get_droptypes()
     {
         auto [baseline_h, sp] = _get_separate();
+        int offset = sp.back().end - width;
+        _img.adjustROI(0, 0, 0, offset);
         for (const auto& droptype_range : sp)
         {
-            auto droptypeimg = _img(cv::Range(baseline_h, height), droptype_range);
+            auto droptype_img = _img(cv::Range(baseline_h, height), droptype_range);
             std::string label = "dropTypes." + std::to_string(_droptype_list.size());
-            Widget_Droptype droptype {droptypeimg, label, this};
+            Widget_Droptype droptype {droptype_img, label, this};
             droptype.analyze();
             _droptype_list.emplace_back(droptype);
         }
@@ -1171,9 +1213,10 @@ private:
                 range.end = end;
             }
         }
-        cv::Mat baseline_v_img = img_bin(range, cv::Range(column, column + 1));
+        range.start += offset;
+        range.end += offset;
+        cv::Mat baseline_v_img = _img(range, cv::Range(column, column + 1));
         _baseline_v.set_img(baseline_v_img);
-        _baseline_v.y += offset;
         if (_baseline_v.empty() || _baseline_v.height < BASELINE_V_HEIGHT_MIN ||
             _baseline_v.x <= _baseline_v.height)
         {
@@ -1452,13 +1495,17 @@ private:
         auto star_img =
             _img(cv::Range(bv.y + bv.height / 2, bv.y + bv.height),
                  cv::Range(left_margin, left_margin + static_cast<int>(1.2 * bv.height)));
-        cv::Mat img_bin;
-        cv::cvtColor(star_img, img_bin, cv::COLOR_BGR2GRAY);
-        cv::threshold(img_bin, img_bin, 127, 255, cv::THRESH_BINARY);
-        star_img = star_img(separate(img_bin, DirectionFlags::BOTTOM, 1)[0],
-                            cv::Range(0, img_bin.cols));
-        _stars.set_img(star_img);
-        _stars.analyze();
+        cv::Mat star_img_bin;
+        cv::cvtColor(star_img, star_img_bin, cv::COLOR_BGR2GRAY);
+        cv::threshold(star_img_bin, star_img_bin, 127, 255, cv::THRESH_BINARY);
+        auto sp = separate(star_img_bin, DirectionFlags::BOTTOM, 1);
+        if (!sp.empty())
+        {
+            star_img = star_img(sp[0], cv::Range(0, star_img_bin.cols));
+            star_img_bin = star_img_bin(sp[0], cv::Range(0, star_img_bin.cols));
+            _stars.set_img(star_img, star_img_bin);
+            _stars.analyze();
+        }
     }
     void _get_stage()
     {
@@ -1472,13 +1519,17 @@ private:
             _img(cv::Range(0, bv.y),
                  cv::Range(left_margin + static_cast<int>(0.43 * bv.height),
                            left_margin + static_cast<int>(1.5 * bv.height)));
-        cv::Mat img_bin;
-        cv::cvtColor(stage_img, img_bin, cv::COLOR_BGR2GRAY);
-        cv::threshold(img_bin, img_bin, 200, 255, cv::THRESH_BINARY);
-        stage_img = stage_img(separate(img_bin, DirectionFlags::TOP, 1)[0],
-                              cv::Range(0, img_bin.cols));
-        _stage.set_img(stage_img);
-        _stage.analyze();
+        cv::Mat stage_img_bin;
+        cv::cvtColor(stage_img, stage_img_bin, cv::COLOR_BGR2GRAY);
+        cv::threshold(stage_img_bin, stage_img_bin, 200, 255, cv::THRESH_BINARY);
+        auto sp = separate(stage_img_bin, DirectionFlags::TOP, 1);
+        if (!sp.empty())
+        {
+            stage_img = stage_img(sp[0], cv::Range(0, stage_img_bin.cols));
+            stage_img_bin = stage_img_bin(sp[0], cv::Range(0, stage_img_bin.cols));
+            _stage.set_img(stage_img, stage_img_bin);
+            _stage.analyze();
+        }
     }
     void _get_difficulty()
     {
@@ -1491,13 +1542,17 @@ private:
         auto diff_img =
             _img(cv::Range(0, bv.y),
                  cv::Range(left_margin, left_margin + static_cast<int>(0.43 * bv.height)));
-        cv::Mat img_bin;
-        cv::cvtColor(diff_img, img_bin, cv::COLOR_BGR2GRAY);
-        cv::threshold(img_bin, img_bin, 64, 255, cv::THRESH_BINARY);
-        diff_img = diff_img(separate(img_bin, DirectionFlags::TOP, 1)[0],
-                            cv::Range(0, img_bin.cols));
-        _difficutly.set_img(diff_img);
-        _difficutly.analyze();
+        cv::Mat diff_img_bin;
+        cv::cvtColor(diff_img, diff_img_bin, cv::COLOR_BGR2GRAY);
+        cv::threshold(diff_img_bin, diff_img_bin, 64, 255, cv::THRESH_BINARY);
+        auto sp = separate(diff_img_bin, DirectionFlags::TOP, 1);
+        if (!sp.empty())
+        {
+            diff_img = diff_img(sp[0], cv::Range(0, diff_img_bin.cols));
+            diff_img_bin = diff_img_bin(sp[0], cv::Range(0, diff_img_bin.cols));
+            _difficutly.set_img(diff_img, diff_img_bin);
+            _difficutly.analyze();
+        }
     }
     void _get_drop_area()
     {

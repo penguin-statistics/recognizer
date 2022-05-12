@@ -12,6 +12,7 @@
 #include "core.hpp"
 
 using dict = nlohmann::ordered_json;
+extern void show_img(cv::Mat src);
 
 namespace penguin
 {
@@ -242,15 +243,27 @@ public:
     }
     Widget(Widget* const parent_widget) { set_parent(parent_widget); }
     virtual Widget& analyze() { return *this; }
-    virtual void set_img(const cv::Mat& img)
+    virtual void set_img(cv::Mat img)
     {
-        _img = img;
-        _carlibrate();
+        if (!img.empty() && img.channels() == 3)
+        {
+            _img = std::move(img);
+            _get_abs_pos();
+        }
+    }
+    virtual void set_img(cv::Mat img, cv::Mat img_bin)
+    {
+        if (!img.empty() && img.channels() == 3 &&
+            !img_bin.empty() && img_bin.channels() == 1)
+        {
+            _img = std::move(img);
+            _img_bin = std::move(img_bin);
+            _get_abs_pos();
+        }
     }
     virtual void set_parent(Widget* const parent_widget)
     {
         _parent_widget = parent_widget;
-        _carlibrate();
     }
 
     virtual const bool empty() const { return width <= 0 || height <= 0; }
@@ -356,42 +369,23 @@ public:
         return *this;
     }
 
-private:
-    void _carlibrate()
-    {
-        x = y = 0;
-        if (const auto& parent = *_parent_widget; _parent_widget != nullptr)
-        {
-            if (const auto& parent_img = parent.img();
-                !parent_img.empty() && !_img.empty())
-            {
-                cv::Size _;
-                cv::Point topleft_child, topleft_parent;
-                _img.locateROI(_, topleft_child);
-                parent_img.locateROI(_, topleft_parent);
-                x = topleft_child.x - topleft_parent.x;
-                y = topleft_child.y - topleft_parent.y;
-                _relate(parent);
-            }
-        }
-    }
-
 protected:
     cv::Mat _img;
+    cv::Mat _img_bin;
     Widget* _parent_widget = nullptr;
     StatusFlags _status = StatusFlags::NORMAL;
     dict _exception_list = dict::array();
-    void _relate(const Widget& widget)
+
+    void _get_abs_pos()
     {
-        auto& self = *this;
-        self.x += widget.x;
-        self.y += widget.y;
-    }
-    void _relate(const cv::Point& topleft)
-    {
-        auto& self = *this;
-        self.x += topleft.x;
-        self.y += topleft.y;
+        if (!_img.empty())
+        {
+            cv::Size _;
+            cv::Point topleft;
+            _img.locateROI(_, topleft);
+            x = topleft.x;
+            y = topleft.y;
+        }
     }
 };
 
@@ -455,8 +449,42 @@ public:
     const int candidate_index() const { return _candidate_index; }
     const std::vector<Candidate>& candidates() const { return _candidates; }
     Widget_Character() = default;
-    Widget_Character(const cv::Mat& img_bin, FontFlags flag, const std::string& label, Widget* const parent_widget = nullptr)
-        : WidgetWithCandidate(img_bin, label, parent_widget), font(flag) {}
+    Widget_Character(FontFlags flag, const std::string& label, Widget* const parent_widget = nullptr)
+        : WidgetWithCandidate(label, parent_widget), font(flag) {}
+    Widget_Character(const cv::Mat& img, FontFlags flag, const std::string& label, Widget* const parent_widget = nullptr)
+        : WidgetWithCandidate(label, parent_widget), font(flag)
+    {
+        set_img(img);
+    }
+    void set_img(cv::Mat img)
+    {
+        if (!img.empty() && img.channels() == 3)
+        {
+            cv::cvtColor(img, _img_bin, cv::COLOR_BGR2GRAY);
+            cv::threshold(_img_bin, _img_bin, 200, 255, cv::THRESH_BINARY);
+            cv::Rect img_rect = cv::boundingRect(_img_bin);
+            if (!img_rect.empty())
+            {
+                _img = img(img_rect);
+                _img_bin = _img_bin(img_rect);
+                _get_abs_pos();
+            }
+        }
+    }
+    void set_img(cv::Mat img, cv::Mat img_bin)
+    {
+        if (!img.empty() && img.channels() == 3 &&
+            !img_bin.empty() && img_bin.channels() == 1)
+        {
+            cv::Rect img_rect = cv::boundingRect(img_bin);
+            if (!img_rect.empty())
+            {
+                _img = img(img_rect);
+                _img_bin = img_bin(img_rect);
+                _get_abs_pos();
+            }
+        }
+    }
     Widget_Character& analyze(const bool without_exception = false)
     {
         if (!_img.empty())
@@ -498,17 +526,9 @@ private:
     FontFlags font = FontFlags::UNDEFINED;
     void _get_candidates()
     {
-        auto& self = *this;
-        auto charrect = cv::boundingRect(_img);
-        if (charrect.empty())
-        {
-            return;
-        }
-        _img = _img(charrect);
-        self._relate(charrect.tl());
-        auto charimg = _img;
-        squarize(charimg);
-        _hash = shash(charimg);
+        auto char_img_bin = _img_bin;
+        squarize(char_img_bin);
+        _hash = shash(char_img_bin);
         std::string chr;
         dict char_dict;
         if (const auto& hash_index = resource.get<dict>("hash_index");
@@ -543,14 +563,22 @@ public:
     Widget_ItemQuantity() = default;
     Widget_ItemQuantity(Widget* const parent_widget)
         : Widget("quantity", parent_widget) {}
-    Widget_ItemQuantity(const int quantity,
-                        Widget* const parent_widget = nullptr)
+    Widget_ItemQuantity(const int quantity, Widget* const parent_widget = nullptr)
         : Widget("quantity", parent_widget), _quantity(quantity) {}
-    Widget_ItemQuantity(const cv::Mat& img,
-                        Widget* const parent_widget = nullptr)
+    Widget_ItemQuantity(const cv::Mat& img, Widget* const parent_widget = nullptr)
         : Widget("quantity", parent_widget)
     {
         set_img(img);
+    }
+    void set_img(cv::Mat img)
+    {
+        if (!img.empty() && img.channels() == 3)
+        {
+            _img = img;
+            cv::cvtColor(img, _img_bin, cv::COLOR_BGR2GRAY);
+            cv::threshold(_img_bin, _img_bin, 127, 255, cv::THRESH_BINARY);
+            _get_abs_pos();
+        }
     }
     Widget_ItemQuantity& analyze()
     {
@@ -565,15 +593,6 @@ public:
         return *this;
     }
     void set_quantity(const int quantity) { _quantity = quantity; }
-    void set_img(const cv::Mat& img)
-    {
-        Widget::set_img(img);
-        if (_img.channels() == 3)
-        {
-            cv::cvtColor(_img, _img, cv::COLOR_BGR2GRAY);
-            cv::threshold(_img, _img, 127, 255, cv::THRESH_BINARY);
-        }
-    }
     const bool empty() const { return _quantity; }
     const dict report(bool debug = false)
     {
@@ -601,10 +620,10 @@ private:
     std::vector<Widget_Character> _characters;
     void _get_quantity()
     {
-        auto& self = *this;
-        auto qtyimg = _img;
+        cv::Mat qty_img = _img;
+        cv::Mat qty_img_bin = _img_bin;
         std::string quantity_str;
-        auto sp = separate(qtyimg, DirectionFlags::RIGHT);
+        auto sp = separate(qty_img_bin, DirectionFlags::RIGHT);
         sp.erase(
             std::remove_if(sp.begin(), sp.end(),
                            [&](const cv::Range& range) {
@@ -617,7 +636,9 @@ private:
             const auto& range = *it;
             int length = range.end - range.start;
             bool quantity_empty = quantity_str.empty();
-            auto charimg = qtyimg(cv::Rect(range.start, 0, length, height));
+            cv::Rect char_rect = cv::Rect(range.start, 0, length, height);
+            cv::Mat char_img = qty_img(char_rect);
+            cv::Mat char_img_bin = qty_img_bin(char_rect);
 
             if (!quantity_empty && it != sp.cbegin())
             {
@@ -642,7 +663,7 @@ private:
             cv::Mat1i stats;
             cv::Mat1d centroids;
             int ccomps =
-                cv::connectedComponentsWithStats(charimg, _, stats, centroids);
+                cv::connectedComponentsWithStats(char_img_bin, _, stats, centroids);
             if (ccomps - 1 != 1)
             {
                 if (quantity_empty)
@@ -673,7 +694,7 @@ private:
                     break;
                 }
             }
-            double charimg_area = charimg.cols * charimg.rows;
+            double charimg_area = char_img_bin.cols * char_img_bin.rows;
             if (auto area_ratio = stats(1, cv::CC_STAT_AREA) / charimg_area;
                 area_ratio < 0.15 || area_ratio > 0.75)
             {
@@ -690,9 +711,9 @@ private:
             }
             std::string label =
                 "char.-" + std::to_string(_characters.size() + 1);
-            auto chr =
-                Widget_Character(charimg, Server2Font.at(server), label, this)
-                    .analyze();
+            Widget_Character chr {Server2Font.at(server), label, this};
+            chr.set_img(char_img, char_img_bin);
+            chr.analyze();
             _characters.emplace_back(chr);
             quantity_str.insert(0, chr.chr());
             ++it;
@@ -703,12 +724,9 @@ private:
             _quantity = std::stoi(quantity_str);
             cv::Point topleft = cv::Point(sp.back().start, 0);
             cv::Point bottomright = cv::Point(sp.front().end, height - 1);
-            _img = qtyimg(cv::Rect(topleft, bottomright));
-            self._relate(topleft);
-        }
-        else
-        {
-            _img = cv::Mat();
+            cv::Rect qty_rect = cv::Rect(topleft, bottomright);
+            _img = qty_img(cv::Rect(topleft, bottomright));
+            _get_abs_pos();
         }
     }
 };
@@ -785,13 +803,12 @@ private:
     std::vector<ItemConfidence> _confidence_list;
     void _get_item(const ItemTemplates& templs)
     {
-        auto& self = *this;
-        auto itemimg = _img;
+        cv::Mat item_img = _img;
         int coeff_multiinv = width / ITEM_RESIZED_WIDTH;
         double coeff = 1.0 / coeff_multiinv;
         if (coeff < 1)
         {
-            resize(itemimg, itemimg, cv::Size(), coeff, coeff, cv::INTER_AREA);
+            resize(item_img, item_img, cv::Size(), coeff, coeff, cv::INTER_AREA);
         }
         std::map<std::string, cv::Point> _tmp_itemId2loc;
         for (const auto& templ : templs.templ_list())
@@ -806,7 +823,7 @@ private:
                        int(0.9 * TEMPLATE_DIAMETER * fx / 2), cv::Scalar(255),
                        -1);
             cv::Mat resimg;
-            cv::matchTemplate(itemimg, templimg, resimg, cv::TM_CCOEFF_NORMED,
+            cv::matchTemplate(item_img, templimg, resimg, cv::TM_CCOEFF_NORMED,
                               mask);
             double minval, maxval;
             cv::Point minloc, maxloc;
@@ -834,7 +851,7 @@ private:
             size_new.height = height - topleft_new.y;
         }
         _img = _img(cv::Rect(topleft_new, size_new));
-        self._relate(topleft_new);
+        _get_abs_pos();
         _confidence = _confidence_list.front().confidence;
         if (_confidence > _CONFIDENCE_THRESHOLD)
         {
@@ -848,8 +865,8 @@ private:
                      static_cast<int>(round(height * _ITEM_QTY_Y_PROP)),
                      static_cast<int>(round(width * _ITEM_QTY_WIDTH_PROP)),
                      static_cast<int>(round(height * _ITEM_QTY_HEIGHT_PROP)));
-        cv::Mat quantityimg = _img(quantityrect);
-        _quantity.set_img(quantityimg);
+        cv::Mat quantity_img = _img(quantityrect);
+        _quantity.set_img(quantity_img);
         _quantity.analyze();
     }
 };

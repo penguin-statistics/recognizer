@@ -18,7 +18,12 @@
 #include "depot.hpp"
 #include "result.hpp"
 
-static const std::string version = "4.3.0";
+// DO NOT MODIFY THE SIGNATURE BELOW: the `static const std::string version` signature
+// is used by the automated version modifying script located in GitHub Actions.
+// It is not intended to be modified by the user, but instead triggered by git tag pushes.
+static const std::string version = "v4.3.18";
+// DO NOT MODIFY THE SIGNATURE ABOVE
+
 static const std::string opencv_version = CV_VERSION;
 
 cv::Mat decode(std::string JSarrayBuffer)
