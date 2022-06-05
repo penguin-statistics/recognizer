@@ -14,7 +14,7 @@
 #include "recognize.hpp"
 
 using dict = nlohmann::ordered_json;
-extern void show_img(cv::Mat src);
+// extern void show_img(cv::Mat src);
 
 namespace penguin
 { // result
@@ -25,7 +25,7 @@ const double DROP_AREA_X_PROP = 0.21;
 const double DROP_AREA_Y_PROP = 0.2;
 const double DROP_AREA_HEIGHT_PROP = 0.8;
 const double ITEM_DIAMETER_PROP = 0.524;
-const double W_H_PROP = 6.5;
+const double W_H_PROP = 7;
 
 enum DroptypeFlags
 {
@@ -837,7 +837,14 @@ private:
     Widget_DroptypeText _text {this};
     void _get_items_count()
     {
-        _items_count = static_cast<int>(round(width / (height * W_H_PROP)));
+        if (server == "CN")
+        {
+            _items_count = static_cast<int>(round(width / (height * W_H_PROP)));
+        }
+        else
+        {
+            _items_count = static_cast<int>(round(width / (height * 7.5)));
+        }
     }
     void _get_candidates()
     {
