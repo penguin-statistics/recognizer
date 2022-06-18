@@ -21,7 +21,7 @@
 // DO NOT MODIFY THE SIGNATURE BELOW: the `static const std::string version` signature
 // is used by the automated version modifying script located in GitHub Actions.
 // It is not intended to be modified by the user, but instead triggered by git tag pushes.
-static const std::string version = "v4.4.2";
+static const std::string version = "v4.4.3";
 // DO NOT MODIFY THE SIGNATURE ABOVE
 
 static const std::string opencv_version = CV_VERSION;
