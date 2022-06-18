@@ -783,7 +783,9 @@ public:
     void set_img(cv::Mat img)
     {
         cv::cvtColor(img, _img_bin, cv::COLOR_BGR2GRAY);
-        cv::threshold(_img_bin, _img_bin, 127, 255, cv::THRESH_BINARY);
+        double maxval;
+        cv::minMaxIdx(_img_bin, nullptr, &maxval);
+        cv::threshold(_img_bin, _img_bin, maxval / 2, 255, cv::THRESH_BINARY);
         auto sp = separate(_img_bin, DirectionFlags::BOTTOM, 1);
         if (!sp.empty())
         {
