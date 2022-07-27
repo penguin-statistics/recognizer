@@ -16,10 +16,10 @@ class Extractor:
         self.apk_path = apk_path
         self.bkgimg_path_list = ["assets/bin/Data/sharedassets1.assets"]
         self.itemimg_path_list = [
-            "assets/AB/Android/spritepack/ui_item_icons_h1_0.ab",
-            "assets/AB/Android/spritepack/ui_item_icons_h1_acticon_0.ab",
-            "assets/AB/Android/spritepack/ui_item_icons_h1_apsupply_0.ab",
-            "assets/AB/Android/activity/commonassets.ab"
+            "assets/AB/Android/spritepack/ui_item_icons_h1_0.ab",  # basic items
+            "assets/AB/Android/spritepack/ui_item_icons_h1_acticon_0.ab",  # randomMaterial
+            "assets/AB/Android/spritepack/ui_item_icons_h1_apsupply_0.ab",  # ap supply
+            "assets/AB/Android/activity/commonassets.ab"  # activity items
         ]
         self.item_list: dict = {}
         self.bkgimg_list: dict = {"item": {}, "charm": {}}
