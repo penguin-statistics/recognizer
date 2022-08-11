@@ -1,3 +1,4 @@
+import fnmatch
 import json
 import os
 import shutil
@@ -46,7 +47,7 @@ def _get_item_img():
                     data = obj.read()
                     if (data.name in item_list):
                         itemId = item_list[data.name]["itemId"]
-                        if itemId in filter:
+                        if any([fnmatch.fnmatch(itemId, pattern) for pattern in filter]):
                             continue
                         item_img: Image.Image = data.image
                         rarity = item_list[data.name]["rarity"]
