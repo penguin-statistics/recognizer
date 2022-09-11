@@ -553,7 +553,7 @@ private:
             cv::Mat diff_img_bin200;
             cv::cvtColor(_img, diff_img_bin200, cv::COLOR_BGR2GRAY);
             cv::threshold(diff_img_bin200, diff_img_bin200, 200, 255, cv::THRESH_BINARY);
-            int inspction_line = static_cast<int>(0.8 * cv::boundingRect(diff_img_bin200).y);
+            int inspction_line = static_cast<int>(0.5 * cv::boundingRect(diff_img_bin200).y);
             int offset = diff_img_bin200.rows;
 
             cv::Mat diff_img = _img_bin(cv::Rect(0, inspction_line, width, 1));
