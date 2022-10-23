@@ -19,7 +19,7 @@ using dict = nlohmann::ordered_json;
 namespace penguin
 { // result
 const int BASELINE_V_HEIGHT_MIN = 10;
-const int RESULT_DIST_THRESHOLD = 25;
+const int RESULT_DIST_THRESHOLD = 40;
 const double STAR_WIDTH_PROP = 0.4;
 const double DROP_AREA_X_PROP = 0.21;
 const double DROP_AREA_Y_PROP = 0.2;
@@ -1347,7 +1347,7 @@ private:
                                         static_cast<int>(0.2 * width),
                                         static_cast<int>(0.4 * height)));
         cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
-        cv::threshold(img_bin, img_bin, 120, 255, cv::THRESH_BINARY);
+        cv::threshold(img_bin, img_bin, 100, 255, cv::THRESH_BINARY);
 
         auto sp = separate(img_bin, DirectionFlags::LEFT);
         cv::Rect baseline_v_rect;
