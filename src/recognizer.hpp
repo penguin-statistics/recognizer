@@ -164,16 +164,7 @@ private:
 
     void _recognize()
     {
-        if (_mode == "RESULT" && penguin::server != "CN")
-        {
-            int64 start = cv::getTickCount();
-            _result.set_img(_img);
-            _result.analyze();
-            int64 end = cv::getTickCount();
-            _md5 = _result.get_md5();
-            _recognize_time = (end - start) / cv::getTickFrequency() * 1000;
-        }
-        else if (_mode == "RESULT" && penguin::server == "CN")
+        if (_mode == "RESULT")
         {
             int64 start = cv::getTickCount();
             _result_new.set_img(_img);
@@ -187,24 +178,7 @@ private:
     dict _get_report(bool detail = false)
     {
         dict report;
-        if (_mode == "RESULT" && penguin::server != "CN")
-        {
-            if (detail)
-            {
-                report.merge_patch(_result.report(true));
-            }
-            else
-            {
-                report.merge_patch(_result.report());
-            }
-            report["md5"] = _md5;
-            if (const auto& decode_time = _decode_time; decode_time)
-            {
-                report["cost"]["decode"] = decode_time;
-            }
-            report["cost"]["recognize"] = _recognize_time;
-        }
-        else if (_mode == "RESULT" && penguin::server == "CN")
+        if (_mode == "RESULT")
         {
             if (detail)
             {
