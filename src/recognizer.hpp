@@ -137,7 +137,6 @@ public:
 private:
     std::string _mode;
     cv::Mat _img;
-    penguin::Result _result;
     penguin::Result_New _result_new;
     penguin::Depot _depot;
     dict _report;

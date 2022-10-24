@@ -19,7 +19,7 @@ using dict = nlohmann::ordered_json;
 namespace penguin
 { // result
 const int BASELINE_V_HEIGHT_MIN = 10;
-const int RESULT_DIST_THRESHOLD = 40;
+const int RESULT_DIST_THRESHOLD = 25;
 const double STAR_WIDTH_PROP = 0.4;
 const double DROP_AREA_X_PROP = 0.21;
 const double DROP_AREA_Y_PROP = 0.2;
@@ -1108,177 +1108,177 @@ private:
     }
 };
 
-class Result : public Widget
-{
-public:
-    Result() = default;
-    Result(const cv::Mat& img)
-        : Widget(img) {}
-    Result& analyze()
-    {
-        _get_baseline_v();
-        _get_result_label();
-        _get_stage();
-        _get_stars();
-        _get_drop_area();
-        return *this;
-    }
-    std::string get_md5()
-    {
-        MD5 md5;
-        return md5(_img.data, _img.step * _img.rows);
-    }
-    // std::string get_fingerprint()
-    // {
-    //     cv::Mat img;
-    //     cv::resize(_img, img, cv::Size(8, 8));
-    //     cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
-    //     uchar* pix = img.data;
-    //     std::stringstream fp;
-    //     for (int i = 0; i < 64; i++)
-    //     {
-    //         fp << std::setw(2) << std::setfill('0') << std::hex << (int)*pix;
-    //         pix++;
-    //     }
-    //     return fp.str();
-    // }
-    const dict report(bool debug = false)
-    {
-        dict rpt = dict::object();
-        if (_parent_widget == nullptr)
-        {
-            rpt["exceptions"] = _exception_list;
-        }
-        if (!debug)
-        {
-            rpt["resultLabel"] = _result_label.report()["isResult"];
-            rpt["stage"] = _stage.report();
-            rpt["stars"] = _stars.report()["count"];
-            rpt["dropArea"] = _drop_area.report();
-        }
-        else
-        {
-            rpt["resultLabel"] = _result_label.report(debug);
-            rpt["stage"] = _stage.report(debug);
-            rpt["stars"] = _stars.report(debug);
-            rpt["dropArea"] = _drop_area.report(debug);
-        }
-        return rpt;
-    }
+// class Result : public Widget
+// {
+// public:
+//     Result() = default;
+//     Result(const cv::Mat& img)
+//         : Widget(img) {}
+//     Result& analyze()
+//     {
+//         _get_baseline_v();
+//         _get_result_label();
+//         _get_stage();
+//         _get_stars();
+//         _get_drop_area();
+//         return *this;
+//     }
+//     std::string get_md5()
+//     {
+//         MD5 md5;
+//         return md5(_img.data, _img.step * _img.rows);
+//     }
+//     // std::string get_fingerprint()
+//     // {
+//     //     cv::Mat img;
+//     //     cv::resize(_img, img, cv::Size(8, 8));
+//     //     cv::cvtColor(img, img, cv::COLOR_BGR2GRAY);
+//     //     uchar* pix = img.data;
+//     //     std::stringstream fp;
+//     //     for (int i = 0; i < 64; i++)
+//     //     {
+//     //         fp << std::setw(2) << std::setfill('0') << std::hex << (int)*pix;
+//     //         pix++;
+//     //     }
+//     //     return fp.str();
+//     // }
+//     const dict report(bool debug = false)
+//     {
+//         dict rpt = dict::object();
+//         if (_parent_widget == nullptr)
+//         {
+//             rpt["exceptions"] = _exception_list;
+//         }
+//         if (!debug)
+//         {
+//             rpt["resultLabel"] = _result_label.report()["isResult"];
+//             rpt["stage"] = _stage.report();
+//             rpt["stars"] = _stars.report()["count"];
+//             rpt["dropArea"] = _drop_area.report();
+//         }
+//         else
+//         {
+//             rpt["resultLabel"] = _result_label.report(debug);
+//             rpt["stage"] = _stage.report(debug);
+//             rpt["stars"] = _stars.report(debug);
+//             rpt["dropArea"] = _drop_area.report(debug);
+//         }
+//         return rpt;
+//     }
 
-private:
-    Widget _baseline_v {this};
-    Widget_Stage _stage {this};
-    Widget_Stars _stars {this};
-    Widget_ResultLabel _result_label {this};
-    Widget_DropArea _drop_area {this};
+// private:
+//     Widget _baseline_v {this};
+//     Widget_Stage _stage {this};
+//     Widget_Stars _stars {this};
+//     Widget_ResultLabel _result_label {this};
+//     Widget_DropArea _drop_area {this};
 
-    void _get_baseline_v()
-    {
-        if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
-        {
-            return;
-        }
-        cv::Mat img_bin = _img;
-        int offset = height / 2;
-        img_bin.adjustROI(-offset, 0, 0, -width / 2);
-        cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
-        cv::threshold(img_bin, img_bin, 127, 255, cv::THRESH_BINARY);
+//     void _get_baseline_v()
+//     {
+//         if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
+//         {
+//             return;
+//         }
+//         cv::Mat img_bin = _img;
+//         int offset = height / 2;
+//         img_bin.adjustROI(-offset, 0, 0, -width / 2);
+//         cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
+//         cv::threshold(img_bin, img_bin, 127, 255, cv::THRESH_BINARY);
 
-        int column = 0;
-        cv::Range range = {0, 0};
-        for (int co = 0; co < img_bin.cols; co++)
-        {
-            uchar* pix = img_bin.data + (img_bin.rows - 1) * img_bin.step + co;
-            int start = 0, end = 0;
-            bool prober[2] = {false, false}; // will move in "for" in C++20
-            for (int ro = img_bin.rows - 1; ro > 0; ro--)
-            {
-                prober[END] = prober[BEGIN];
-                prober[BEGIN] = (bool)*pix;
-                if (prober[BEGIN] == true && prober[END] == false)
-                {
-                    end = ro + 1;
-                }
-                else if (prober[BEGIN] == false && prober[END] == true)
-                {
-                    start = ro + 1;
-                }
-                if (start != 0 && end != 0)
-                {
-                    break;
-                }
-                pix = pix - img_bin.step;
-            }
-            if ((start != 0 && end != 0) &&
-                (end - start > range.end - range.start))
-            {
-                column = co;
-                range.start = start;
-                range.end = end;
-            }
-        }
-        range.start += offset;
-        range.end += offset;
-        cv::Mat baseline_v_img = _img(range, cv::Range(column, column + 1));
-        _baseline_v.set_img(baseline_v_img);
-        if (_baseline_v.empty() || _baseline_v.height < BASELINE_V_HEIGHT_MIN ||
-            _baseline_v.x <= _baseline_v.height)
-        {
-            _result_label.push_exception(ERROR, ExcSubtypeFlags::EXC_FALSE);
-        }
-    }
-    void _get_result_label()
-    {
-        if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
-        {
-            return;
-        }
-        const auto& bv = _baseline_v;
-        auto result_img =
-            _img(cv::Range(bv.y + bv.height / 2, bv.y + bv.height),
-                 cv::Range(0, bv.x - 5));
-        _result_label.set_img(result_img);
-        _result_label.analyze();
-    }
-    void _get_stage()
-    {
-        if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
-        {
-            return;
-        }
-        const auto& bv = _baseline_v;
-        auto stage_img =
-            _img(cv::Range(bv.y, bv.y + bv.height / 4), cv::Range(0, bv.x / 2));
-        _stage.set_img(stage_img);
-        _stage.analyze();
-    }
-    void _get_stars()
-    {
-        if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
-        {
-            return;
-        }
-        const auto& bv = _baseline_v;
-        auto star_img = _img(cv::Range(bv.y, bv.y + bv.height / 2),
-                             cv::Range(_stage.x + _stage.width, bv.x - 5));
-        _stars.set_img(star_img);
-        _stars.analyze();
-    }
-    void _get_drop_area()
-    {
-        if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
-        {
-            return;
-        }
-        const auto& bv = _baseline_v;
-        auto drop_area_img = _img(
-            cv::Range(bv.y + static_cast<int>(bv.height * DROP_AREA_Y_PROP), bv.y + bv.height),
-            cv::Range(bv.x + static_cast<int>(bv.height * DROP_AREA_X_PROP), width));
-        _drop_area.set_img(drop_area_img);
-        _drop_area.analyze(_stage.stage_code());
-    }
-};
+//         int column = 0;
+//         cv::Range range = {0, 0};
+//         for (int co = 0; co < img_bin.cols; co++)
+//         {
+//             uchar* pix = img_bin.data + (img_bin.rows - 1) * img_bin.step + co;
+//             int start = 0, end = 0;
+//             bool prober[2] = {false, false}; // will move in "for" in C++20
+//             for (int ro = img_bin.rows - 1; ro > 0; ro--)
+//             {
+//                 prober[END] = prober[BEGIN];
+//                 prober[BEGIN] = (bool)*pix;
+//                 if (prober[BEGIN] == true && prober[END] == false)
+//                 {
+//                     end = ro + 1;
+//                 }
+//                 else if (prober[BEGIN] == false && prober[END] == true)
+//                 {
+//                     start = ro + 1;
+//                 }
+//                 if (start != 0 && end != 0)
+//                 {
+//                     break;
+//                 }
+//                 pix = pix - img_bin.step;
+//             }
+//             if ((start != 0 && end != 0) &&
+//                 (end - start > range.end - range.start))
+//             {
+//                 column = co;
+//                 range.start = start;
+//                 range.end = end;
+//             }
+//         }
+//         range.start += offset;
+//         range.end += offset;
+//         cv::Mat baseline_v_img = _img(range, cv::Range(column, column + 1));
+//         _baseline_v.set_img(baseline_v_img);
+//         if (_baseline_v.empty() || _baseline_v.height < BASELINE_V_HEIGHT_MIN ||
+//             _baseline_v.x <= _baseline_v.height)
+//         {
+//             _result_label.push_exception(ERROR, ExcSubtypeFlags::EXC_FALSE);
+//         }
+//     }
+//     void _get_result_label()
+//     {
+//         if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
+//         {
+//             return;
+//         }
+//         const auto& bv = _baseline_v;
+//         auto result_img =
+//             _img(cv::Range(bv.y + bv.height / 2, bv.y + bv.height),
+//                  cv::Range(0, bv.x - 5));
+//         _result_label.set_img(result_img);
+//         _result_label.analyze();
+//     }
+//     void _get_stage()
+//     {
+//         if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
+//         {
+//             return;
+//         }
+//         const auto& bv = _baseline_v;
+//         auto stage_img =
+//             _img(cv::Range(bv.y, bv.y + bv.height / 4), cv::Range(0, bv.x / 2));
+//         _stage.set_img(stage_img);
+//         _stage.analyze();
+//     }
+//     void _get_stars()
+//     {
+//         if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
+//         {
+//             return;
+//         }
+//         const auto& bv = _baseline_v;
+//         auto star_img = _img(cv::Range(bv.y, bv.y + bv.height / 2),
+//                              cv::Range(_stage.x + _stage.width, bv.x - 5));
+//         _stars.set_img(star_img);
+//         _stars.analyze();
+//     }
+//     void _get_drop_area()
+//     {
+//         if (_status == StatusFlags::HAS_ERROR || _status == StatusFlags::ERROR)
+//         {
+//             return;
+//         }
+//         const auto& bv = _baseline_v;
+//         auto drop_area_img = _img(
+//             cv::Range(bv.y + static_cast<int>(bv.height * DROP_AREA_Y_PROP), bv.y + bv.height),
+//             cv::Range(bv.x + static_cast<int>(bv.height * DROP_AREA_X_PROP), width));
+//         _drop_area.set_img(drop_area_img);
+//         _drop_area.analyze(_stage.stage_code());
+//     }
+// };
 
 class Result_New : public Widget
 {
@@ -1479,12 +1479,13 @@ private:
         const auto& bv = _baseline_v;
         int left_margin = bv.x + bv.width;
         auto result_img =
-            _img(cv::Range(bv.y, bv.y + bv.height / 2),
+            _img(cv::Range(bv.y, bv.y + bv.height / static_cast<int>(server == "US" ? 1.5 : 2)),
                  cv::Range(left_margin, left_margin + static_cast<int>(1.5 * bv.height)));
         cv::Mat img_bin;
         cv::cvtColor(result_img, img_bin, cv::COLOR_BGR2GRAY);
         cv::threshold(img_bin, img_bin, 200, 255, cv::THRESH_BINARY);
-        result_img = result_img(separate(img_bin, DirectionFlags::TOP, 1)[0],
+        auto sp = separate(img_bin, DirectionFlags::TOP, (server == "US" ? 2 : 1));
+        result_img = result_img(cv::Range(sp.front().start, sp.back().end),
                                 cv::Range(0, img_bin.cols));
         _result_label.set_img(result_img);
         _result_label.analyze();
@@ -1572,7 +1573,8 @@ private:
         cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
         cv::threshold(img_bin, img_bin, 127, 255, cv::THRESH_BINARY);
         auto sp = separate(img_bin, DirectionFlags::TOP, 2);
-        int top_margin = bv.y + bv.height + sp[1].start;
+        // int top_margin = bv.y + bv.height + sp[1].start;
+        int top_margin = bv.y + bv.height + static_cast<int>(height * 0.12);
         auto drop_area_img = _img(
             cv::Range(top_margin + static_cast<int>(bv.height * DROP_AREA_Y_PROP),
                       top_margin + bv.height),

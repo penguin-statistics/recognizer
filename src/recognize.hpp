@@ -12,7 +12,7 @@
 #include "core.hpp"
 
 using dict = nlohmann::ordered_json;
-extern void show_img(cv::Mat src);
+// extern void show_img(cv::Mat src);
 
 namespace penguin
 {
