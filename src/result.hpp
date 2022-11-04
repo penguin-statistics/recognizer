@@ -451,7 +451,7 @@ private:
             q(comp);
         auto last_pop = _stage_chrs;
         size_t length = _stage_chrs.size();
-        while (_candidates.size() < _CANDIDATES_COUNT)
+        while (_candidates.size() <= _CANDIDATES_COUNT)
         {
             for (size_t i = 0; i < length; ++i)
             {
@@ -882,6 +882,10 @@ public:
         : Widget("dropArea", parent_widget) {}
     Widget_DropArea(const cv::Mat& img, Widget* const parent_widget = nullptr)
         : Widget(img, "dropArea", parent_widget) {}
+    void set_item_diameter(int diameter)
+    {
+        _item_diameter = diameter;
+    }
     Widget_DropArea& analyze(const std::string& stage)
     {
         if (!_img.empty())
@@ -940,6 +944,7 @@ public:
     }
 
 private:
+    int _item_diameter = 0;
     dict _drops_data;
     std::vector<Drop> _drop_list;
     std::vector<Widget_Droptype> _droptype_list;
@@ -975,12 +980,11 @@ private:
         }
         int baseline_h = row + offset;
         auto sp = separate(img_bin(cv::Rect(0, row, width, 1)), DirectionFlags::LEFT);
-        int item_diameter = static_cast<int>(height / DROP_AREA_HEIGHT_PROP * ITEM_DIAMETER_PROP);
         for (auto it = sp.cbegin(); it != sp.cend();)
         {
             const auto& range = *it;
             if (const auto length = range.end - range.start;
-                length < item_diameter)
+                length < _item_diameter)
             {
                 it = sp.erase(it);
             }
@@ -1057,7 +1061,6 @@ private:
         {
             return;
         }
-        int item_diameter = static_cast<int>(height / DROP_AREA_HEIGHT_PROP * ITEM_DIAMETER_PROP);
         ItemTemplates templs {stage};
         for (const auto& droptype : _droptype_list)
         {
@@ -1096,7 +1099,7 @@ private:
                         cv::Range(droptype.x - x + length * i,
                                   droptype.x - x + length * (i + 1));
                     auto dropimg = _img(cv::Range(0, droptype.y - y), range);
-                    Widget_Item drop {dropimg, item_diameter, label, this};
+                    Widget_Item drop {dropimg, _item_diameter, label, this};
                     drop.analyze(templs);
                     _drop_list.emplace_back(drop, type);
                     _drops_data.push_back({{"dropType", Droptype2Str[type]},
@@ -1289,6 +1292,7 @@ public:
     Result_New& analyze()
     {
         _get_baseline_v();
+        _drop_area.set_item_diameter(static_cast<int>(round(_baseline_v.height * ITEM_DIAMETER_PROP)));
         _get_result_label();
         _get_stars();
         _get_stage();
@@ -1572,12 +1576,13 @@ private:
                  cv::Range(bv.x + bv.width, static_cast<int>(0.2 * width)));
         cv::cvtColor(img_bin, img_bin, cv::COLOR_BGR2GRAY);
         cv::threshold(img_bin, img_bin, 127, 255, cv::THRESH_BINARY);
-        auto sp = separate(img_bin, DirectionFlags::TOP, 2);
+        auto sp = separate(img_bin, DirectionFlags::TOP);
         // int top_margin = bv.y + bv.height + sp[1].start;
-        int top_margin = bv.y + bv.height + static_cast<int>(height * 0.12);
+        int top_line = bv.y + bv.height + sp.front().start;
+        int bottom_line = bv.y + bv.height + sp.back().end;
+        // int top_margin = bv.y + bv.height + static_cast<int>(height * 0.12);
         auto drop_area_img = _img(
-            cv::Range(top_margin + static_cast<int>(bv.height * DROP_AREA_Y_PROP),
-                      top_margin + bv.height),
+            cv::Range(top_line + static_cast<int>((bottom_line - top_line) * 0.375), bottom_line),
             cv::Range(bv.x + bv.width, width));
         _drop_area.set_img(drop_area_img);
         _drop_area.analyze(_stage.stage_code());
