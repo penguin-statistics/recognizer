@@ -66,12 +66,13 @@ def _get_item_img():
     if "randomMaterial_1" in itemimg_list:
         itemimg_list["randomMaterial_5"] = itemimg_list["randomMaterial_1"]
         itemimg_list["randomMaterial_6"] = itemimg_list["randomMaterial_1"]
+        itemimg_list["randomMaterial_7"] = itemimg_list["randomMaterial_1"]
 
 
 os.chdir(sys.path[0])
 
 name_list = [
-    "spritepack/ui_item_icons_h1_0.ab",  # basic items
+    "ui/gacha/limited_33_0_1.ab",  # basic items
     "spritepack/ui_item_icons_h1_acticon_0.ab",  # randomMaterial
     "spritepack/ui_item_icons_h1_apsupply_0.ab",  # ap supply
     "activity/commonassets.ab"  # activity items
@@ -87,7 +88,7 @@ update()
 
 with tempfile.TemporaryDirectory() as temp:
     for itemId, pilimg in itemimg_list.items():
-        # pilimg.save(f"items_HD/{itemId}.png")
+        pilimg.save(f"items_HD/{itemId}.png")
         cv2img = cv2.cvtColor(numpy.array(pilimg), cv2.COLOR_RGBA2BGRA)
         cv2.imwrite(temp + "/" + itemId + ".jpg", cv2img,
                     [int(cv2.IMWRITE_JPEG_QUALITY), 10])
