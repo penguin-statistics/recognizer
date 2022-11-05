@@ -14,7 +14,7 @@
 #include "recognize.hpp"
 
 using dict = nlohmann::ordered_json;
-// extern void show_img(cv::Mat src);
+extern void show_img(cv::Mat src);
 
 namespace penguin
 { // result
@@ -1365,9 +1365,9 @@ private:
             }
             int first_height = sp2.front().end - sp2.front().start;
             int last_height = sp2.back().end - sp2.back().start;
-            if (abs(img_temp.cols - first_height) <= 1 &&
-                abs(img_temp.cols - last_height) <= 1 &&
-                abs(first_height - last_height) <= 1)
+            if (abs(img_temp.cols - first_height) <= (img_temp.cols + first_height) * 0.1 &&
+                abs(img_temp.cols - last_height) <= (img_temp.cols + last_height) * 0.1 &&
+                abs(first_height - last_height) <= (first_height + last_height) * 0.1)
             {
                 baseline_v_rect =
                     cv::Rect(range.start, sp2.front().start + static_cast<int>(0.2 * height),
@@ -1419,7 +1419,7 @@ private:
             if (ccwidth > 0.01 * height &&
                 ccheight > 0.01 * height &&
                 (double)ccarea / (ccwidth * ccheight) > 0.95 &&
-                abs(ccwidth - ccheight) <= 1)
+                abs(ccwidth - ccheight) <= (ccwidth + ccheight) * 0.1)
             {
                 ccomps.emplace_back(ccx, ccy, ccwidth, ccheight, ccarea);
             }
