@@ -14,7 +14,7 @@
 #include "recognize.hpp"
 
 using dict = nlohmann::ordered_json;
-extern void show_img(cv::Mat src);
+// extern void show_img(cv::Mat src);
 
 namespace penguin
 { // result
@@ -299,6 +299,10 @@ public:
         }
         return *this;
     }
+    bool _next_candidate()
+    {
+        return _set_candidate(_candidate_index + 1);
+    }
     bool _set_candidate(int index)
     {
         if (index < _candidates.size())
@@ -397,11 +401,7 @@ private:
             cv::Mat char_img = stage_img(char_rect);
             cv::Mat char_img_bin = stage_img_bin(char_rect);
             std::string label = "char." + std::to_string(_stage_chrs.size());
-            auto font = FontFlags::NOVECENTO_WIDEBOLD;
-            if (server == "CN")
-            {
-                font = FontFlags::NOVECENTO_WIDEMEDIUM;
-            }
+            auto font = FontFlags::NOVECENTO_WIDEMEDIUM;
             Widget_Character chr {font, label, this};
             chr.set_img(char_img, char_img_bin);
             chr.analyze();
@@ -423,7 +423,7 @@ private:
         }
         while (_stageId().empty())
         {
-            if (_next_candidate())
+            if (!_next_candidate())
             {
                 break;
             }
@@ -839,14 +839,7 @@ private:
     Widget_DroptypeText _text {this};
     void _get_items_count()
     {
-        if (server == "CN")
-        {
-            _items_count = static_cast<int>(round(width / (height * W_H_PROP)));
-        }
-        else
-        {
-            _items_count = static_cast<int>(round(width / (height * 7.5)));
-        }
+        _items_count = static_cast<int>(round(width / (height * W_H_PROP)));
     }
     void _get_candidates()
     {
