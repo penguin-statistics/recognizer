@@ -11,8 +11,8 @@
 
 This is the core of recognition component for [Penguin Statistics](https://penguin-stats.io/?utm_source=github), including:
 
-+ screenshot recognition
-+ depot recognition (in development)
+- screenshot recognition
+- depot recognition (in development)
 
 This recognizer is developed by C++ and providing front-end recognition service by [WebAssembly](https://webassembly.org/) technology. It can be also used in other scenarios to get the statistics of Arknights.
 
@@ -44,8 +44,8 @@ Follow the following steps to build `penguin-recognizer` manually, in which requ
 
 ## Pre-requisites
 
-+ OS: Unix-like (Tested: **`Ubuntu 20.04`**)
-+ Python, Cmake
+- OS: Unix-like (Tested: **`Ubuntu 20.04`**)
+- Python, Cmake
 
 Clone this repository and be ready to build!
 
@@ -136,11 +136,11 @@ $ emmake make
 
 ### Verify Dependency Artifacts
 
-Now, the following files should exist  
+Now, the following files should exist
 
 `opencv/build_wasm/lib/libopencv_imgcodecs.a`  
 `opencv/build_wasm/3rdparty/lib/liblibjpeg-turbo.a`  
-`opencv/build_wasm/3rdparty/lib/liblibpng.a`  
+`opencv/build_wasm/3rdparty/lib/liblibpng.a`
 
 ## Build penguin-recognizer
 
@@ -194,7 +194,7 @@ $ emmake make
 Now, those files should exist:
 
 ```
-penguin-recognizer/build/penguin-recognizer.js  
+penguin-recognizer/build/penguin-recognizer.js
 penguin-recognizer/build/penguin-recognizer.wasm
 ```
 
@@ -208,9 +208,15 @@ penguin-recognizer/build/penguin-recognizer.wasm
 
 ## Todo
 
-+ [x] add automatic fallback to fix `Known issues 1.`
-+ [x] add droptype order check to fix `Known issues 2.`
-+ [ ] update drop number recognition strategy to fix `Known issues 3.`
-+ [ ] depot recognition (in development)
-+ [x] new wasm interface using emscripten::bind
-+ [ ] adapt to new interface (for now, CN server)
+- [x] add automatic fallback to fix `Known issues 1.`
+- [x] add droptype order check to fix `Known issues 2.`
+- [ ] update drop number recognition strategy to fix `Known issues 3.`
+- [ ] depot recognition (in development)
+- [x] new wasm interface using emscripten::bind
+- [ ] adapt to new interface (for now, CN server)
+
+## Contributors
+
+This project is made possible by the following contributors. Contributions are always welcome!
+
+[![Contributors](https://contrib.rocks/image?repo=penguin-statistics/recognizer)](https://github.com/penguin-statistics/recognizer/graphs/contributors)
