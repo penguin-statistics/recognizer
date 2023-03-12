@@ -21,7 +21,7 @@ const int HSV_DIST_MAX = 180;
 const double _ITEM_QTY_Y_PROP = 0.71;
 const double _ITEM_QTY_WIDTH_PROP = 0.83;
 const double _ITEM_QTY_HEIGHT_PROP = 0.16;
-const double _ITEM_CHR_HEIGHT_PROP = 0.6;
+const double _ITEM_CHR_HEIGHT_PROP = 0.55;
 const double _CONFIDENCE_THRESHOLD = 0.6;
 
 enum class DirectionFlags

@@ -5,7 +5,7 @@ import sys
 
 class Maker():
     item_url = "https://penguin-stats.io/PenguinStats/api/v2/items"
-    stage_url = "https://penguin-stats.io/PenguinStats/api/v2/stages"
+    stage_url = "https://penguin-stats.io/PenguinStats/api/v2/stages?server=CN"
 
     def __init__(self) -> None:
         self.item_index = {}
@@ -44,7 +44,7 @@ class Maker():
                 self.stage_index[code] = {}
             self.stage_index[code][difficulty] = {
                 "stageId": stageId,
-                "drops": drops,
+                "drops": list(set(drops)),
                 "existence": True
             }
 
